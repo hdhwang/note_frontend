@@ -5,10 +5,30 @@ import {Link, NavLink, useLocation, useNavigate} from "react-router-dom";
 
 const { Sider } = Layout;
 
-const menuItems = [
+let menuItems = [
     {
         key: '/',
         label: <Link to={'/'}>대시보드</Link>
+    },
+    {
+        key: '/bank-account',
+        label: <Link to={'/bank-account'}>계좌번호 관리</Link>
+    },
+    {
+        key: '/serial',
+        label: <Link to={'/serial'}>시리얼 번호 관리</Link>
+    },
+    {
+        key: '/note',
+        label: <Link to={'/note'}>노트 관리</Link>
+    },
+    {
+        key: '/guest-book',
+        label: <Link to={'/guest-book'}>결혼식 방명록</Link>
+    },
+    {
+        key: '/lotto',
+        label: <Link to={'/lotto'}>로또 번호 생성</Link>
     },
 ]
 const LayoutNav = () => {
@@ -17,7 +37,25 @@ const LayoutNav = () => {
     const navigate = useNavigate();
     const [selectedKeys, setSelectedKeys] = useState(['']);
     useEffect(() => {
-        if (pathname.match('/')) {
+        if (pathname.match('/bank-account')) {
+            setSelectedKeys(['/bank-account']);
+        }
+        else if (pathname.match('/serial')) {
+            setSelectedKeys(['/serial']);
+        }
+        else if (pathname.match('/note')) {
+            setSelectedKeys(['/note']);
+        }
+        else if (pathname.match('/guest-book')) {
+            setSelectedKeys(['/guest-book']);
+        }
+        else if (pathname.match('/lotto')) {
+            setSelectedKeys(['/lotto']);
+        }
+        else if (pathname.match('/audit-log')) {
+            setSelectedKeys(['/audit-log']);
+        }
+        else if (pathname.match('/')) {
             setSelectedKeys(['/']);
         }
     }, [pathname]);
@@ -46,10 +84,9 @@ const LayoutNav = () => {
                             <Typography.Text style={{color: '#ffffff', fontSize: 25}}><b>NOTEPAD</b></Typography.Text>
                         </Space>
                         <Space direction='horizontal' size='small'>
-                            <Typography.Text style={{color: '#2492FB', fontSize: 10, letterSpacing: 0.5}}><b>Small</b></Typography.Text>
-                            <Typography.Text style={{color: '#E21818', fontSize: 10, letterSpacing: 0.5}}><b>Window</b></Typography.Text>
-                            <Typography.Text style={{color: '#FFCC33', fontSize: 10, letterSpacing: 0.5}}><b>Containing</b></Typography.Text>
-                            <Typography.Text style={{color: '#1CC84C', fontSize: 10, letterSpacing: 0.5}}><b>Ideas</b></Typography.Text>
+                            <Typography.Text style={{color: '#E21818', fontSize: 12, letterSpacing: 0.5}}><b>Window</b></Typography.Text>
+                            <Typography.Text style={{color: '#FFCC33', fontSize: 12, letterSpacing: 0.5}}><b>Containing</b></Typography.Text>
+                            <Typography.Text style={{color: '#1CC84C', fontSize: 12, letterSpacing: 0.5}}><b>Ideas</b></Typography.Text>
                         </Space>
                     </Space>
                 </NavLink>
