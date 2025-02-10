@@ -141,7 +141,7 @@ function BankAccount() {
     },
   ];
 
-  const getData = async (page = 1, pageSize = 10, ordering = null, filters = {}) => {
+  const getData = async (page = 1, pageSize = 10, ordering = 'bank', filters = {}) => {
     setLoading(true);
     try {
       const params = {

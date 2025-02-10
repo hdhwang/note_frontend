@@ -145,7 +145,7 @@ function AuditLog() {
     },
   ];
 
-  const getData = async (page = 1, pageSize = 10, ordering = null, filters = {}) => {
+  const getData = async (page = 1, pageSize = 10, ordering = '-date', filters = {}) => {
     setLoading(true);
     try {
       const params = {

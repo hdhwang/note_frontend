@@ -170,7 +170,7 @@ function GuestBook() {
     },
   ];
 
-  const getData = async (page = 1, pageSize = 10, ordering = null, filters = {}) => {
+  const getData = async (page = 1, pageSize = 10, ordering = 'name', filters = {}) => {
     setLoading(true);
     try {
       const params = {
