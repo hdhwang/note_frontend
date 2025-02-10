@@ -70,7 +70,7 @@ const SecureRoute: FC<Props> = ({ component: Component, permissionRequired }) =>
     }, [navigate]);
 
     if (loading) {
-        return <Spin size="large" />;
+        return <Spin spinning={spinning} fullscreen />;
     }
 
     if (permissionRequired != null && permissionRequired.length > 0) {
