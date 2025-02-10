@@ -63,19 +63,24 @@ function Serial() {
       key: 'value',
       align: 'center',
       sorter: true,
-    },
-
-    {
-      title: '참석 여부',
-      dataIndex: 'attend',
-      key: 'attend',
-      align: 'center',
-      sorter: true,
-      filters: [
-        { text: 'Y', value: 'Y' },
-        { text: 'N', value: 'N' },
-      ],
-      onFilter: (value, record) => record.attend === value,
+      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+          <div style={{ padding: 8 }}>
+            <Input
+                placeholder="Search name"
+                value={selectedKeys[0]}
+                onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                onPressEnter={confirm}
+                style={{ marginBottom: 8, display: 'block' }}
+            />
+            <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
+              Search
+            </Button>
+            <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
+              Reset
+            </Button>
+          </div>
+      ),
+      onFilter: (value, record) => record.name.toLowerCase().includes(value.toLowerCase()),
     },
     {
       title: '설명',
