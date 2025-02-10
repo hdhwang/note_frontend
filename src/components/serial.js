@@ -62,7 +62,6 @@ function Serial() {
       dataIndex: 'value',
       key: 'value',
       align: 'center',
-      sorter: true,
       filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
           <div style={{ padding: 8 }}>
             <Input
@@ -87,7 +86,6 @@ function Serial() {
       dataIndex: 'description',
       key: 'description',
       align: 'center',
-      sorter: true,
       filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
           <div style={{ padding: 8 }}>
             <Input
