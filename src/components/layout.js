@@ -2,7 +2,6 @@ import React, { useState, useEffect} from "react";
 import {Layout, Menu, MenuProps, Space, Typography} from "antd";
 import {Link, NavLink, useLocation, useNavigate} from "react-router-dom";
 import {jwtDecode} from 'jwt-decode';
-import ReactDOMServer from 'react-dom/server';
 
 import {
   DashboardOutlined,

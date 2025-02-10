@@ -1,9 +1,10 @@
-import React, {useState, useEffect} from 'react';
-import { Layout, Card, Table, Button, Input, message, Modal } from "antd";
+import React, { useState, useEffect } from 'react';
+import { Layout, Card, Table, Button, Input, message, Modal, Form, Select } from "antd";
 import '../App.css';
 import apiClient from './api/api_client';
-import {DeleteOutlined} from "@ant-design/icons";
-const {Content} = Layout;
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+const { Content } = Layout;
+const { Option } = Select;
 
 function Serial() {
   const [loading, setLoading] = useState(false);
@@ -11,6 +12,9 @@ function Serial() {
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
   const [filters, setFilters] = useState({});
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [currentSerial, setCurrentSerial] = useState(null);
+  const [form] = Form.useForm();
 
   const columns = [
     {
@@ -31,7 +35,7 @@ function Serial() {
         { text: '운영체제', value: '운영체제' },
         { text: '유틸', value: '유틸' },
       ],
-      onFilter: (value, record) => record.name.toLowerCase().includes(value.toLowerCase()),
+      onFilter: (value, record) => record.type.includes(value),
     },
     {
       title: '제품 명',
@@ -40,23 +44,22 @@ function Serial() {
       align: 'center',
       sorter: true,
       filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-          <div style={{ padding: 8 }}>
-            <Input
-                placeholder="Search name"
-                value={selectedKeys[0]}
-                onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-                onPressEnter={confirm}
-                style={{ marginBottom: 8, display: 'block' }}
-            />
-            <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
-              Search
-            </Button>
-            <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
-              Reset
-            </Button>
-          </div>
+        <div style={{ padding: 8 }}>
+          <Input
+            value={selectedKeys[0]}
+            onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+            onPressEnter={confirm}
+            style={{ marginBottom: 8, display: 'block' }}
+          />
+          <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
+            Search
+          </Button>
+          <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
+            Reset
+          </Button>
+        </div>
       ),
-      onFilter: (value, record) => record.name.toLowerCase().includes(value.toLowerCase()),
+      onFilter: (value, record) => record.title.toLowerCase().includes(value.toLowerCase()),
     },
     {
       title: '시리얼 번호',
@@ -64,23 +67,22 @@ function Serial() {
       key: 'value',
       align: 'center',
       filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-          <div style={{ padding: 8 }}>
-            <Input
-                placeholder="Search name"
-                value={selectedKeys[0]}
-                onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-                onPressEnter={confirm}
-                style={{ marginBottom: 8, display: 'block' }}
-            />
-            <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
-              Search
-            </Button>
-            <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
-              Reset
-            </Button>
-          </div>
+        <div style={{ padding: 8 }}>
+          <Input
+            value={selectedKeys[0]}
+            onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+            onPressEnter={confirm}
+            style={{ marginBottom: 8, display: 'block' }}
+          />
+          <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
+            Search
+          </Button>
+          <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
+            Reset
+          </Button>
+        </div>
       ),
-      onFilter: (value, record) => record.name.toLowerCase().includes(value.toLowerCase()),
+      onFilter: (value, record) => record.value.toLowerCase().includes(value.toLowerCase()),
     },
     {
       title: '설명',
@@ -88,35 +90,42 @@ function Serial() {
       key: 'description',
       align: 'center',
       filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-          <div style={{ padding: 8 }}>
-            <Input
-                placeholder="Search name"
-                value={selectedKeys[0]}
-                onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-                onPressEnter={confirm}
-                style={{ marginBottom: 8, display: 'block' }}
-            />
-            <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
-              Search
-            </Button>
-            <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
-              Reset
-            </Button>
-          </div>
+        <div style={{ padding: 8 }}>
+          <Input
+            value={selectedKeys[0]}
+            onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+            onPressEnter={confirm}
+            style={{ marginBottom: 8, display: 'block' }}
+          />
+          <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
+            Search
+          </Button>
+          <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
+            Reset
+          </Button>
+        </div>
       ),
-      onFilter: (value, record) => record.name.toLowerCase().includes(value.toLowerCase()),
+      onFilter: (value, record) => record.description.toLowerCase().includes(value.toLowerCase()),
     },
     {
-      title: '삭제',
-      key: 'delete',
+      title: '작업',
+      key: 'actions',
       align: 'center',
       render: (text, record) => (
+        <div>
           <Button
-              type="primary"
-              danger
-              icon={<DeleteOutlined />}
-              onClick={() => handleDelete(record.id)}
+            type="primary"
+            icon={<EditOutlined />}
+            onClick={() => showEditModal(record)}
+            style={{ marginRight: 8 }}
           />
+          <Button
+            type="primary"
+            danger
+            icon={<DeleteOutlined />}
+            onClick={() => handleDelete(record.id)}
+          />
+        </div>
       ),
     },
   ];
@@ -162,11 +171,29 @@ function Serial() {
     });
   };
 
+  const showEditModal = (serial) => {
+    setCurrentSerial(serial);
+    form.setFieldsValue(serial);
+    setIsModalVisible(true);
+  };
+
+  const handleEdit = async () => {
+    try {
+      const values = await form.validateFields();
+      await apiClient.put(`serial/${currentSerial.id}`, values);
+      message.success('시리얼 번호 편집에 성공하였습니다.');
+      setIsModalVisible(false);
+      getData(pagination.current, pagination.pageSize);
+    } catch (error) {
+      message.error('시리얼 번호 편집에 실패하였습니다.');
+    }
+  };
+
   useEffect(() => {
     getData();
   }, []);
 
-  const handleTableChange =  (pagination, filters, sorter) => {
+  const handleTableChange = (pagination, filters, sorter) => {
     const sortField = sorter.field;
     const sortOrder = sorter.order === 'ascend' ? '' : '-';
     const order = sortOrder + sortField;
@@ -175,38 +202,64 @@ function Serial() {
   };
 
   return (
-      <Layout style={{marginLeft: 200}}>
-        <Content style={{overflow: 'initial'}}>
-          <div style={{
-            'textAlign': 'left',
-            'maxHeight': '100%',
-            'maxwidth': '100%',
-            'display': 'inline',
-            'flexDirection': 'column',
-            'justifyContent': 'left',
-            'color': '#131629',
-          }}>
-            <Card style={{padding: '0px 10px'}}>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-                <Button onClick={() => getData(pagination.current, pagination.pageSize)} style={{ marginBottom: 16 }}>
-                  새로고침
-                </Button>
-              </div>
-              <Table
-                  dataSource={result}
-                  columns={columns}
-                  loading={loading}
-                  pagination={{
-                    current: pagination.current,
-                    pageSize: pagination.pageSize,
-                    total: pagination.total,
-                  }}
-                  onChange={handleTableChange}
-                  rowKey="id"/>
-            </Card>
-          </div>
-        </Content>
-      </Layout>
+    <Layout style={{ marginLeft: 200 }}>
+      <Content style={{ overflow: 'initial' }}>
+        <div style={{
+          textAlign: 'left',
+          maxHeight: '100%',
+          maxWidth: '100%',
+          display: 'inline',
+          flexDirection: 'column',
+          justifyContent: 'left',
+          color: '#131629',
+        }}>
+          <Card style={{ padding: '0px 10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+              <Button onClick={() => getData(pagination.current, pagination.pageSize)} style={{ marginBottom: 16 }}>
+                새로고침
+              </Button>
+            </div>
+            <Table
+              dataSource={result}
+              columns={columns}
+              loading={loading}
+              pagination={{
+                current: pagination.current,
+                pageSize: pagination.pageSize,
+                total: pagination.total,
+              }}
+              onChange={handleTableChange}
+              rowKey="id"
+            />
+          </Card>
+        </div>
+      </Content>
+      <Modal
+        title="시리얼 번호 편집"
+        open={isModalVisible}
+        onOk={handleEdit}
+        onCancel={() => setIsModalVisible(false)}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item name="type" label="유형" rules={[{ required: true, message: '유형을 선택하세요' }]}>
+            <Select>
+              <Option value="게임">게임</Option>
+              <Option value="운영체제">운영체제</Option>
+              <Option value="유틸">유틸</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item name="title" label="제품 명" rules={[{ required: true, message: '제품 명을 입력하세요' }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="value" label="시리얼 번호" rules={[{ required: true, message: '시리얼 번호를 입력하세요' }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="description" label="설명">
+            <Input.TextArea autoSize={{ minRows: 2, maxRows: 10 }} />
+          </Form.Item>
+        </Form>
+      </Modal>
+    </Layout>
   );
 }
 

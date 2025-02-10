@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Card, Table, Button, Input, message, Modal } from "antd";
-import { DeleteOutlined } from '@ant-design/icons';
+import {Layout, Card, Table, Button, Input, message, Modal, Form, Select} from 'antd';
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import '../App.css';
 import apiClient from './api/api_client';
 const { Content } = Layout;
+const { Option } = Select;
 
 function GuestBook() {
   const [loading, setLoading] = useState(false);
@@ -11,6 +12,9 @@ function GuestBook() {
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
   const [filters, setFilters] = useState({});
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [currentGuest, setCurrentGuest] = useState(null);
+  const [form] = Form.useForm();
 
   const columns = [
     {
@@ -27,21 +31,20 @@ function GuestBook() {
       align: 'center',
       sorter: true,
       filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-          <div style={{ padding: 8 }}>
-            <Input
-                placeholder="Search name"
-                value={selectedKeys[0]}
-                onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-                onPressEnter={confirm}
-                style={{ marginBottom: 8, display: 'block' }}
-            />
-            <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
-              Search
-            </Button>
-            <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
-              Reset
-            </Button>
-          </div>
+        <div style={{ padding: 8 }}>
+          <Input
+            value={selectedKeys[0]}
+            onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+            onPressEnter={confirm}
+            style={{ marginBottom: 8, display: 'block' }}
+          />
+          <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
+            Search
+          </Button>
+          <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
+            Reset
+          </Button>
+        </div>
       ),
       onFilter: (value, record) => record.name.toLowerCase().includes(value.toLowerCase()),
     },
@@ -53,21 +56,20 @@ function GuestBook() {
       sorter: true,
       render: (text) => new Intl.NumberFormat().format(text),
       filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-          <div style={{ padding: 8 }}>
-            <Input
-                placeholder="Search amount"
-                value={selectedKeys[0]}
-                onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-                onPressEnter={confirm}
-                style={{ marginBottom: 8, display: 'block' }}
-            />
-            <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
-              Search
-            </Button>
-            <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
-              Reset
-            </Button>
-          </div>
+        <div style={{ padding: 8 }}>
+          <Input
+            value={selectedKeys[0]}
+            onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+            onPressEnter={confirm}
+            style={{ marginBottom: 8, display: 'block' }}
+          />
+          <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
+            Search
+          </Button>
+          <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
+            Reset
+          </Button>
+        </div>
       ),
       onFilter: (value, record) => record.amount.toString().includes(value),
     },
@@ -85,21 +87,20 @@ function GuestBook() {
       align: 'center',
       sorter: true,
       filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-          <div style={{ padding: 8 }}>
-            <Input
-                placeholder="Search area"
-                value={selectedKeys[0]}
-                onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-                onPressEnter={confirm}
-                style={{ marginBottom: 8, display: 'block' }}
-            />
-            <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
-              Search
-            </Button>
-            <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
-              Reset
-            </Button>
-          </div>
+        <div style={{ padding: 8 }}>
+          <Input
+            value={selectedKeys[0]}
+            onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+            onPressEnter={confirm}
+            style={{ marginBottom: 8, display: 'block' }}
+          />
+          <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
+            Search
+          </Button>
+          <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
+            Reset
+          </Button>
+        </div>
       ),
       onFilter: (value, record) => record.area.toLowerCase().includes(value.toLowerCase()),
     },
@@ -110,10 +111,16 @@ function GuestBook() {
       align: 'center',
       sorter: true,
       filters: [
-        { text: 'Y', value: 'Y' },
-        { text: 'N', value: 'N' },
+        { text: '참석', value: 'Y' },
+        { text: '미참석', value: 'N' },
+        { text: '미정', value: '-' },
       ],
       onFilter: (value, record) => record.attend === value,
+      render: (text) => {
+        if (text === 'Y') return '참석';
+        if (text === 'N') return '미참석';
+        return '미정';
+      },
     },
     {
       title: '설명',
@@ -122,35 +129,42 @@ function GuestBook() {
       align: 'center',
       sorter: true,
       filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-          <div style={{ padding: 8 }}>
-            <Input
-                placeholder="Search description"
-                value={selectedKeys[0]}
-                onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-                onPressEnter={confirm}
-                style={{ marginBottom: 8, display: 'block' }}
-            />
-            <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
-              Search
-            </Button>
-            <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
-              Reset
-            </Button>
-          </div>
+        <div style={{ padding: 8 }}>
+          <Input
+            value={selectedKeys[0]}
+            onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+            onPressEnter={confirm}
+            style={{ marginBottom: 8, display: 'block' }}
+          />
+          <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
+            Search
+          </Button>
+          <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
+            Reset
+          </Button>
+        </div>
       ),
       onFilter: (value, record) => record.description.toLowerCase().includes(value.toLowerCase()),
     },
     {
-      title: '삭제',
-      key: 'delete',
+      title: '작업',
+      key: 'actions',
       align: 'center',
       render: (text, record) => (
+        <div>
           <Button
-              type="primary"
-              danger
-              icon={<DeleteOutlined />}
-              onClick={() => handleDelete(record.id)}
+            type="primary"
+            icon={<EditOutlined />}
+            onClick={() => showEditModal(record)}
+            style={{ marginRight: 8 }}
           />
+          <Button
+            type="primary"
+            danger
+            icon={<DeleteOutlined />}
+            onClick={() => handleDelete(record.id)}
+          />
+        </div>
       ),
     },
   ];
@@ -196,6 +210,24 @@ function GuestBook() {
     });
   };
 
+  const showEditModal = (guest) => {
+    setCurrentGuest(guest);
+    form.setFieldsValue(guest);
+    setIsModalVisible(true);
+  };
+
+  const handleEdit = async () => {
+    try {
+      const values = await form.validateFields();
+      await apiClient.put(`guest-book/${currentGuest.id}`, values);
+      message.success('결혼식 방명록 편집에 성공하였습니다.');
+      setIsModalVisible(false);
+      getData(pagination.current, pagination.pageSize);
+    } catch (error) {
+      message.error('결혼식 방명록 편집에 실패하였습니다.');
+    }
+  };
+
   useEffect(() => {
     getData();
   }, []);
@@ -209,39 +241,70 @@ function GuestBook() {
   };
 
   return (
-      <Layout style={{ marginLeft: 200 }}>
-        <Content style={{ overflow: 'initial' }}>
-          <div style={{
-            textAlign: 'left',
-            maxHeight: '100%',
-            maxWidth: '100%',
-            display: 'inline',
-            flexDirection: 'column',
-            justifyContent: 'left',
-            color: '#131629',
-          }}>
-            <Card style={{ padding: '0px 10px' }}>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-                <Button onClick={() => getData(pagination.current, pagination.pageSize)} style={{ marginBottom: 16 }}>
-                  새로고침
-                </Button>
-              </div>
-              <Table
-                  dataSource={result}
-                  columns={columns}
-                  loading={loading}
-                  pagination={{
-                    current: pagination.current,
-                    pageSize: pagination.pageSize,
-                    total: pagination.total,
-                  }}
-                  onChange={handleTableChange}
-                  rowKey="id"
-              />
-            </Card>
-          </div>
-        </Content>
-      </Layout>
+    <Layout style={{ marginLeft: 200 }}>
+      <Content style={{ overflow: 'initial' }}>
+        <div style={{
+          textAlign: 'left',
+          maxHeight: '100%',
+          maxWidth: '100%',
+          display: 'inline',
+          flexDirection: 'column',
+          justifyContent: 'left',
+          color: '#131629',
+        }}>
+          <Card style={{ padding: '0px 10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+              <Button onClick={() => getData(pagination.current, pagination.pageSize)} style={{ marginBottom: 16 }}>
+                새로고침
+              </Button>
+            </div>
+            <Table
+              dataSource={result}
+              columns={columns}
+              loading={loading}
+              pagination={{
+                current: pagination.current,
+                pageSize: pagination.pageSize,
+                total: pagination.total,
+              }}
+              onChange={handleTableChange}
+              rowKey="id"
+            />
+          </Card>
+        </div>
+      </Content>
+      <Modal
+        title="결혼식 방명록 편집"
+        open={isModalVisible}
+        onOk={handleEdit}
+        onCancel={() => setIsModalVisible(false)}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item name="name" label="이름" rules={[{ required: true, message: '이름을 입력하세요' }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="amount" label="금액">
+            <Input />
+          </Form.Item>
+          <Form.Item name="date" label="일자">
+            <Input />
+          </Form.Item>
+          <Form.Item name="area" label="장소">
+            <Input />
+          </Form.Item>
+          <Form.Item name="attend" label="참석 여부" rules={[{ required: true, message: '참석 여부를 선택하세요' }]}>
+            <Select>
+              <Option value="Y">참석</Option>
+              <Option value="N">미참석</Option>
+              <Option value="-">미정</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item name="description" label="설명">
+            <Input.TextArea autoSize={{ minRows: 2, maxRows: 10 }}/>
+          </Form.Item>
+        </Form>
+      </Modal>
+    </Layout>
   );
 }
 

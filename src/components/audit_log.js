@@ -28,7 +28,6 @@ function AuditLog() {
       filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
           <div style={{ padding: 8 }}>
             <Input
-                placeholder="Search name"
                 value={selectedKeys[0]}
                 onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
                 onPressEnter={confirm}
@@ -53,7 +52,6 @@ function AuditLog() {
       filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
           <div style={{ padding: 8 }}>
             <Input
-                placeholder="Search name"
                 value={selectedKeys[0]}
                 onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
                 onPressEnter={confirm}
@@ -111,7 +109,6 @@ function AuditLog() {
       filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
           <div style={{ padding: 8 }}>
             <Input
-                placeholder="Search name"
                 value={selectedKeys[0]}
                 onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
                 onPressEnter={confirm}

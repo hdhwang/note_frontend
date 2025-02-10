@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Card, Table, Button, Input, message, Modal, Checkbox } from "antd";
+import { Layout, Card, Table, Button, Input, message, Modal, Checkbox, Form } from "antd";
 import '../App.css';
 import apiClient from './api/api_client';
-import {DeleteOutlined} from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 const { Content } = Layout;
 
 function Note() {
@@ -16,6 +16,9 @@ function Note() {
     note: false,
     date: true,
   });
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [currentNote, setCurrentNote] = useState(null);
+  const [form] = Form.useForm();
 
   const columnLabels = {
     title: '제목',
@@ -30,6 +33,7 @@ function Note() {
       key: 'index',
       align: 'center',
       render: (text, record, index) => (pagination.current - 1) * pagination.pageSize + index + 1,
+      open: true,
     },
     {
       title: '제목',
@@ -38,31 +42,31 @@ function Note() {
       align: 'center',
       sorter: true,
       filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-          <div style={{ padding: 8 }}>
-            <Input
-                placeholder="Search name"
-                value={selectedKeys[0]}
-                onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-                onPressEnter={confirm}
-                style={{ marginBottom: 8, display: 'block' }}
-            />
-            <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
-              Search
-            </Button>
-            <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
-              Reset
-            </Button>
-          </div>
+        <div style={{ padding: 8 }}>
+          <Input
+            placeholder="Search name"
+            value={selectedKeys[0]}
+            onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+            onPressEnter={confirm}
+            style={{ marginBottom: 8, display: 'block' }}
+          />
+          <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
+            Search
+          </Button>
+          <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
+            Reset
+          </Button>
+        </div>
       ),
       onFilter: (value, record) => record.name.toLowerCase().includes(value.toLowerCase()),
-      visible: visibleColumns.title,
+      open: visibleColumns.title,
     },
     {
       title: '내용',
       dataIndex: 'note',
       key: 'note',
       align: 'center',
-      visible: visibleColumns.note,
+      open: visibleColumns.note,
     },
     {
       title: '등록 일자',
@@ -70,23 +74,31 @@ function Note() {
       key: 'date',
       align: 'center',
       sorter: true,
-      visible: visibleColumns.date,
+      open: visibleColumns.date,
     },
     {
-      title: '삭제',
-      key: 'delete',
+      title: '편집 / 삭제',
+      key: 'actions',
       align: 'center',
       render: (text, record) => (
+        <div>
           <Button
-              type="primary"
-              danger
-              icon={<DeleteOutlined />}
-              onClick={() => handleDelete(record.id)}
+            type="primary"
+            icon={<EditOutlined />}
+            onClick={() => showEditModal(record)}
+            style={{ marginRight: 8 }}
           />
+          <Button
+            type="primary"
+            danger
+            icon={<DeleteOutlined />}
+            onClick={() => handleDelete(record.id)}
+          />
+        </div>
       ),
-      visible: true,
+      open: true,
     },
-  ].filter(column => column.visible);
+  ].filter(column => column.open);
 
   const getData = async (page = 1, pageSize = 10, ordering = null, filters = {}) => {
     setLoading(true);
@@ -129,6 +141,24 @@ function Note() {
     });
   };
 
+  const showEditModal = (note) => {
+    setCurrentNote(note);
+    form.setFieldsValue(note);
+    setIsModalVisible(true);
+  };
+
+  const handleEdit = async () => {
+    try {
+      const values = await form.validateFields();
+      await apiClient.put(`note/${currentNote.id}`, values);
+      message.success('노트 편집에 성공하였습니다.');
+      setIsModalVisible(false);
+      getData(pagination.current, pagination.pageSize);
+    } catch (error) {
+      message.error('노트 편집에 실패하였습니다.');
+    }
+  };
+
   useEffect(() => {
     getData();
   }, []);
@@ -149,50 +179,65 @@ function Note() {
   };
 
   return (
-      <Layout style={{ marginLeft: 200 }}>
-        <Content style={{ overflow: 'initial' }}>
-          <div style={{
-            textAlign: 'left',
-            maxHeight: '100%',
-            maxWidth: '100%',
-            display: 'inline',
-            flexDirection: 'column',
-            justifyContent: 'left',
-            color: '#131629',
-          }}>
-            <Card style={{ padding: '0px 10px' }}>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-                <Button onClick={() => getData(pagination.current, pagination.pageSize)} style={{ marginBottom: 16 }}>
-                  새로고침
-                </Button>
-              </div>
-              <div style={{ marginBottom: 16 }}>
-                {Object.keys(visibleColumns).map(columnKey => (
-                    <Checkbox
-                        key={columnKey}
-                        checked={visibleColumns[columnKey]}
-                        onChange={() => handleColumnVisibilityChange(columnKey)}
-                    >
-                      {columnLabels[columnKey]}
-                    </Checkbox>
-                ))}
-              </div>
-              <Table
-                  dataSource={result}
-                  columns={columns}
-                  loading={loading}
-                  pagination={{
-                    current: pagination.current,
-                    pageSize: pagination.pageSize,
-                    total: pagination.total,
-                  }}
-                  onChange={handleTableChange}
-                  rowKey="id"
-              />
-            </Card>
-          </div>
-        </Content>
-      </Layout>
+    <Layout style={{ marginLeft: 200 }}>
+      <Content style={{ overflow: 'initial' }}>
+        <div style={{
+          textAlign: 'left',
+          maxHeight: '100%',
+          maxWidth: '100%',
+          display: 'inline',
+          flexDirection: 'column',
+          justifyContent: 'left',
+          color: '#131629',
+        }}>
+          <Card style={{ padding: '0px 10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+              <Button onClick={() => getData(pagination.current, pagination.pageSize)} style={{ marginBottom: 16 }}>
+                새로고침
+              </Button>
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              {Object.keys(visibleColumns).map(columnKey => (
+                <Checkbox
+                  key={columnKey}
+                  checked={visibleColumns[columnKey]}
+                  onChange={() => handleColumnVisibilityChange(columnKey)}
+                >
+                  {columnLabels[columnKey]}
+                </Checkbox>
+              ))}
+            </div>
+            <Table
+              dataSource={result}
+              columns={columns}
+              loading={loading}
+              pagination={{
+                current: pagination.current,
+                pageSize: pagination.pageSize,
+                total: pagination.total,
+              }}
+              onChange={handleTableChange}
+              rowKey="id"
+            />
+          </Card>
+        </div>
+      </Content>
+      <Modal
+        title="노트 편집"
+        open={isModalVisible}
+        onOk={handleEdit}
+        onCancel={() => setIsModalVisible(false)}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item name="title" label="제목" rules={[{ required: true, message: '제목을 입력하세요' }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="note" label="내용">
+            <Input.TextArea autoSize={{ minRows: 2, maxRows: 10 }}/>
+          </Form.Item>
+        </Form>
+      </Modal>
+    </Layout>
   );
 }
 
