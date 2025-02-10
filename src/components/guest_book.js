@@ -50,6 +50,7 @@ function GuestBook() {
       key: 'amount',
       align: 'center',
       sorter: true,
+      render: (text) => new Intl.NumberFormat().format(text),
       filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
         <div style={{ padding: 8 }}>
           <Input
