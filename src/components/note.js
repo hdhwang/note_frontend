@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Card, Table, Button, Input, Checkbox } from "antd";
+import { Layout, Card, Table, Button, Input, message, Modal, Checkbox } from "antd";
 import '../App.css';
 import apiClient from './api/api_client';
+import {DeleteOutlined} from "@ant-design/icons";
 const { Content } = Layout;
 
 function Note() {
@@ -71,6 +72,20 @@ function Note() {
       sorter: true,
       visible: visibleColumns.date,
     },
+    {
+      title: '삭제',
+      key: 'delete',
+      align: 'center',
+      render: (text, record) => (
+          <Button
+              type="primary"
+              danger
+              icon={<DeleteOutlined />}
+              onClick={() => handleDelete(record.id)}
+          />
+      ),
+      visible: true,
+    },
   ].filter(column => column.visible);
 
   const getData = async (page = 1, pageSize = 10, ordering = null, filters = {}) => {
@@ -94,6 +109,24 @@ function Note() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDelete = async (id) => {
+    Modal.confirm({
+      title: '선택한 노트를 삭제 하시겠습니까?',
+      okText: '확인',
+      okType: 'danger',
+      cancelText: '취소',
+      onOk: async () => {
+        try {
+          await apiClient.delete(`note/${id}`);
+          message.success('노트 삭제에 성공하였습니다.');
+          getData(pagination.current, pagination.pageSize);
+        } catch (error) {
+          message.error('노트 삭제에 실패하였습니다.');
+        }
+      },
+    });
   };
 
   useEffect(() => {

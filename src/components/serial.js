@@ -1,7 +1,8 @@
 import React, {useState, useEffect} from 'react';
-import {Layout, Card, Table, Button, Input}  from "antd";
+import { Layout, Card, Table, Button, Input, message, Modal } from "antd";
 import '../App.css';
 import apiClient from './api/api_client';
+import {DeleteOutlined} from "@ant-design/icons";
 const {Content} = Layout;
 
 function Serial() {
@@ -105,6 +106,19 @@ function Serial() {
       ),
       onFilter: (value, record) => record.name.toLowerCase().includes(value.toLowerCase()),
     },
+    {
+      title: '삭제',
+      key: 'delete',
+      align: 'center',
+      render: (text, record) => (
+          <Button
+              type="primary"
+              danger
+              icon={<DeleteOutlined />}
+              onClick={() => handleDelete(record.id)}
+          />
+      ),
+    },
   ];
 
   const getData = async (page = 1, pageSize = 10, ordering = null, filters = {}) => {
@@ -128,6 +142,24 @@ function Serial() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDelete = async (id) => {
+    Modal.confirm({
+      title: '선택한 시리얼 번호를 삭제 하시겠습니까?',
+      okText: '확인',
+      okType: 'danger',
+      cancelText: '취소',
+      onOk: async () => {
+        try {
+          await apiClient.delete(`serial/${id}`);
+          message.success('시리얼 번호 삭제에 성공하였습니다.');
+          getData(pagination.current, pagination.pageSize);
+        } catch (error) {
+          message.error('시리얼 번호 삭제에 실패하였습니다.');
+        }
+      },
+    });
   };
 
   useEffect(() => {
