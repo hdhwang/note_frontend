@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Layout, Card, Table, Button, Input, message, Modal, Checkbox, Form } from "antd";
 import '../App.css';
 import apiClient from './api/api_client';
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 const { Content } = Layout;
 
 function Note() {
@@ -17,6 +17,7 @@ function Note() {
     date: true,
   });
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [currentNote, setCurrentNote] = useState(null);
   const [form] = Form.useForm();
 
@@ -44,7 +45,6 @@ function Note() {
       filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
         <div style={{ padding: 8 }}>
           <Input
-            placeholder="Search name"
             value={selectedKeys[0]}
             onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
             onPressEnter={confirm}
@@ -58,7 +58,7 @@ function Note() {
           </Button>
         </div>
       ),
-      onFilter: (value, record) => record.name.toLowerCase().includes(value.toLowerCase()),
+      onFilter: (value, record) => record.title.toLowerCase().includes(value.toLowerCase()),
       open: visibleColumns.title,
     },
     {
@@ -159,6 +159,23 @@ function Note() {
     }
   };
 
+  const showAddModal = () => {
+    form.resetFields();
+    setIsAddModalVisible(true);
+  };
+
+  const handleAdd = async () => {
+    try {
+      const values = await form.validateFields();
+      await apiClient.post('note', values);
+      message.success('노트 추가에 성공하였습니다.');
+      setIsAddModalVisible(false);
+      getData(pagination.current, pagination.pageSize);
+    } catch (error) {
+      message.error('노트 추가에 실패하였습니다.');
+    }
+  };
+
   useEffect(() => {
     getData();
   }, []);
@@ -192,8 +209,11 @@ function Note() {
         }}>
           <Card style={{ padding: '0px 10px' }}>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-              <Button onClick={() => getData(pagination.current, pagination.pageSize)} style={{ marginBottom: 16 }}>
+              <Button onClick={() => getData(pagination.current, pagination.pageSize)} style={{ marginRight: 8 }}>
                 새로고침
+              </Button>
+              <Button type="primary" icon={<PlusOutlined />} onClick={showAddModal}>
+                추가
               </Button>
             </div>
             <div style={{ marginBottom: 16 }}>
@@ -223,6 +243,21 @@ function Note() {
         </div>
       </Content>
       <Modal
+        title="노트 추가"
+        open={isAddModalVisible}
+        onOk={handleAdd}
+        onCancel={() => setIsAddModalVisible(false)}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item name="title" label="제목" rules={[{ required: true, message: '제목을 입력하세요' }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="note" label="내용">
+            <Input.TextArea autoSize={{ minRows: 2, maxRows: 10 }}/>
+          </Form.Item>
+        </Form>
+      </Modal>
+      <Modal
         title="노트 편집"
         open={isModalVisible}
         onOk={handleEdit}
@@ -232,7 +267,7 @@ function Note() {
           <Form.Item name="title" label="제목" rules={[{ required: true, message: '제목을 입력하세요' }]}>
             <Input />
           </Form.Item>
-          <Form.Item name="note" label="내용">
+          <Form.Item name="note" label="내용" rules={[{ required: true, message: '내용을 입력하세요' }]}>
             <Input.TextArea autoSize={{ minRows: 2, maxRows: 10 }}/>
           </Form.Item>
         </Form>
