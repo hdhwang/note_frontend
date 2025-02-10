@@ -1,8 +1,9 @@
 import React, { FC, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LayoutNav from "./layout";
-import { Button, Layout, Spin, Typography, message } from "antd";
+import { Layout, Spin, Typography, message } from "antd";
 import Forbidden from "./error/forbidden";
+import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 const { Header, Footer } = Layout;
 
@@ -12,7 +13,8 @@ interface Props {
 
 const SecureRoute: FC<Props> = ({ component: Component, permissionRequired }) => {
     const [spinning, setSpinning] = useState(true);
-    const [permissions, setPermissions] = useState([""]);
+    const [permissions, setPermissions] = useState([]);
+    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -33,6 +35,11 @@ const SecureRoute: FC<Props> = ({ component: Component, permissionRequired }) =>
                 },{
                     headers: { Authorization: `Bearer ${accessToken}` },
                 });
+
+                // Decode the token to extract groups
+                const decodedToken = jwtDecode(accessToken);
+                setPermissions(decodedToken.groups || []);
+                setLoading(false);
                 setSpinning(false);
             } catch (error) {
                 if (error.response && error.response.status === 401 && refreshToken) {
@@ -45,6 +52,7 @@ const SecureRoute: FC<Props> = ({ component: Component, permissionRequired }) =>
                         if (response.status === 200) {
                             const { access } = response.data;
                             localStorage.setItem("access_token", access);
+                            setLoading(false);
                             setSpinning(false);
                         }
                     } catch (refreshError) {
@@ -60,6 +68,17 @@ const SecureRoute: FC<Props> = ({ component: Component, permissionRequired }) =>
 
         verifyToken();
     }, [navigate]);
+
+    if (loading) {
+        return <Spin size="large" />;
+    }
+
+    if (permissionRequired != null && permissionRequired.length > 0) {
+        const allowByPermission = permissionRequired.some(item => permissions.includes(item));
+        if (!allowByPermission) {
+            return <Forbidden />;
+        }
+    }
 
     return (
       <>

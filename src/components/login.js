@@ -20,7 +20,7 @@ const Login = () => {
         // 로그인 성공
         const { access, refresh } = response.data; // 토큰 데이터
 
-        // 토큰 저장 (예: 로컬 스토리지)
+        // 토큰 저장
         localStorage.setItem("access_token", access);
         localStorage.setItem("refresh_token", refresh);
 
@@ -79,13 +79,6 @@ const Login = () => {
               placeholder="비밀번호"
             />
           </Form.Item>
-
-          <Form.Item>
-            <Form.Item name="remember" valuePropName="checked" noStyle>
-              <Checkbox>자동 로그인</Checkbox>
-            </Form.Item>
-          </Form.Item>
-
           <Form.Item>
             <Button type="primary" htmlType="submit" block>
               로그인
