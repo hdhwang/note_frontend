@@ -58,7 +58,7 @@ function Lotto() {
                 새로고침
               </Button>
             </div>
-            <Table dataSource={result} columns={columns} loading={loading} />
+            <Table dataSource={result} columns={columns} loading={loading} pagination={false} />
           </Card>
         </div>
       </Content>
