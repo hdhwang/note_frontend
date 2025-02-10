@@ -8,19 +8,21 @@ import Note from './note';
 import GuestBook from './guest_book';
 import Lotto from './lotto';
 import AuditLog from './audit_log';
+import Login from './login';
 import Forbidden from "./error/forbidden";
 import NotFound from "./error/not_found";
 
 const AppRoutes = () => {
     return useRoutes([
-        {path: '/', element: <SecureRoute component={Dashboard} permissionRequired={[]}/>},
-        {path: '/bank-account', element: <SecureRoute component={BankAccount} permissionRequired={[]}/>},
-        {path: '/serial', element: <SecureRoute component={Serial} permissionRequired={[]}/>},
-        {path: '/note', element: <SecureRoute component={Note} permissionRequired={[]}/>},
-        {path: '/guest-book', element: <SecureRoute component={GuestBook} permissionRequired={[]}/>},
-        {path: '/lotto', element: <SecureRoute component={Lotto} permissionRequired={[]}/>},
-        {path: '/audit-log', element: <SecureRoute component={AuditLog} permissionRequired={[]}/>},
+        {path: '/', element: <SecureRoute component={Dashboard} permissionRequired={['사용자', '관리자']}/>},
+        {path: '/bank-account', element: <SecureRoute component={BankAccount} permissionRequired={['사용자','관리자']}/>},
+        {path: '/serial', element: <SecureRoute component={Serial} permissionRequired={['사용자', '관리자']}/>},
+        {path: '/note', element: <SecureRoute component={Note} permissionRequired={['사용자', '관리자']}/>},
+        {path: '/guest-book', element: <SecureRoute component={GuestBook} permissionRequired={['사용자', '관리자']}/>},
+        {path: '/lotto', element: <SecureRoute component={Lotto} permissionRequired={['사용자', '관리자']}/>},
+        {path: '/audit-log', element: <SecureRoute component={AuditLog} permissionRequired={['관리자']}/>},
 
+        {path: "/login", element: <Login/>},
         {path: "/forbidden", element: <Forbidden/>},
         {path: "*", element: <NotFound/>},
     ]);

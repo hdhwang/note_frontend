@@ -2,40 +2,16 @@ import React, { useState, useEffect} from "react";
 import {Layout, Menu, MenuProps, Space, Typography} from "antd";
 import {SecurityScanOutlined} from "@ant-design/icons";
 import {Link, NavLink, useLocation, useNavigate} from "react-router-dom";
+import {jwtDecode} from 'jwt-decode';
 
 const { Sider } = Layout;
 
-let menuItems = [
-    {
-        key: '/',
-        label: <Link to={'/'}>대시보드</Link>
-    },
-    {
-        key: '/bank-account',
-        label: <Link to={'/bank-account'}>계좌번호 관리</Link>
-    },
-    {
-        key: '/serial',
-        label: <Link to={'/serial'}>시리얼 번호 관리</Link>
-    },
-    {
-        key: '/note',
-        label: <Link to={'/note'}>노트 관리</Link>
-    },
-    {
-        key: '/guest-book',
-        label: <Link to={'/guest-book'}>결혼식 방명록</Link>
-    },
-    {
-        key: '/lotto',
-        label: <Link to={'/lotto'}>로또 번호 생성</Link>
-    },
-]
 const LayoutNav = () => {
     const location = useLocation();
     const {pathname} = location;
     const navigate = useNavigate();
     const [selectedKeys, setSelectedKeys] = useState(['']);
+
     useEffect(() => {
         if (pathname.match('/bank-account')) {
             setSelectedKeys(['/bank-account']);
@@ -65,6 +41,51 @@ const LayoutNav = () => {
         setSelectedKeys([e.key]);
         navigate(e.key, {replace: true});
     };
+
+        let menuItems = [
+          {
+                key: '/',
+                label: <Link to={'/'}>대시보드</Link>
+            },
+            {
+                  key: '/bank-account',
+                  label: <Link to={'/bank-account'}>계좌번호 관리</Link>
+            },
+            {
+                key: '/serial',
+                  label: <Link to={'/serial'}>시리얼 번호 관리</Link>
+            },
+            {
+                key: '/note',
+                  label: <Link to={'/note'}>노트 관리</Link>
+            },
+            {
+                key: '/guest-book',
+                  label: <Link to={'/guest-book'}>결혼식 방명록</Link>
+            },
+            {
+                key: '/lotto',
+                  label: <Link to={'/lotto'}>로또 번호 생성</Link>
+            },
+    ]
+
+    try {
+        const accessToken = localStorage.getItem("access_token");
+        const decodedToken = jwtDecode(accessToken);
+        const permissionList = decodedToken.groups || [];
+        if (permissionList) {
+            if (permissionList.includes('관리자')) {
+                menuItems.push({
+                    key: '/audit-log',
+                    label: <Link to={'/audit-log'}>감사 로그</Link>
+                });
+            }
+        }
+    }
+    catch (error) {
+        console.error('Error permissionList:', error);
+    }
+
     return (
         <Layout hasSider>
             <Sider
