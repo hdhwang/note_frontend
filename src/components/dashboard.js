@@ -1,5 +1,5 @@
 import React from 'react';
-import {Divider, Layout, Card}  from "antd";
+import {Layout, Card}  from "antd";
 import '../App.css';
 const {Content} = Layout;
 function Dashboard() {
