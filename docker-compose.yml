@@ -1,0 +1,11 @@
+services:
+  note_react:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: note_react
+    ports:
+      - "3000:443"
+    volumes:
+      - .:/data/app/note_react
+    restart: always
