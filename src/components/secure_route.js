@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LayoutNav from "./layout";
-import { Layout, Spin, Typography, message, Dropdown, Button } from "antd";
+import { Layout, Spin, Typography, message, Dropdown, Button, Modal, Form, Input } from "antd";
 import Forbidden from "./error/forbidden";
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
@@ -17,7 +17,9 @@ const SecureRoute: FC<Props> = ({ component: Component, permissionRequired }) =>
     const [loading, setLoading] = useState(true);
     const [username, setUsername] = useState('');
     const [firstname, setFirstname] = useState('');
+    const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
     const navigate = useNavigate();
+    const [form] = Form.useForm();
 
     useEffect(() => {
         const verifyToken = async () => {
@@ -79,16 +81,46 @@ const SecureRoute: FC<Props> = ({ component: Component, permissionRequired }) =>
         navigate("/login");
     };
 
-    const items: MenuProps['items'] = [
-        // {
-        //     label: (
-        //       <Button type="link">비밀번호 변경</Button>
-        //     ),
-        //     key: '0',
-        // },
-        // {
-        //     type: 'divider',
-        // },
+    const showPasswordModal = () => {
+        form.resetFields();
+        setIsPasswordModalVisible(true);
+    };
+
+    const handlePasswordModalClose = () => {
+        form.resetFields();
+        setIsPasswordModalVisible(false);
+    };
+
+    const handlePasswordChange = async (values) => {
+        try {
+            const accessToken = localStorage.getItem("access_token");
+            await axios.put(
+              `${process.env.REACT_APP_API_URL}/api/v1/account/user`,
+              {
+                  password: values.currentPassword,
+                  new_password: values.newPassword,
+              },
+              {
+                  headers: { Authorization: `Bearer ${accessToken}` },
+              }
+            );
+            message.success("비밀번호가 성공적으로 변경되었습니다.");
+            handlePasswordModalClose();
+        } catch (error) {
+            message.error("비밀번호 변경에 실패했습니다.");
+        }
+    };
+
+    const items = [
+        {
+            label: (
+              <Button type="link" onClick={showPasswordModal}>비밀번호 변경</Button>
+            ),
+            key: '0',
+        },
+        {
+            type: 'divider',
+        },
         {
             label: (
               <Button type="link" onClick={handleLogout}>로그아웃</Button>
@@ -155,6 +187,52 @@ const SecureRoute: FC<Props> = ({ component: Component, permissionRequired }) =>
           }}>
               COPYRIGHT © HWANG HADONG. ALL RIGHT RESERVED
           </Footer>
+          <Modal
+            title="비밀번호 변경"
+            open={isPasswordModalVisible}
+            onCancel={handlePasswordModalClose}
+            footer={null}
+          >
+              <Form form={form} onFinish={handlePasswordChange} layout="vertical">
+                  <Form.Item
+                    name="currentPassword"
+                    label="기존 비밀번호"
+                    rules={[{ required: true, message: "기존 비밀번호를 입력하세요" }]}
+                  >
+                      <Input.Password style={{ width: '100%' }} />
+                  </Form.Item>
+                  <Form.Item
+                    name="newPassword"
+                    label="신규 비밀번호"
+                    rules={[{ required: true, message: "신규 비밀번호를 입력하세요" }]}
+                  >
+                      <Input.Password style={{ width: '100%' }} />
+                  </Form.Item>
+                  <Form.Item
+                    name="confirmNewPassword"
+                    label="신규 비밀번호 확인"
+                    dependencies={['newPassword']}
+                    rules={[
+                        { required: true, message: "신규 비밀번호 확인을 입력하세요" },
+                        ({ getFieldValue }) => ({
+                            validator(_, value) {
+                                if (!value || getFieldValue('newPassword') === value) {
+                                    return Promise.resolve();
+                                }
+                                return Promise.reject(new Error('신규 비밀번호가 일치하지 않습니다.'));
+                            },
+                        }),
+                    ]}
+                  >
+                      <Input.Password style={{ width: '100%' }} />
+                  </Form.Item>
+                  <Form.Item style={{ textAlign: 'right' }}>
+                      <Button type="primary" htmlType="submit">
+                          비밀번호 변경
+                      </Button>
+                  </Form.Item>
+              </Form>
+          </Modal>
       </>
     );
 };
