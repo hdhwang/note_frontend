@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LayoutNav from "./layout";
-import { Layout, Spin, Typography, message } from "antd";
+import { Layout, Spin, Typography, message, Dropdown, Button } from "antd";
 import Forbidden from "./error/forbidden";
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
@@ -15,6 +15,8 @@ const SecureRoute: FC<Props> = ({ component: Component, permissionRequired }) =>
     const [spinning, setSpinning] = useState(true);
     const [permissions, setPermissions] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [username, setUsername] = useState('');
+    const [firstname, setFirstname] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -23,27 +25,25 @@ const SecureRoute: FC<Props> = ({ component: Component, permissionRequired }) =>
             const refreshToken = localStorage.getItem("refresh_token");
 
             if (!accessToken) {
-                // message.error("로그인이 필요합니다.");
                 navigate("/login");
                 return;
             }
 
             try {
-                // Access token 검증
                 await axios.post(`${process.env.REACT_APP_API_URL}/token/verify`, {
                     token: accessToken
                 },{
                     headers: { Authorization: `Bearer ${accessToken}` },
                 });
 
-                // Decode the token to extract groups
                 const decodedToken = jwtDecode(accessToken);
                 setPermissions(decodedToken.groups || []);
+                setUsername(decodedToken.username || '');
+                setFirstname(decodedToken.first_name || '');
                 setLoading(false);
                 setSpinning(false);
             } catch (error) {
                 if (error.response && error.response.status === 401 && refreshToken) {
-                    // Access token이 만료된 경우 refresh token으로 새로운 access token 발급
                     try {
                         const response = await axios.post(`${process.env.REACT_APP_API_URL}/token/refresh`, {
                             refresh: refreshToken,
@@ -52,6 +52,10 @@ const SecureRoute: FC<Props> = ({ component: Component, permissionRequired }) =>
                         if (response.status === 200) {
                             const { access } = response.data;
                             localStorage.setItem("access_token", access);
+                            const decodedToken = jwtDecode(access);
+                            setPermissions(decodedToken.groups || []);
+                            setUsername(decodedToken.username || '');
+                            setFirstname(decodedToken.first_name || '');
                             setLoading(false);
                             setSpinning(false);
                         }
@@ -69,6 +73,30 @@ const SecureRoute: FC<Props> = ({ component: Component, permissionRequired }) =>
         verifyToken();
     }, [navigate]);
 
+    const handleLogout = () => {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        navigate("/login");
+    };
+
+    const items: MenuProps['items'] = [
+        // {
+        //     label: (
+        //       <Button type="link">비밀번호 변경</Button>
+        //     ),
+        //     key: '0',
+        // },
+        // {
+        //     type: 'divider',
+        // },
+        {
+            label: (
+              <Button type="link" onClick={handleLogout}>로그아웃</Button>
+            ),
+            key: '1',
+        },
+    ];
+
     if (loading) {
         return <Spin spinning={spinning} fullscreen />;
     }
@@ -82,15 +110,35 @@ const SecureRoute: FC<Props> = ({ component: Component, permissionRequired }) =>
 
     return (
       <>
-          <Header style={{
-              marginLeft: 200,
-              marginRight: 0,
-              textAlign: 'center',
-              color: 'white',
-              backgroundColor: '#131629',
-              fontSize: 'calc(10px + 2vmin)'
-          }}>
-              <Typography.Text style={{ color: '#ffffff', fontSize: 25 }}><b>NOTEPAD</b></Typography.Text>
+          <Header
+            style={{
+                display: 'flex',
+                justifyContent: 'space-between', // 좌우로 요소 배치
+                alignItems: 'center', // 세로 중앙 정렬
+                backgroundColor: '#131629',
+                color: 'white',
+                padding: '0 20px', // 좌우 여백
+            }}
+          >
+              {/* 왼쪽 콘텐츠 */}
+              <div>Logo or Title</div>
+
+              {/* 우측 Dropdown */}
+              <Dropdown
+                menu={{ items }}
+                trigger={['click']}
+                placement="bottomRight"
+              >
+                  <Typography.Text
+                    style={{
+                        color: '#ffffff',
+                        fontSize: 15,
+                        cursor: 'pointer',
+                    }}
+                  >
+                      <b>{username} ({firstname})</b>
+                  </Typography.Text>
+              </Dropdown>
           </Header>
           <LayoutNav permissions={permissions} />
           {spinning ? <Spin size="large" /> : <Component />}

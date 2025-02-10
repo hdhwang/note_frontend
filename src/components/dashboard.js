@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Card, Button, Row, Col } from "antd";
-import { BankOutlined, BarcodeOutlined, FileTextOutlined, HeartOutlined } from '@ant-design/icons';
+import { BankOutlined, KeyOutlined, FileTextOutlined, BookOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import '../App.css';
 
@@ -61,7 +61,7 @@ function Dashboard() {
                                     <Button type="primary" onClick={() => navigate('/serial')}>상세 보기</Button>
                                 ]}
                             >
-                                <BarcodeOutlined style={{ fontSize: '48px', color: '#08c' }} />
+                                <KeyOutlined style={{ fontSize: '48px', color: '#08c' }} />
                                 <p style={{ fontSize: '24px' }}>{counts.serialNumbers}</p>
                             </Card>
                         </Col>
@@ -87,7 +87,7 @@ function Dashboard() {
                                     <Button type="primary" onClick={() => navigate('/guest-book')}>상세 보기</Button>
                                 ]}
                             >
-                                <HeartOutlined style={{ fontSize: '48px', color: '#08c' }} />
+                                <BookOutlined style={{ fontSize: '48px', color: '#08c' }} />
                                 <p style={{ fontSize: '24px' }}>{counts.guestbooks}</p>
                             </Card>
                         </Col>
