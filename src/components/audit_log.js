@@ -134,7 +134,7 @@ function AuditLog() {
         { text: '성공', value: '성공' },
         { text: '실패', value: '실패' },
       ],
-      onFilter: (value, record) => record.name.toLowerCase().includes(value.toLowerCase()),
+      onFilter: (value, record) => record.result.toLowerCase().includes(value.toLowerCase()),
     },
     {
       title: '일자',
