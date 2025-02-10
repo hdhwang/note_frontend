@@ -17,7 +17,6 @@ function Dashboard() {
             }}>
                 <pre />
                 <Card style={{padding: '0px 10px'}}>
-                    <Divider orientation='left' orientationMargin='left' style={{color: 'white', padding: '5px 5px', backgroundColor: "#131629"}}>대시보드</Divider>
                     내용 추가
                 </Card>
             </div>
