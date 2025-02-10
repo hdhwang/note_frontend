@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import {Layout, Card, Table, Button, Input, message, Modal, Form, Select} from 'antd';
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { Layout, Card, Table, Button, Input, message, Modal, Form, Select } from 'antd';
+import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import '../App.css';
 import apiClient from './api/api_client';
 const { Content } = Layout;
@@ -13,6 +13,7 @@ function GuestBook() {
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
   const [filters, setFilters] = useState({});
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [currentGuest, setCurrentGuest] = useState(null);
   const [form] = Form.useForm();
 
@@ -228,6 +229,23 @@ function GuestBook() {
     }
   };
 
+  const showAddModal = () => {
+    form.resetFields();
+    setIsAddModalVisible(true);
+  };
+
+  const handleAdd = async () => {
+    try {
+      const values = await form.validateFields();
+      await apiClient.post('guest-book', values);
+      message.success('결혼식 방명록 추가에 성공하였습니다.');
+      setIsAddModalVisible(false);
+      getData(pagination.current, pagination.pageSize);
+    } catch (error) {
+      message.error('결혼식 방명록 추가에 실패하였습니다.');
+    }
+  };
+
   useEffect(() => {
     getData();
   }, []);
@@ -254,8 +272,11 @@ function GuestBook() {
         }}>
           <Card style={{ padding: '0px 10px' }}>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-              <Button onClick={() => getData(pagination.current, pagination.pageSize)} style={{ marginBottom: 16 }}>
+              <Button onClick={() => getData(pagination.current, pagination.pageSize)} style={{ marginRight: 8 }}>
                 새로고침
+              </Button>
+              <Button type="primary" icon={<PlusOutlined />} onClick={showAddModal}>
+                추가
               </Button>
             </div>
             <Table
@@ -274,10 +295,10 @@ function GuestBook() {
         </div>
       </Content>
       <Modal
-        title="결혼식 방명록 편집"
-        open={isModalVisible}
-        onOk={handleEdit}
-        onCancel={() => setIsModalVisible(false)}
+        title="결혼식 방명록 추가"
+        open={isAddModalVisible}
+        onOk={handleAdd}
+        onCancel={() => setIsAddModalVisible(false)}
       >
         <Form form={form} layout="vertical">
           <Form.Item name="name" label="이름" rules={[{ required: true, message: '이름을 입력하세요' }]}>
@@ -309,7 +330,47 @@ function GuestBook() {
             </Select>
           </Form.Item>
           <Form.Item name="description" label="설명">
-            <Input.TextArea autoSize={{ minRows: 2, maxRows: 10 }}/>
+            <Input.TextArea autoSize={{ minRows: 2, maxRows: 10 }} />
+          </Form.Item>
+        </Form>
+      </Modal>
+      <Modal
+        title="결혼식 방명록 편집"
+        open={isModalVisible}
+        onOk={handleEdit}
+        onCancel={() => setIsModalVisible(false)}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item name="name" label="이름" rules={[{ required: true, message: '이름을 입력하세요' }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="amount" label="금액">
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="date"
+            label="일자"
+            rules={[
+              {
+                pattern: /^\d{4}-\d{2}-\d{2}$/,
+                message: '날짜 형식은 YYYY-MM-DD이어야 합니다.',
+              },
+            ]}
+          >
+            <Input placeholder="YYYY-MM-DD" />
+          </Form.Item>
+          <Form.Item name="area" label="장소">
+            <Input />
+          </Form.Item>
+          <Form.Item name="attend" label="참석 여부" rules={[{ required: true, message: '참석 여부를 선택하세요' }]}>
+            <Select>
+              <Option value="Y">참���</Option>
+              <Option value="N">미참석</Option>
+              <Option value="-">미정</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item name="description" label="설명">
+            <Input.TextArea autoSize={{ minRows: 2, maxRows: 10 }} />
           </Form.Item>
         </Form>
       </Modal>

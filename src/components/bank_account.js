@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Layout, Card, Table, Button, Input, message, Modal, Form } from "antd";
 import '../App.css';
 import apiClient from './api/api_client';
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 const { Content } = Layout;
 
 function BankAccount() {
@@ -12,6 +12,7 @@ function BankAccount() {
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
   const [filters, setFilters] = useState({});
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [currentAccount, setCurrentAccount] = useState(null);
   const [form] = Form.useForm();
 
@@ -199,6 +200,23 @@ function BankAccount() {
     }
   };
 
+  const showAddModal = () => {
+    form.resetFields();
+    setIsAddModalVisible(true);
+  };
+
+  const handleAdd = async () => {
+    try {
+      const values = await form.validateFields();
+      await apiClient.post('bank-account', values);
+      message.success('계좌번호 추가에 성공하였습니다.');
+      setIsAddModalVisible(false);
+      getData(pagination.current, pagination.pageSize);
+    } catch (error) {
+      message.error('계좌번호 추가에 실패하였습니다.');
+    }
+  };
+
   useEffect(() => {
     getData();
   }, []);
@@ -225,8 +243,11 @@ function BankAccount() {
         }}>
           <Card style={{ padding: '0px 10px' }}>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-              <Button onClick={() => getData(pagination.current, pagination.pageSize)} style={{ marginBottom: 16 }}>
+              <Button onClick={() => getData(pagination.current, pagination.pageSize)} style={{ marginRight: 8 }}>
                 새로고침
+              </Button>
+              <Button type="primary" icon={<PlusOutlined />} onClick={showAddModal}>
+                추가
               </Button>
             </div>
             <Table
@@ -244,6 +265,27 @@ function BankAccount() {
           </Card>
         </div>
       </Content>
+      <Modal
+        title="계좌번호 추가"
+        open={isAddModalVisible}
+        onOk={handleAdd}
+        onCancel={() => setIsAddModalVisible(false)}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item name="bank" label="은행" rules={[{ required: true, message: '은행을 입력하세요' }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="account" label="계좌번호" rules={[{ required: true, message: '계좌번호를 입력하세요' }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="account_holder" label="예금주" rules={[{ required: true, message: '예금주를 입력하세요' }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="description" label="설명">
+            <Input.TextArea autoSize={{ minRows: 2, maxRows: 10 }} />
+          </Form.Item>
+        </Form>
+      </Modal>
       <Modal
         title="계좌번호 편집"
         open={isModalVisible}
