@@ -1,8 +1,45 @@
-import React from 'react';
-import {Divider, Layout, Card}  from "antd";
+import React, {useState, useEffect} from 'react';
+import {Spin, Divider, Layout, Card, Table}  from "antd";
 import '../App.css';
+import apiClient from './api/api_client';
 const {Content} = Layout;
+
 function Lotto() {
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState([]);
+  const [error, setError] = useState(null);
+
+  const columns = [
+    {
+      title: '게임 수',
+      dataIndex: 'num',
+      key: 'num',
+      align: 'center',
+    },
+    {
+      title: '생성 번호',
+      dataIndex: 'value',
+      key: 'value',
+      align: 'center',
+    },
+  ];
+
+  useEffect(() => {
+    const getData = async () => {
+      setLoading(true);
+      try {
+        const response = await apiClient.get('lotto');
+        setResult(response.data);
+      } catch (error) {
+        setError(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getData();
+  }, []);
+
   return (
     <Layout style={{marginLeft: 200}}>
       <Content style={{overflow: 'initial'}}>
@@ -17,8 +54,7 @@ function Lotto() {
         }}>
           <pre />
           <Card style={{padding: '0px 10px'}}>
-            <Divider orientation='left' orientationMargin='left' style={{color: 'white', padding: '5px 5px', backgroundColor: "#131629"}}>로또 번호 생성</Divider>
-            내용 추가
+            <Table dataSource={result} columns={columns} loading={loading} />
           </Card>
         </div>
       </Content>
