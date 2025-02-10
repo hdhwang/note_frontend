@@ -1,8 +1,18 @@
 import React, { useState, useEffect} from "react";
 import {Layout, Menu, MenuProps, Space, Typography} from "antd";
-import {SecurityScanOutlined} from "@ant-design/icons";
 import {Link, NavLink, useLocation, useNavigate} from "react-router-dom";
 import {jwtDecode} from 'jwt-decode';
+
+import {
+  DashboardOutlined,
+  BankOutlined,
+  FileTextOutlined,
+  BookOutlined,
+  KeyOutlined,
+  AuditOutlined,
+  DotChartOutlined,
+  EditOutlined,
+} from '@ant-design/icons';
 
 const { Sider } = Layout;
 
@@ -45,27 +55,27 @@ const LayoutNav = () => {
         let menuItems = [
           {
                 key: '/',
-                label: <Link to={'/'}>대시보드</Link>
+                label: <Link to={'/'}><DashboardOutlined style={{ marginRight: 8 }} /> 대시보드</Link>
             },
             {
                   key: '/bank-account',
-                  label: <Link to={'/bank-account'}>계좌번호 관리</Link>
+                  label: <Link to={'/bank-account'}><BankOutlined style={{ marginRight: 8 }} />계좌번호 관리</Link>
             },
             {
                 key: '/serial',
-                  label: <Link to={'/serial'}>시리얼 번호 관리</Link>
+                  label: <Link to={'/serial'}><KeyOutlined style={{ marginRight: 8 }} />시리얼 번호 관리</Link>
             },
             {
                 key: '/note',
-                  label: <Link to={'/note'}>노트 관리</Link>
+                  label: <Link to={'/note'}><FileTextOutlined style={{ marginRight: 8 }} />노트 관리</Link>
             },
             {
                 key: '/guest-book',
-                  label: <Link to={'/guest-book'}>결혼식 방명록</Link>
+                  label: <Link to={'/guest-book'}><BookOutlined style={{ marginRight: 8 }} />결혼식 방명록</Link>
             },
             {
                 key: '/lotto',
-                  label: <Link to={'/lotto'}>로또 번호 생성</Link>
+                  label: <Link to={'/lotto'}><DotChartOutlined style={{ marginRight: 8 }} />로또 번호 생성</Link>
             },
     ]
 
@@ -77,7 +87,7 @@ const LayoutNav = () => {
             if (permissionList.includes('관리자')) {
                 menuItems.push({
                     key: '/audit-log',
-                    label: <Link to={'/audit-log'}>감사 로그</Link>
+                    label: <Link to={'/audit-log'}><AuditOutlined style={{ marginRight: 8 }} />감사 로그</Link>
                 });
             }
         }
@@ -101,7 +111,7 @@ const LayoutNav = () => {
                 <NavLink to='/'>
                     <Space direction='vertical' style={{padding: 10, justifyContent: 'center', textAlign: 'center', width: '100%'}}>
                         <Space direction='horizontal' size='small' style={{marginBottom: -5}}>
-                            <SecurityScanOutlined style={{color: '#ffffff', fontSize: 30}} />
+                            <EditOutlined style={{color: '#ffffff', fontSize: 30}} />
                             <Typography.Text style={{color: '#ffffff', fontSize: 25}}><b>NOTEPAD</b></Typography.Text>
                         </Space>
                         <Space direction='horizontal' size='small'>

@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { Form, Input, Button, Checkbox, Typography, Card, message } from "antd";
+import React from "react";
+import { Form, Input, Button, Typography, Card, message } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
