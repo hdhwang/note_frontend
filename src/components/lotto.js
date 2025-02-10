@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {Spin, Divider, Layout, Card, Table}  from "antd";
+import {Layout, Card, Table, Button}  from "antd";
 import '../App.css';
 import apiClient from './api/api_client';
 const {Content} = Layout;
@@ -24,19 +24,19 @@ function Lotto() {
     },
   ];
 
-  useEffect(() => {
-    const getData = async () => {
-      setLoading(true);
-      try {
-        const response = await apiClient.get('lotto');
-        setResult(response.data);
-      } catch (error) {
-        setError(error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const getData = async () => {
+    setLoading(true);
+    try {
+      const response = await apiClient.get('lotto');
+      setResult(response.data);
+    } catch (error) {
+      setError(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     getData();
   }, []);
 
@@ -52,8 +52,12 @@ function Lotto() {
           'justifyContent': 'left',
           'color': '#131629',
         }}>
-          <pre />
           <Card style={{padding: '0px 10px'}}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+              <Button onClick={getData} style={{ marginBottom: 16 }}>
+                새로고침
+              </Button>
+            </div>
             <Table dataSource={result} columns={columns} loading={loading} />
           </Card>
         </div>
