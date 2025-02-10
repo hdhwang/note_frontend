@@ -1,12 +1,40 @@
-import React from "react";
-import { Form, Input, Button, Checkbox, Typography, Card } from "antd";
+import React, { useEffect } from "react";
+import { Form, Input, Button, Checkbox, Typography, Card, message } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const { Title } = Typography;
 
 const Login = () => {
-  const onFinish = (values) => {
-    // console.log("로그인 클릭");
+  const navigate = useNavigate();
+
+  const onFinish = async (values) => {
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/token`, {
+        username: values.username,
+        password: values.password,
+      });
+
+      if (response.status === 200) {
+        // 로그인 성공
+        const { access, refresh } = response.data; // 토큰 데이터
+
+        // 토큰 저장 (예: 로컬 스토리지)
+        localStorage.setItem("access_token", access);
+        localStorage.setItem("refresh_token", refresh);
+
+        navigate("/"); // 메인 페이지로 이동
+      }
+    } catch (error) {
+      // 로그인 실패 처리
+      if (error.response && error.response.status === 401) {
+        message.error("아이디 또는 비밀번호가 잘못되었습니다.");
+      } else {
+        message.error("로그인 중 오류가 발생했습니다.");
+      }
+      console.error(error);
+    }
   };
 
   return (
@@ -20,8 +48,8 @@ const Login = () => {
       }}
     >
       <Card style={{ width: 400 }}>
-        <Title level={3} style={{ textAlign: "center" }}>
-          로그인
+        <Title level={3} style={{fontSize: 30, textAlign: "center" }}>
+          <b>Notepad</b>
         </Title>
         <Form
           name="login_form"
