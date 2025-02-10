@@ -8,6 +8,8 @@ import Note from './note';
 import GuestBook from './guest_book';
 import Lotto from './lotto';
 import AuditLog from './audit_log';
+import Login from './login';
+// import LoginCallback from './login_callback';
 import Forbidden from "./error/forbidden";
 import NotFound from "./error/not_found";
 
@@ -21,6 +23,8 @@ const AppRoutes = () => {
         {path: '/lotto', element: <SecureRoute component={Lotto} permissionRequired={[]}/>},
         {path: '/audit-log', element: <SecureRoute component={AuditLog} permissionRequired={[]}/>},
 
+        {path: "/login", element: <Login/>},
+        // {path: "/login/callback", element: <LoginCallback/>},
         {path: "/forbidden", element: <Forbidden/>},
         {path: "*", element: <NotFound/>},
     ]);
