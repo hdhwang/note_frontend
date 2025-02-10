@@ -286,8 +286,17 @@ function GuestBook() {
           <Form.Item name="amount" label="금액">
             <Input />
           </Form.Item>
-          <Form.Item name="date" label="일자">
-            <Input />
+          <Form.Item
+            name="date"
+            label="일자"
+            rules={[
+              {
+                pattern: /^\d{4}-\d{2}-\d{2}$/,
+                message: '날짜 형식은 YYYY-MM-DD이어야 합니다.',
+              },
+            ]}
+          >
+            <Input placeholder="YYYY-MM-DD" />
           </Form.Item>
           <Form.Item name="area" label="장소">
             <Input />

@@ -108,7 +108,7 @@ function Serial() {
       onFilter: (value, record) => record.description.toLowerCase().includes(value.toLowerCase()),
     },
     {
-      title: '작업',
+      title: '편집 / 삭제',
       key: 'actions',
       align: 'center',
       render: (text, record) => (
