@@ -1,8 +1,8 @@
-import React, {useState, useEffect} from 'react';
-import {Layout, Card, Table, Button}  from "antd";
+import React, { useState, useEffect } from 'react';
+import { Layout, Card, Table, Button } from "antd";
 import '../App.css';
 import apiClient from './api/api_client';
-const {Content} = Layout;
+const { Content } = Layout;
 
 function Lotto() {
   const [loading, setLoading] = useState(false);
@@ -41,24 +41,29 @@ function Lotto() {
   }, []);
 
   return (
-    <Layout style={{marginLeft: 200}}>
-      <Content style={{overflow: 'initial'}}>
+    <Layout style={{ marginLeft: 200 }}>
+      <Content style={{ overflow: 'initial' }}>
         <div style={{
-          'textAlign': 'left',
-          'maxHeight': '100%',
-          'maxwidth': '100%',
-          'display': 'inline',
-          'flexDirection': 'column',
-          'justifyContent': 'left',
-          'color': '#131629',
+          textAlign: 'left',
+          maxHeight: '100%',
+          maxWidth: '100%',
+          display: 'inline',
+          flexDirection: 'column',
+          justifyContent: 'left',
+          color: '#131629',
         }}>
-          <Card style={{padding: '0px 10px'}}>
+          <Card style={{ padding: '0px 10px' }}>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
               <Button onClick={getData} style={{ marginBottom: 16 }}>
                 새로고침
               </Button>
             </div>
-            <Table dataSource={result} columns={columns} loading={loading} pagination={false} />
+            <Table
+              dataSource={result.map((item, index) => ({ ...item, key: index }))}
+              columns={columns}
+              loading={loading}
+              pagination={false}
+            />
           </Card>
         </div>
       </Content>
