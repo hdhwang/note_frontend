@@ -40,26 +40,26 @@ function Dashboard() {
                 }}>
                     <Card sytle={{marginLeft: 200, marginRight:0, textAlign: 'center'}}>
                         <Row gutter={10} style={{ textAlign: 'center' }}>
-                            <Col style={{width: "16.6%"}}>
+                            <Col style={{width: "25%"}}>
                                 <Card bordered={false} size='small' style={{ paddingLeft: 15, paddingRight: 15, background: '#3F8600'}} title={<div style={{ color: "#ffffff", fontWeight: "bold"}}>계좌번호</div>}>
                                     <Statistic value={counts.bank_account_count} valueStyle={{ color: "#ffffff", fontWeight: "bold"}} />
                                 </Card>
                             </Col>
 
-                            <Col style={{width: "16.6%"}}>
+                            <Col style={{width: "25%"}}>
                                 <Card bordered={false} size='small' style={{ paddingLeft: 15, paddingRight: 15, background: '#CC4525'}} title={<div style={{ color: "#ffffff", fontWeight: "bold"}}>시리얼 번호</div>}>
                                     <Statistic value={counts.serial_count} valueStyle={{ color: "#ffffff", fontWeight: "bold"}} />
                                 </Card>
                             </Col>
 
-                            <Col style={{width: "16.6%"}}>
+                            <Col style={{width: "25%"}}>
                                 <Card bordered={false} size='small' style={{ paddingLeft: 15, paddingRight: 15, background: '#E5AB19'}} title={<div style={{ color: "#ffffff", fontWeight: "bold"}}>노트</div>}>
                                     <Statistic value={counts.note_count} valueStyle={{ color: "#ffffff", fontWeight: "bold"}} />
                                 </Card>
                             </Col>
 
 
-                            <Col style={{width: "16.6%"}}>
+                            <Col style={{width: "25%"}}>
                                 <Card bordered={false} size='small' style={{ paddingLeft: 15, paddingRight: 15, background: '#346AF3'}} title={<div style={{ color: "#ffffff", fontWeight: "bold"}}>결혼식 방명록</div>}>
                                     <Statistic value={counts.guest_book_count} valueStyle={{ color: "#ffffff", fontWeight: "bold"}} />
                                 </Card>
