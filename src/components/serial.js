@@ -53,10 +53,10 @@ function Serial() {
             style={{ marginBottom: 8, display: 'block' }}
           />
           <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
-            Search
+            검색
           </Button>
           <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
-            Reset
+            초기화
           </Button>
         </div>
       ),
@@ -263,6 +263,8 @@ function Serial() {
         open={isAddModalVisible}
         onOk={handleAdd}
         onCancel={() => setIsAddModalVisible(false)}
+        okText="확인"
+        cancelText="취소"
       >
         <Form form={form} layout="vertical">
           <Form.Item name="type" label="유형" rules={[{ required: true, message: '유형을 선택하세요' }]}>
@@ -288,6 +290,8 @@ function Serial() {
         open={isModalVisible}
         onOk={handleEdit}
         onCancel={() => setIsModalVisible(false)}
+        okText="확인"
+        cancelText="취소"
       >
         <Form form={form} layout="vertical">
           <Form.Item name="type" label="유형" rules={[{ required: true, message: '유형을 선택하세요' }]}>
