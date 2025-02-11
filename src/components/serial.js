@@ -214,9 +214,9 @@ function Serial() {
   }, []);
 
   const handleTableChange = (pagination, filters, sorter) => {
-    const sortField = sorter.field || 'title';
+    const sortField = sorter.field;
     const sortOrder = sorter.order === 'ascend' ? '' : '-';
-    const order = sortOrder + sortField;
+    const order = sortField ? sortOrder + sortField : 'title';
     setFilters(filters);
     getData(pagination.current, pagination.pageSize, order, filters);
   };
