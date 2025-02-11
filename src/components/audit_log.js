@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {Layout, Card, Table, Button, Input}  from "antd";
+import {Layout, Card, Table, Button, Input, Checkbox}  from "antd";
 import '../App.css';
 import apiClient from './api/api_client';
 const {Content} = Layout;
@@ -10,6 +10,25 @@ function AuditLog() {
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
   const [filters, setFilters] = useState({});
+  const [visibleColumns, setVisibleColumns] = useState({
+    user: true,
+    ip: true,
+    category: true,
+    sub_category: true,
+    action: true,
+    result: true,
+    date: true,
+  });
+
+  const columnLabels = {
+    user: '사용자',
+    ip: 'IP 주소',
+    category: '카테고리',
+    sub_category: '보조 카테고리',
+    action: '내용',
+    result: '결과',
+    date: '일자',
+  };
 
   const columns = [
     {
@@ -18,6 +37,7 @@ function AuditLog() {
       key: 'index',
       align: 'center',
       render: (text, record, index) => (pagination.current - 1) * pagination.pageSize + index + 1,
+      open: true,
     },
     {
       title: '사용자',
@@ -42,6 +62,7 @@ function AuditLog() {
           </div>
       ),
       onFilter: (value, record) => record.name.toLowerCase().includes(value.toLowerCase()),
+      open: visibleColumns.user,
     },
     {
       title: 'IP 주소',
@@ -66,6 +87,7 @@ function AuditLog() {
           </div>
       ),
       onFilter: (value, record) => record.name.toLowerCase().includes(value.toLowerCase()),
+      open: visibleColumns.ip,
     },
     {
       title: '카테고리',
@@ -84,6 +106,7 @@ function AuditLog() {
         { text: '계정 관리', value: '계정 관리' },
       ],
       onFilter: (value, record) => record.name.toLowerCase().includes(value.toLowerCase()),
+      open: visibleColumns.category,
     },
     {
       title: '보조 카테고리',
@@ -99,6 +122,7 @@ function AuditLog() {
         { text: '권한 통계', value: '권한 통계' },
       ],
       onFilter: (value, record) => record.name.toLowerCase().includes(value.toLowerCase()),
+      open: visibleColumns.sub_category,
     },
     {
       title: '내용',
@@ -123,6 +147,7 @@ function AuditLog() {
           </div>
       ),
       onFilter: (value, record) => record.name.toLowerCase().includes(value.toLowerCase()),
+      open: visibleColumns.action,
     },
     {
       title: '결과',
@@ -135,6 +160,7 @@ function AuditLog() {
         { text: '실패', value: '실패' },
       ],
       onFilter: (value, record) => record.result.toLowerCase().includes(value.toLowerCase()),
+      open: visibleColumns.result,
     },
     {
       title: '일자',
@@ -142,8 +168,9 @@ function AuditLog() {
       key: 'date',
       align: 'center',
       sorter: true,
+      open: visibleColumns.date,
     },
-  ];
+  ].filter(column => column.open);
 
   const getData = async (page = 1, pageSize = 10, ordering = '-date', filters = {}) => {
     setLoading(true);
@@ -180,6 +207,13 @@ function AuditLog() {
     getData(pagination.current, pagination.pageSize, order, filters);
   };
 
+  const handleColumnVisibilityChange = (columnKey) => {
+    setVisibleColumns(prevState => ({
+      ...prevState,
+      [columnKey]: !prevState[columnKey],
+    }));
+  };
+
   return (
       <Layout style={{marginLeft: 200}}>
         <Content style={{overflow: 'initial'}}>
@@ -197,6 +231,17 @@ function AuditLog() {
                 <Button onClick={() => getData(pagination.current, pagination.pageSize)} style={{ marginBottom: 16 }}>
                   새로고침
                 </Button>
+              </div>
+              <div style={{ marginBottom: 16 }}>
+                {Object.keys(visibleColumns).map(columnKey => (
+                  <Checkbox
+                    key={columnKey}
+                    checked={visibleColumns[columnKey]}
+                    onChange={() => handleColumnVisibilityChange(columnKey)}
+                  >
+                    {columnLabels[columnKey]}
+                  </Checkbox>
+                ))}
               </div>
               <Table
                   dataSource={result}

@@ -77,7 +77,7 @@ function Note() {
       open: visibleColumns.date,
     },
     {
-      title: '편집 / 삭제',
+      title: '작업',
       key: 'actions',
       align: 'center',
       render: (text, record) => (

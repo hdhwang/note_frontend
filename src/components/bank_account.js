@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Card, Table, Button, Input, message, Modal, Form, Space } from "antd";
+import { Layout, Card, Table, Button, Input, message, Modal, Form, Space, Checkbox } from "antd";
 import '../App.css';
 import apiClient from './api/api_client';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
@@ -11,10 +11,25 @@ function BankAccount() {
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
   const [filters, setFilters] = useState({});
+  const [visibleColumns, setVisibleColumns] = useState({
+    bank: true,
+    account: true,
+    account_holder: true,
+    description: true,
+    actions: true,
+  });
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [currentAccount, setCurrentAccount] = useState(null);
   const [form] = Form.useForm();
+
+  const columnLabels = {
+    bank: '은행',
+    account: '계좌번호',
+    account_holder: '예금주',
+    description: '설명',
+    actions: '작업',
+  };
 
   const columns = [
     {
@@ -23,6 +38,7 @@ function BankAccount() {
       key: 'index',
       align: 'center',
       render: (text, record, index) => (pagination.current - 1) * pagination.pageSize + index + 1,
+      open: true,
     },
     {
       title: '은행',
@@ -47,6 +63,7 @@ function BankAccount() {
         </div>
       ),
       onFilter: (value, record) => record.bank.toLowerCase().includes(value.toLowerCase()),
+      open: visibleColumns.bank,
     },
     {
       title: '계좌번호',
@@ -70,6 +87,7 @@ function BankAccount() {
         </div>
       ),
       onFilter: (value, record) => record.account.toLowerCase().includes(value.toLowerCase()),
+      open: visibleColumns.account,
     },
     {
       title: '예금주',
@@ -94,6 +112,7 @@ function BankAccount() {
         </div>
       ),
       onFilter: (value, record) => record.account_holder.toLowerCase().includes(value.toLowerCase()),
+      open: visibleColumns.account_holderu,
     },
     {
       title: '설명',
@@ -117,11 +136,13 @@ function BankAccount() {
         </div>
       ),
       onFilter: (value, record) => record.description.toLowerCase().includes(value.toLowerCase()),
+      open: visibleColumns.description,
     },
     {
-      title: '편집 / 삭제',
+      title: '작업',
       key: 'actions',
       align: 'center',
+      open: visibleColumns.actions,
       render: (text, record) => (
         <Space>
           <Button
@@ -138,7 +159,7 @@ function BankAccount() {
         </Space>
       ),
     },
-  ];
+  ].filter(column => column.open);
 
   const getData = async (page = 1, pageSize = 10, ordering = 'bank', filters = {}) => {
     setLoading(true);
@@ -228,6 +249,13 @@ function BankAccount() {
     getData(pagination.current, pagination.pageSize, order, filters);
   };
 
+  const handleColumnVisibilityChange = (columnKey) => {
+    setVisibleColumns(prevState => ({
+      ...prevState,
+      [columnKey]: !prevState[columnKey],
+    }));
+  };
+
   return (
     <Layout style={{ marginLeft: 200 }}>
       <Content style={{ overflow: 'initial' }}>
@@ -248,6 +276,17 @@ function BankAccount() {
               <Button type="primary" icon={<PlusOutlined />} onClick={showAddModal}>
                 추가
               </Button>
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              {Object.keys(visibleColumns).map(columnKey => (
+                <Checkbox
+                  key={columnKey}
+                  checked={visibleColumns[columnKey]}
+                  onChange={() => handleColumnVisibilityChange(columnKey)}
+                >
+                  {columnLabels[columnKey]}
+                </Checkbox>
+              ))}
             </div>
             <Table
               dataSource={result}

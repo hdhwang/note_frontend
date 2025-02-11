@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {Layout, Card, Table, Button, Input, message, Modal, Form, Select, Space} from 'antd';
+import {Layout, Card, Table, Button, Input, message, Modal, Form, Select, Space, Checkbox} from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import '../App.css';
 import apiClient from './api/api_client';
@@ -12,10 +12,25 @@ function Serial() {
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
   const [filters, setFilters] = useState({});
+  const [visibleColumns, setVisibleColumns] = useState({
+    type: true,
+    title: true,
+    value: true,
+    description: true,
+    actions: true,
+  });
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [currentSerial, setCurrentSerial] = useState(null);
   const [form] = Form.useForm();
+
+  const columnLabels = {
+    type: '유형',
+    title: '제품 명',
+    value: '시리얼 번호',
+    description: '설명',
+    actions: '작업',
+  };
 
   const columns = [
     {
@@ -24,6 +39,7 @@ function Serial() {
       key: 'index',
       align: 'center',
       render: (text, record, index) => (pagination.current - 1) * pagination.pageSize + index + 1,
+      open: true,
     },
     {
       title: '유형',
@@ -37,6 +53,7 @@ function Serial() {
         { text: '유틸', value: '유틸' },
       ],
       onFilter: (value, record) => record.type.includes(value),
+      open: visibleColumns.type,
     },
     {
       title: '제품 명',
@@ -61,6 +78,7 @@ function Serial() {
         </div>
       ),
       onFilter: (value, record) => record.title.toLowerCase().includes(value.toLowerCase()),
+      open: visibleColumns.title,
     },
     {
       title: '시리얼 번호',
@@ -85,6 +103,7 @@ function Serial() {
         </div>
       ),
       onFilter: (value, record) => record.value.toLowerCase().includes(value.toLowerCase()),
+      open: visibleColumns.value,
     },
     {
       title: '설명',
@@ -109,11 +128,13 @@ function Serial() {
         </div>
       ),
       onFilter: (value, record) => record.description.toLowerCase().includes(value.toLowerCase()),
+      open: visibleColumns.description,
     },
     {
       title: '작업',
       key: 'actions',
       align: 'center',
+      open: visibleColumns.actions,
       render: (text, record) => (
         <Space>
           <Button
@@ -130,7 +151,7 @@ function Serial() {
         </Space>
       ),
     },
-  ];
+  ].filter(column => column.open);
 
   const getData = async (page = 1, pageSize = 10, ordering = 'title', filters = {}) => {
     setLoading(true);
@@ -220,6 +241,13 @@ function Serial() {
     getData(pagination.current, pagination.pageSize, order, filters);
   };
 
+  const handleColumnVisibilityChange = (columnKey) => {
+    setVisibleColumns(prevState => ({
+      ...prevState,
+      [columnKey]: !prevState[columnKey],
+    }));
+  };
+
   return (
     <Layout style={{ marginLeft: 200 }}>
       <Content style={{ overflow: 'initial' }}>
@@ -240,6 +268,17 @@ function Serial() {
               <Button type="primary" icon={<PlusOutlined />} onClick={showAddModal}>
                 추가
               </Button>
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              {Object.keys(visibleColumns).map(columnKey => (
+                <Checkbox
+                  key={columnKey}
+                  checked={visibleColumns[columnKey]}
+                  onChange={() => handleColumnVisibilityChange(columnKey)}
+                >
+                  {columnLabels[columnKey]}
+                </Checkbox>
+              ))}
             </div>
             <Table
               dataSource={result}
