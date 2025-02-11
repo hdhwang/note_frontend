@@ -251,9 +251,9 @@ function GuestBook() {
   }, []);
 
   const handleTableChange = (pagination, filters, sorter) => {
-    const sortField = sorter.field || 'name';
+    const sortField = sorter.field;
     const sortOrder = sorter.order === 'ascend' ? '' : '-';
-    const order = sortOrder + sortField;
+    const order = sortField ? sortOrder + sortField : 'name';
     setFilters(filters);
     getData(pagination.current, pagination.pageSize, order, filters);
   };

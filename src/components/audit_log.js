@@ -173,9 +173,9 @@ function AuditLog() {
   }, []);
 
   const handleTableChange =  (pagination, filters, sorter) => {
-    const sortField = sorter.field || 'date';
+    const sortField = sorter.field;
     const sortOrder = sorter.order === 'ascend' ? '' : '-';
-    const order = sortOrder + sortField;
+    const order = sortField ? sortOrder + sortField : '-date';
     setFilters(filters);
     getData(pagination.current, pagination.pageSize, order, filters);
   };

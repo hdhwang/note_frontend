@@ -222,9 +222,9 @@ function BankAccount() {
   }, []);
 
   const handleTableChange = (pagination, filters, sorter) => {
-    const sortField = sorter.field || 'bank';
+    const sortField = sorter.field;
     const sortOrder = sorter.order === 'ascend' ? '' : '-';
-    const order = sortOrder + sortField;
+    const order = sortField ? sortOrder + sortField : 'bank';
     setFilters(filters);
     getData(pagination.current, pagination.pageSize, order, filters);
   };
