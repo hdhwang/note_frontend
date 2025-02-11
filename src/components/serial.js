@@ -50,6 +50,7 @@ function Serial({collapsed}) {
         { text: '운영체제', value: '운영체제' },
         { text: '유틸', value: '유틸' },
       ],
+      filterMultiple: false,
       onFilter: (value, record) => record.type,
       open: visibleColumns.type,
     },

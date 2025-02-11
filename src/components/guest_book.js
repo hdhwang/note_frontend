@@ -138,6 +138,7 @@ function GuestBook({collapsed}) {
         { text: '미참석', value: 'N' },
         { text: '미정', value: '-' },
       ],
+      filterMultiple: false,
       onFilter: (value, record) => record.attend,
       open: visibleColumns.attend,
       render: (text) => {
