@@ -86,10 +86,10 @@ function GuestBook({collapsed}) {
             style={{ marginBottom: 8, display: 'block' }}
           />
           <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
-            Search
+            검색
           </Button>
           <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
-            Reset
+            초기화
           </Button>
         </div>
       ),
@@ -119,10 +119,10 @@ function GuestBook({collapsed}) {
             style={{ marginBottom: 8, display: 'block' }}
           />
           <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
-            Search
+            검색
           </Button>
           <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
-            Reset
+            초기화
           </Button>
         </div>
       ),
@@ -163,10 +163,10 @@ function GuestBook({collapsed}) {
             style={{ marginBottom: 8, display: 'block' }}
           />
           <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
-            Search
+            검색
           </Button>
           <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
-            Reset
+            초기화
           </Button>
         </div>
       ),
