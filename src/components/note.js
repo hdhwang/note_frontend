@@ -58,7 +58,7 @@ function Note({collapsed}) {
           </Button>
         </div>
       ),
-      onFilter: (value, record) => record.title.toLowerCase().includes(value.toLowerCase()),
+      onFilter: (value, record) => record.title,
       open: visibleColumns.title,
     },
     {

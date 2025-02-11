@@ -60,7 +60,7 @@ function BankAccount({collapsed}) {
           </Button>
         </div>
       ),
-      onFilter: (value, record) => record.bank.toLowerCase().includes(value.toLowerCase()),
+      onFilter: (value, record) => record.bank,
       open: visibleColumns.bank,
     },
     {
@@ -84,7 +84,7 @@ function BankAccount({collapsed}) {
           </Button>
         </div>
       ),
-      onFilter: (value, record) => record.account.toLowerCase().includes(value.toLowerCase()),
+      onFilter: (value, record) => record.account,
       open: visibleColumns.account,
     },
     {
@@ -109,7 +109,7 @@ function BankAccount({collapsed}) {
           </Button>
         </div>
       ),
-      onFilter: (value, record) => record.account_holder.toLowerCase().includes(value.toLowerCase()),
+      onFilter: (value, record) => record.account_holder,
       open: visibleColumns.account_holderu,
     },
     {
@@ -133,7 +133,7 @@ function BankAccount({collapsed}) {
           </Button>
         </div>
       ),
-      onFilter: (value, record) => record.description.toLowerCase().includes(value.toLowerCase()),
+      onFilter: (value, record) => record.description,
       open: visibleColumns.description,
     },
     {
