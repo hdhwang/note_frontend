@@ -54,7 +54,7 @@ function AuditLog({collapsed}) {
                 style={{ marginBottom: 8, display: 'block' }}
             />
             <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
-              검색
+              확인
             </Button>
             <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
               초기화
@@ -79,7 +79,7 @@ function AuditLog({collapsed}) {
                 style={{ marginBottom: 8, display: 'block' }}
             />
             <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
-              검색
+              확인
             </Button>
             <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
               초기화
@@ -139,7 +139,7 @@ function AuditLog({collapsed}) {
                 style={{ marginBottom: 8, display: 'block' }}
             />
             <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
-              검색
+              확인
             </Button>
             <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
               초기화
