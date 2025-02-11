@@ -185,7 +185,6 @@ function AuditLog({collapsed}) {
       }
       return acc;
     }, {});
-    console.log(filterParams)
     try {
       const params = {
         page: page,
