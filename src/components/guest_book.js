@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Card, Table, Button, Input, message, Modal, Form, Select } from 'antd';
+import { Layout, Card, Table, Button, Input, message, Modal, Form, Select, Space } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import '../App.css';
 import apiClient from './api/api_client';
@@ -152,12 +152,11 @@ function GuestBook() {
       key: 'actions',
       align: 'center',
       render: (text, record) => (
-        <div>
+        <Space>
           <Button
             type="primary"
             icon={<EditOutlined />}
             onClick={() => showEditModal(record)}
-            style={{ marginRight: 8 }}
           />
           <Button
             type="primary"
@@ -165,7 +164,7 @@ function GuestBook() {
             icon={<DeleteOutlined />}
             onClick={() => handleDelete(record.id)}
           />
-        </div>
+        </Space>
       ),
     },
   ];
