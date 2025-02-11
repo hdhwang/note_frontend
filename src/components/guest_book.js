@@ -6,7 +6,7 @@ import apiClient from './api/api_client';
 const { Content } = Layout;
 const { Option } = Select;
 
-function GuestBook() {
+function GuestBook({collapsed}) {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState([]);
   const [error, setError] = useState(null);
@@ -292,7 +292,7 @@ function GuestBook() {
   };
 
   return (
-    <Layout style={{ marginLeft: 200 }}>
+    <Layout style={{ marginLeft: collapsed ? 80 : 200 }}>
       <Content style={{ overflow: 'initial' }}>
         <div style={{
           textAlign: 'left',

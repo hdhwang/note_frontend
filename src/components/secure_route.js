@@ -1,17 +1,17 @@
 import React, { FC, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LayoutNav from "./layout";
-import { Layout, Spin, Typography, message, Dropdown, Button, Modal, Form, Input } from "antd";
+import { Layout, Spin, Typography, message, Dropdown, Button, Modal, Form, Input, Row, Col } from "antd";
 import Forbidden from "./error/forbidden";
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
-const { Header, Footer } = Layout;
+const { Header, Footer, Content } = Layout;
 
 interface Props {
     permissionRequired: string[];
 }
 
-const SecureRoute: FC<Props> = ({ component: Component, permissionRequired }) => {
+const SecureRoute = ({ component: Component, permissionRequired, collapsed, setCollapsed }) => {
     const [spinning, setSpinning] = useState(true);
     const [permissions, setPermissions] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -153,7 +153,7 @@ const SecureRoute: FC<Props> = ({ component: Component, permissionRequired }) =>
             }}
           >
               {/* 왼쪽 콘텐츠 */}
-              <div>Logo or Title</div>
+              <div></div>
 
               {/* 우측 Dropdown */}
               <Dropdown
@@ -172,11 +172,10 @@ const SecureRoute: FC<Props> = ({ component: Component, permissionRequired }) =>
                   </Typography.Text>
               </Dropdown>
           </Header>
-          <LayoutNav permissions={permissions} />
-          {spinning ? <Spin size="large" /> : <Component />}
-          <pre />
+          <LayoutNav permissions={permissions} collapsed={collapsed} setCollapsed={setCollapsed} />
+          {spinning ? <Spin size="large" /> : <Component collapsed={collapsed} />}
           <Footer style={{
-              marginLeft: 200,
+              marginLeft: 80,
               marginRight: 0,
               bottom: 0,
               textAlign: 'center',
