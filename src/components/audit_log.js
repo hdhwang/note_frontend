@@ -209,7 +209,9 @@ function AuditLog() {
                     showSizeChanger: true,
                   }}
                   onChange={handleTableChange}
-                  rowKey="id"/>
+                  rowKey="id"
+                  scroll={{ x: 'max-content' }}
+              />
             </Card>
           </div>
         </Content>
