@@ -40,10 +40,10 @@ function GuestBook() {
             style={{ marginBottom: 8, display: 'block' }}
           />
           <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
-            Search
+            검색
           </Button>
           <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
-            Reset
+            초기화
           </Button>
         </div>
       ),
@@ -300,6 +300,8 @@ function GuestBook() {
         open={isAddModalVisible}
         onOk={handleAdd}
         onCancel={() => setIsAddModalVisible(false)}
+        okText="확인"
+        cancelText="취소"
       >
         <Form form={form} layout="vertical">
           <Form.Item name="name" label="이름" rules={[{ required: true, message: '이름을 입력하세요' }]}>
@@ -340,6 +342,8 @@ function GuestBook() {
         open={isModalVisible}
         onOk={handleEdit}
         onCancel={() => setIsModalVisible(false)}
+        okText="확인"
+        cancelText="취소"
       >
         <Form form={form} layout="vertical">
           <Form.Item name="name" label="이름" rules={[{ required: true, message: '이름을 입력하세요' }]}>
