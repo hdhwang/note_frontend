@@ -174,9 +174,9 @@ function GuestBook() {
     setLoading(true);
     try {
       const params = {
-        page,
-        pageSize,
-        ordering,
+        page: page,
+        page_size: pageSize,
+        ordering: ordering,
         ...filters,
       };
       const response = await apiClient.get('guest-book', { params });
@@ -255,7 +255,7 @@ function GuestBook() {
     const sortOrder = sorter.order === 'ascend' ? '' : '-';
     const order = sortOrder + sortField;
     setFilters(filters);
-    getData(pagination.current, pagination.pageSize, order);
+    getData(pagination.current, pagination.pageSize, order, filters);
   };
 
   return (
