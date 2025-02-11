@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LayoutNav from "./layout";
-import { Layout, Spin, Typography, message, Dropdown, Button, Modal, Form, Input } from "antd";
+import { Layout, Spin, Typography, message, Dropdown, Button, Modal, Form, Input, ConfigProvider } from "antd";
+import koKR from 'antd/lib/locale/ko_KR';
 import Forbidden from "./error/forbidden";
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
@@ -170,7 +171,7 @@ const SecureRoute = ({ component: Component, permissionRequired, collapsed, setC
               </Dropdown>
           </Header>
           <LayoutNav permissions={permissions} collapsed={collapsed} setCollapsed={setCollapsed} />
-          {spinning ? <Spin size="large" /> : <Component collapsed={collapsed} />}
+          {spinning ? <Spin size="large" /> : <ConfigProvider locale={koKR}><Component collapsed={collapsed} /></ConfigProvider>}
           <Footer style={{
               marginLeft: 80,
               marginRight: 0,

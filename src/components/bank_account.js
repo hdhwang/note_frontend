@@ -55,7 +55,7 @@ function BankAccount({collapsed}) {
             style={{ marginBottom: 8, display: 'block' }}
           />
           <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
-            검색
+            확인
           </Button>
           <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
             초기화
@@ -79,7 +79,7 @@ function BankAccount({collapsed}) {
             style={{ marginBottom: 8, display: 'block' }}
           />
           <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
-            검색
+            확인
           </Button>
           <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
             초기화
@@ -104,7 +104,7 @@ function BankAccount({collapsed}) {
             style={{ marginBottom: 8, display: 'block' }}
           />
           <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
-            검색
+            확인
           </Button>
           <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
             초기화
@@ -128,7 +128,7 @@ function BankAccount({collapsed}) {
             style={{ marginBottom: 8, display: 'block' }}
           />
           <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
-            검색
+            확인
           </Button>
           <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
             초기화
@@ -187,9 +187,7 @@ function BankAccount({collapsed}) {
   const handleDelete = async (id) => {
     Modal.confirm({
       title: '선택한 계좌번호를 삭제 하시겠습니까?',
-      okText: '확인',
       okType: 'danger',
-      cancelText: '취소',
       onOk: async () => {
         try {
           await apiClient.delete(`bank-account/${id}`);
@@ -310,8 +308,6 @@ function BankAccount({collapsed}) {
         open={isAddModalVisible}
         onOk={handleAdd}
         onCancel={() => setIsAddModalVisible(false)}
-        okText="확인"
-        cancelText="취소"
       >
         <Form form={form} layout="vertical">
           <Form.Item name="bank" label="은행" rules={[{ required: true, message: '은행을 입력하세요' }]}>
@@ -333,8 +329,6 @@ function BankAccount({collapsed}) {
         open={isModalVisible}
         onOk={handleEdit}
         onCancel={() => setIsModalVisible(false)}
-        okText="확인"
-        cancelText="취소"
       >
         <Form form={form} layout="vertical">
           <Form.Item name="bank" label="은행" rules={[{ required: true, message: '은행을 입력하세요' }]}>

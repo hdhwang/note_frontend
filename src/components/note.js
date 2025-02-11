@@ -53,7 +53,7 @@ function Note({collapsed}) {
             style={{ marginBottom: 8, display: 'block' }}
           />
           <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
-            검색
+            확인
           </Button>
           <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
             초기화
@@ -127,9 +127,7 @@ function Note({collapsed}) {
   const handleDelete = async (id) => {
     Modal.confirm({
       title: '선택한 노트를 삭제 하시겠습니까?',
-      okText: '확인',
       okType: 'danger',
-      cancelText: '취소',
       onOk: async () => {
         try {
           await apiClient.delete(`note/${id}`);
@@ -250,8 +248,6 @@ function Note({collapsed}) {
         open={isAddModalVisible}
         onOk={handleAdd}
         onCancel={() => setIsAddModalVisible(false)}
-        okText="확인"
-        cancelText="취소"
       >
         <Form form={form} layout="vertical">
           <Form.Item name="title" label="제목" rules={[{ required: true, message: '제목을 입력하세요' }]}>
@@ -267,8 +263,6 @@ function Note({collapsed}) {
         open={isModalVisible}
         onOk={handleEdit}
         onCancel={() => setIsModalVisible(false)}
-        okText="확인"
-        cancelText="취소"
       >
         <Form form={form} layout="vertical">
           <Form.Item name="title" label="제목" rules={[{ required: true, message: '제목을 입력하세요' }]}>
