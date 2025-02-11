@@ -13,7 +13,7 @@ import {
   EditOutlined,
 } from '@ant-design/icons';
 
-const { Sider, Content } = Layout;
+const { Sider} = Layout;
 
 const LayoutNav = ({collapsed, setCollapsed}) => {
   const location = useLocation();
