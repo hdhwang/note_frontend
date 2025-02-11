@@ -181,7 +181,7 @@ function Note() {
   }, []);
 
   const handleTableChange = (pagination, filters, sorter) => {
-    const sortField = sorter.field;
+    const sortField = sorter.field || 'date';
     const sortOrder = sorter.order === 'ascend' ? '' : '-';
     const order = sortOrder + sortField;
     setFilters(filters);
