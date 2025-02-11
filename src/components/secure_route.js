@@ -1,15 +1,11 @@
-import React, { FC, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LayoutNav from "./layout";
-import { Layout, Spin, Typography, message, Dropdown, Button, Modal, Form, Input, Row, Col } from "antd";
+import { Layout, Spin, Typography, message, Dropdown, Button, Modal, Form, Input } from "antd";
 import Forbidden from "./error/forbidden";
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
-const { Header, Footer, Content } = Layout;
-
-interface Props {
-    permissionRequired: string[];
-}
+const { Header, Footer } = Layout;
 
 const SecureRoute = ({ component: Component, permissionRequired, collapsed, setCollapsed }) => {
     const [spinning, setSpinning] = useState(true);
@@ -150,6 +146,7 @@ const SecureRoute = ({ component: Component, permissionRequired, collapsed, setC
                 backgroundColor: '#131629',
                 color: 'white',
                 padding: '0 20px', // 좌우 여백
+                height: '64px',
             }}
           >
               {/* 왼쪽 콘텐츠 */}

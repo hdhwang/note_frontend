@@ -119,18 +119,11 @@ const LayoutNav = ({collapsed, setCollapsed}) => {
         }}
       >
         <NavLink to='/'>
-          <Space direction='vertical' style={{ padding: 10, justifyContent: 'center', textAlign: 'center', width: '100%' }}>
+          <Space direction='vertical' style={{ padding: 10, justifyContent: 'center', textAlign: 'center', width: '100%', height: '64px', }}>
             <Space direction='horizontal' size='small' style={{ marginBottom: -5 }}>
               <EditOutlined style={{ color: '#ffffff', fontSize: 30 }} />
               {!collapsed && <Typography.Text style={{ color: '#ffffff', fontSize: 25 }}><b>NOTEPAD</b></Typography.Text>}
             </Space>
-            {!collapsed && (
-              <Space direction='horizontal' size='small'>
-                <Typography.Text style={{ color: '#E21818', fontSize: 12, letterSpacing: 0.5 }}><b>Window</b></Typography.Text>
-                <Typography.Text style={{ color: '#FFCC33', fontSize: 12, letterSpacing: 0.5 }}><b>Containing</b></Typography.Text>
-                <Typography.Text style={{ color: '#1CC84C', fontSize: 12, letterSpacing: 0.5 }}><b>Ideas</b></Typography.Text>
-              </Space>
-            )}
           </Space>
         </NavLink>
         <Menu theme='dark' mode='inline' onClick={onClick} selectedKeys={selectedKeys} items={menuItems} />
