@@ -9,9 +9,7 @@ const { Option } = Select;
 function GuestBook({collapsed}) {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState([]);
-  const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
-  const [filters, setFilters] = useState({});
   const [visibleColumns, setVisibleColumns] = useState({
     name: true,
     amount: true,
@@ -198,12 +196,22 @@ function GuestBook({collapsed}) {
 
   const getData = async (page = 1, pageSize = 10, ordering = 'name', filters = {}) => {
     setLoading(true);
+    const filterParams = Object.keys(filters).reduce((acc, key) => {
+      if (filters[key]){
+        if (Array.isArray(filters[key])) {
+          acc[key] = filters[key].join(',');
+        } else {
+          acc[key] = filters[key];
+        }
+      }
+      return acc;
+    }, {});
     try {
       const params = {
         page: page,
         page_size: pageSize,
         ordering: ordering,
-        ...filters,
+        ...filterParams,
       };
       const response = await apiClient.get('guest-book', { params });
       setResult(response.data.results);
@@ -213,7 +221,7 @@ function GuestBook({collapsed}) {
         total: response.data.count,
       });
     } catch (error) {
-      setError(error);
+      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -278,7 +286,6 @@ function GuestBook({collapsed}) {
     const sortField = sorter.field;
     const sortOrder = sorter.order === 'ascend' ? '' : '-';
     const order = sortField ? sortOrder + sortField : 'name';
-    setFilters(filters);
     getData(pagination.current, pagination.pageSize, order, filters);
   };
 
