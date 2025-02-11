@@ -15,6 +15,7 @@ function Note() {
     title: true,
     note: false,
     date: true,
+    actions: true,
   });
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
@@ -25,6 +26,7 @@ function Note() {
     title: '제목',
     note: '내용',
     date: '등록 일자',
+    actions: '작업',
   };
 
   const columns = [
@@ -95,7 +97,7 @@ function Note() {
           />
         </Space>
       ),
-      open: true,
+      open: visibleColumns.actions,
     },
   ].filter(column => column.open);
 
