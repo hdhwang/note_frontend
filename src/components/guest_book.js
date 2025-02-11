@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Card, Table, Button, Input, message, Modal, Form, Select, Space } from 'antd';
+import { Layout, Card, Table, Button, Input, message, Modal, Form, Select, Space, Checkbox } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import '../App.css';
 import apiClient from './api/api_client';
@@ -12,10 +12,29 @@ function GuestBook() {
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
   const [filters, setFilters] = useState({});
+  const [visibleColumns, setVisibleColumns] = useState({
+    name: true,
+    amount: true,
+    date: true,
+    area: true,
+    attend: true,
+    description: true,
+    actions: true,
+  });
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [currentGuest, setCurrentGuest] = useState(null);
   const [form] = Form.useForm();
+
+  const columnLabels = {
+    name: '이름',
+    amount: '금액',
+    date: '일자',
+    area: '장소',
+    attend: '참석 여부',
+    description: '설명',
+    actions: '작업',
+  };
 
   const columns = [
     {
@@ -24,6 +43,7 @@ function GuestBook() {
       key: 'index',
       align: 'center',
       render: (text, record, index) => (pagination.current - 1) * pagination.pageSize + index + 1,
+      open: true,
     },
     {
       title: '이름',
@@ -48,6 +68,7 @@ function GuestBook() {
         </div>
       ),
       onFilter: (value, record) => record.name.toLowerCase().includes(value.toLowerCase()),
+      open: visibleColumns.name,
     },
     {
       title: '금액',
@@ -73,6 +94,7 @@ function GuestBook() {
         </div>
       ),
       onFilter: (value, record) => record.amount.toString().includes(value),
+      open: visibleColumns.amount,
     },
     {
       title: '일자',
@@ -80,6 +102,7 @@ function GuestBook() {
       key: 'date',
       align: 'center',
       sorter: true,
+      open: visibleColumns.date,
     },
     {
       title: '장소',
@@ -104,6 +127,7 @@ function GuestBook() {
         </div>
       ),
       onFilter: (value, record) => record.area.toLowerCase().includes(value.toLowerCase()),
+      open: visibleColumns.area,
     },
     {
       title: '참석 여부',
@@ -117,6 +141,7 @@ function GuestBook() {
         { text: '미정', value: '-' },
       ],
       onFilter: (value, record) => record.attend === value,
+      open: visibleColumns.attend,
       render: (text) => {
         if (text === 'Y') return '참석';
         if (text === 'N') return '미참석';
@@ -146,11 +171,13 @@ function GuestBook() {
         </div>
       ),
       onFilter: (value, record) => record.description.toLowerCase().includes(value.toLowerCase()),
+      open: visibleColumns.description,
     },
     {
       title: '작업',
       key: 'actions',
       align: 'center',
+      open: visibleColumns.actions,
       render: (text, record) => (
         <Space>
           <Button
@@ -167,7 +194,7 @@ function GuestBook() {
         </Space>
       ),
     },
-  ];
+  ].filter(column => column.open);
 
   const getData = async (page = 1, pageSize = 10, ordering = 'name', filters = {}) => {
     setLoading(true);
@@ -257,6 +284,13 @@ function GuestBook() {
     getData(pagination.current, pagination.pageSize, order, filters);
   };
 
+  const handleColumnVisibilityChange = (columnKey) => {
+    setVisibleColumns(prevState => ({
+      ...prevState,
+      [columnKey]: !prevState[columnKey],
+    }));
+  };
+
   return (
     <Layout style={{ marginLeft: 200 }}>
       <Content style={{ overflow: 'initial' }}>
@@ -277,6 +311,17 @@ function GuestBook() {
               <Button type="primary" icon={<PlusOutlined />} onClick={showAddModal}>
                 추가
               </Button>
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              {Object.keys(visibleColumns).map(columnKey => (
+                <Checkbox
+                  key={columnKey}
+                  checked={visibleColumns[columnKey]}
+                  onChange={() => handleColumnVisibilityChange(columnKey)}
+                >
+                  {columnLabels[columnKey]}
+                </Checkbox>
+              ))}
             </div>
             <Table
               dataSource={result}
