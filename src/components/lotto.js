@@ -53,7 +53,7 @@ function Lotto({collapsed}) {
           color: '#131629',
         }}>
           <Card style={{ padding: '0px 10px' }}>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', flexWrap: 'wrap', marginBottom: 16 }}>
               <Button onClick={getData} style={{ marginBottom: 16 }}>
                 새로고침
               </Button>
