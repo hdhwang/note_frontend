@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Card, Table, Button, Input, message, Modal, Form } from "antd";
+import { Layout, Card, Table, Button, Input, message, Modal, Form, Space } from "antd";
 import '../App.css';
 import apiClient from './api/api_client';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
@@ -123,12 +123,11 @@ function BankAccount() {
       key: 'actions',
       align: 'center',
       render: (text, record) => (
-        <div>
+        <Space>
           <Button
             type="primary"
             icon={<EditOutlined />}
             onClick={() => showEditModal(record)}
-            style={{ marginRight: 8 }}
           />
           <Button
             type="primary"
@@ -136,7 +135,7 @@ function BankAccount() {
             icon={<DeleteOutlined />}
             onClick={() => handleDelete(record.id)}
           />
-        </div>
+        </Space>
       ),
     },
   ];
