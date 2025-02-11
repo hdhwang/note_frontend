@@ -1,34 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Card, Button, Row, Col } from "antd";
-import { BankOutlined, KeyOutlined, FileTextOutlined, BookOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import {Layout, Card, Row, Col, Statistic} from 'antd';
 import '../App.css';
+import apiClient from './api/api_client';
 
 const { Content } = Layout;
 
 function Dashboard() {
     const [counts, setCounts] = useState({
-        accountNumbers: 0,
-        serialNumbers: 0,
-        notes: 0,
-        guestbooks: 0,
+        bank_account_count: 0,
+        serial_count: 0,
+        note_count: 0,
+        guest_book_count: 0,
     });
 
-    const navigate = useNavigate();
-
     useEffect(() => {
-        // Fetch counts from an API or set them statically for now
-        setCounts({
-            accountNumbers: 10,
-            serialNumbers: 20,
-            notes: 30,
-            guestbooks: 40,
-        });
+        const getData = async () => {
+            try {
+                const response = await apiClient.get('dashboard/stats');
+                console.log(response.data)
+                setCounts(response.data);
+            } catch (error) {
+                console.error('Failed to fetch counts:', error);
+            }
+        };
+
+        getData();
     }, []);
 
     return (
-        <Layout style={{ marginLeft: 200 }}>
-            <Content style={{ overflow: 'initial' }}>
+      <Layout style={{ marginLeft: 200 }}>
+          <Content style={{ overflow: 'initial' }}>
                 <div style={{
                     textAlign: 'left',
                     maxHeight: '100%',
@@ -38,60 +39,34 @@ function Dashboard() {
                     justifyContent: 'left',
                     color: '#131629',
                 }}>
-                    <Row gutter={16}>
-                        <Col span={6}>
-                            <Card
-                                title="계좌번호"
-                                bordered={false}
-                                style={{ textAlign: 'center' }}
-                                actions={[
-                                    <Button type="primary" onClick={() => navigate('/bank-account')}>상세 보기</Button>
-                                ]}
-                            >
-                                <BankOutlined style={{ fontSize: '48px', color: '#08c' }} />
-                                <p style={{ fontSize: '24px' }}>{counts.accountNumbers}</p>
-                            </Card>
-                        </Col>
-                        <Col span={6}>
-                            <Card
-                                title="시리얼 번호"
-                                bordered={false}
-                                style={{ textAlign: 'center' }}
-                                actions={[
-                                    <Button type="primary" onClick={() => navigate('/serial')}>상세 보기</Button>
-                                ]}
-                            >
-                                <KeyOutlined style={{ fontSize: '48px', color: '#08c' }} />
-                                <p style={{ fontSize: '24px' }}>{counts.serialNumbers}</p>
-                            </Card>
-                        </Col>
-                        <Col span={6}>
-                            <Card
-                                title="노트"
-                                bordered={false}
-                                style={{ textAlign: 'center' }}
-                                actions={[
-                                    <Button type="primary" onClick={() => navigate('/note')}>상세 보기</Button>
-                                ]}
-                            >
-                                <FileTextOutlined style={{ fontSize: '48px', color: '#08c' }} />
-                                <p style={{ fontSize: '24px' }}>{counts.notes}</p>
-                            </Card>
-                        </Col>
-                        <Col span={6}>
-                            <Card
-                                title="결혼식 방명록"
-                                bordered={false}
-                                style={{ textAlign: 'center' }}
-                                actions={[
-                                    <Button type="primary" onClick={() => navigate('/guest-book')}>상세 보기</Button>
-                                ]}
-                            >
-                                <BookOutlined style={{ fontSize: '48px', color: '#08c' }} />
-                                <p style={{ fontSize: '24px' }}>{counts.guestbooks}</p>
-                            </Card>
-                        </Col>
-                    </Row>
+                    <Card sytle={{marginLeft: 200, marginRight:0, textAlign: 'center'}}>
+                        <Row gutter={10} style={{ textAlign: 'center' }}>
+                            <Col style={{width: "16.6%"}}>
+                                <Card bordered={false} size='small' style={{ paddingLeft: 15, paddingRight: 15, background: '#3F8600'}} title={<div style={{ color: "#ffffff", fontWeight: "bold"}}>계좌번호</div>}>
+                                    <Statistic value={counts.bank_account_count} valueStyle={{ color: "#ffffff", fontWeight: "bold"}} />
+                                </Card>
+                            </Col>
+
+                            <Col style={{width: "16.6%"}}>
+                                <Card bordered={false} size='small' style={{ paddingLeft: 15, paddingRight: 15, background: '#CC4525'}} title={<div style={{ color: "#ffffff", fontWeight: "bold"}}>시리얼 번호</div>}>
+                                    <Statistic value={counts.serial_count} valueStyle={{ color: "#ffffff", fontWeight: "bold"}} />
+                                </Card>
+                            </Col>
+
+                            <Col style={{width: "16.6%"}}>
+                                <Card bordered={false} size='small' style={{ paddingLeft: 15, paddingRight: 15, background: '#E5AB19'}} title={<div style={{ color: "#ffffff", fontWeight: "bold"}}>노트</div>}>
+                                    <Statistic value={counts.note_count} valueStyle={{ color: "#ffffff", fontWeight: "bold"}} />
+                                </Card>
+                            </Col>
+
+
+                            <Col style={{width: "16.6%"}}>
+                                <Card bordered={false} size='small' style={{ paddingLeft: 15, paddingRight: 15, background: '#346AF3'}} title={<div style={{ color: "#ffffff", fontWeight: "bold"}}>결혼식 방명록</div>}>
+                                    <Statistic value={counts.guest_book_count} valueStyle={{ color: "#ffffff", fontWeight: "bold"}} />
+                                </Card>
+                            </Col>
+                        </Row>
+                    </Card>
                 </div>
             </Content>
         </Layout>
