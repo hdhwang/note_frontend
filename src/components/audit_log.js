@@ -206,6 +206,7 @@ function AuditLog() {
                     current: pagination.current,
                     pageSize: pagination.pageSize,
                     total: pagination.total,
+                    showSizeChanger: true,
                   }}
                   onChange={handleTableChange}
                   rowKey="id"/>
