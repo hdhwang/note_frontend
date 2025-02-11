@@ -59,7 +59,7 @@ function AuditLog({collapsed}) {
             </Button>
           </div>
       ),
-      onFilter: (value, record) => record.user.toLowerCase().includes(value.toLowerCase()),
+      onFilter: (value, record) => record.user,
       open: visibleColumns.user,
     },
     {
@@ -84,7 +84,7 @@ function AuditLog({collapsed}) {
             </Button>
           </div>
       ),
-      onFilter: (value, record) => record.ip.toLowerCase().includes(value.toLowerCase()),
+      onFilter: (value, record) => record.ip,
       open: visibleColumns.ip,
     },
     {
@@ -103,7 +103,7 @@ function AuditLog({collapsed}) {
         { text: '로또 번호 생성', value: '로또 번호 생성' },
         { text: '계정 관리', value: '계정 관리' },
       ],
-      onFilter: (value, record) => record.category.toLowerCase().includes(value.toLowerCase()),
+      onFilter: (value, record) => record.category,
       open: visibleColumns.category,
     },
     {
@@ -119,7 +119,7 @@ function AuditLog({collapsed}) {
         { text: '사용자 관리', value: '사용자 관리' },
         { text: '권한 통계', value: '권한 통계' },
       ],
-      onFilter: (value, record) => record.sub_category.toLowerCase().includes(value.toLowerCase()),
+      onFilter: (value, record) => record.sub_category,
       open: visibleColumns.sub_category,
     },
     {
@@ -144,7 +144,7 @@ function AuditLog({collapsed}) {
             </Button>
           </div>
       ),
-      onFilter: (value, record) => record.action.toLowerCase().includes(value.toLowerCase()),
+      onFilter: (value, record) => record.action,
       open: visibleColumns.action,
     },
     {
@@ -157,7 +157,7 @@ function AuditLog({collapsed}) {
         { text: '성공', value: '성공' },
         { text: '실패', value: '실패' },
       ],
-      onFilter: (value, record) => record.result.toLowerCase().includes(value.toLowerCase()),
+      onFilter: (value, record) => record.result,
       open: visibleColumns.result,
     },
     {
@@ -182,6 +182,7 @@ function AuditLog({collapsed}) {
       }
       return acc;
     }, {});
+    console.log(filterParams)
     try {
       const params = {
         page: page,

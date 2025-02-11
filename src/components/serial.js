@@ -50,7 +50,7 @@ function Serial({collapsed}) {
         { text: '운영체제', value: '운영체제' },
         { text: '유틸', value: '유틸' },
       ],
-      onFilter: (value, record) => record.type.includes(value),
+      onFilter: (value, record) => record.type,
       open: visibleColumns.type,
     },
     {
@@ -75,7 +75,7 @@ function Serial({collapsed}) {
           </Button>
         </div>
       ),
-      onFilter: (value, record) => record.title.toLowerCase().includes(value.toLowerCase()),
+      onFilter: (value, record) => record.title,
       open: visibleColumns.title,
     },
     {
@@ -100,7 +100,7 @@ function Serial({collapsed}) {
           </Button>
         </div>
       ),
-      onFilter: (value, record) => record.value.toLowerCase().includes(value.toLowerCase()),
+      onFilter: (value, record) => record.value,
       open: visibleColumns.value,
     },
     {
@@ -125,7 +125,7 @@ function Serial({collapsed}) {
           </Button>
         </div>
       ),
-      onFilter: (value, record) => record.description.toLowerCase().includes(value.toLowerCase()),
+      onFilter: (value, record) => record.description,
       open: visibleColumns.description,
     },
     {

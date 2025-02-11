@@ -65,7 +65,7 @@ function GuestBook({collapsed}) {
           </Button>
         </div>
       ),
-      onFilter: (value, record) => record.name.toLowerCase().includes(value.toLowerCase()),
+      onFilter: (value, record) => record.name,
       open: visibleColumns.name,
     },
     {
@@ -91,7 +91,7 @@ function GuestBook({collapsed}) {
           </Button>
         </div>
       ),
-      onFilter: (value, record) => record.amount.toString().includes(value),
+      onFilter: (value, record) => record.amount,
       open: visibleColumns.amount,
     },
     {
@@ -124,7 +124,7 @@ function GuestBook({collapsed}) {
           </Button>
         </div>
       ),
-      onFilter: (value, record) => record.area.toLowerCase().includes(value.toLowerCase()),
+      onFilter: (value, record) => record.area,
       open: visibleColumns.area,
     },
     {
@@ -138,7 +138,7 @@ function GuestBook({collapsed}) {
         { text: '미참석', value: 'N' },
         { text: '미정', value: '-' },
       ],
-      onFilter: (value, record) => record.attend === value,
+      onFilter: (value, record) => record.attend,
       open: visibleColumns.attend,
       render: (text) => {
         if (text === 'Y') return '참석';
@@ -168,7 +168,7 @@ function GuestBook({collapsed}) {
           </Button>
         </div>
       ),
-      onFilter: (value, record) => record.description.toLowerCase().includes(value.toLowerCase()),
+      onFilter: (value, record) => record.description,
       open: visibleColumns.description,
     },
     {
