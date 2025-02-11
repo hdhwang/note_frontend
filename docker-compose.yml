@@ -1,11 +1,11 @@
 services:
-  note_react:
+  note_frontend:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: note_react
+    container_name: note_frontend
     ports:
       - "3000:443"
     volumes:
-      - .:/data/app/note_react
+      - .:/data/app/note_frontend
     restart: always
