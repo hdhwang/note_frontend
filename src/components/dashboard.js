@@ -17,7 +17,6 @@ function Dashboard() {
         const getData = async () => {
             try {
                 const response = await apiClient.get('dashboard/stats');
-                console.log(response.data)
                 setCounts(response.data);
             } catch (error) {
                 console.error('Failed to fetch counts:', error);
