@@ -6,7 +6,7 @@ import apiClient from './api/api_client';
 const { Content } = Layout;
 const { useBreakpoint } = Grid;
 
-function Dashboard() {
+function Dashboard({collapsed}) {
     const [counts, setCounts] = useState({
         bank_account_count: 0,
         serial_count: 0,
@@ -30,7 +30,7 @@ function Dashboard() {
     }, []);
 
     return (
-      <Layout style={{ marginLeft: 200 }}>
+      <Layout style={{ marginLeft: collapsed ? 80 : 200 }}>
           <Content style={{ overflow: 'initial' }}>
               <div style={{
                   textAlign: 'left',
