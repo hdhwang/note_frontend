@@ -290,6 +290,7 @@ function GuestBook() {
               }}
               onChange={handleTableChange}
               rowKey="id"
+              scroll={{ x: 'max-content' }}
             />
           </Card>
         </div>
