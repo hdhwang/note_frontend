@@ -364,7 +364,7 @@ function GuestBook() {
           </Form.Item>
           <Form.Item name="attend" label="참석 여부" rules={[{ required: true, message: '참석 여부를 선택하세요' }]}>
             <Select>
-              <Option value="Y">참���</Option>
+              <Option value="Y">참석</Option>
               <Option value="N">미참석</Option>
               <Option value="-">미정</Option>
             </Select>
