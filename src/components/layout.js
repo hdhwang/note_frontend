@@ -105,7 +105,6 @@ const LayoutNav = ({collapsed, setCollapsed}) => {
   return (
     <Layout>
       <Sider
-        collapsible
         collapsed={collapsed}
         onCollapse={(collapsed) => setCollapsed(collapsed)}
         breakpoint="md"
