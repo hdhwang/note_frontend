@@ -7,7 +7,6 @@ const { Content } = Layout;
 function Lotto({collapsed}) {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState([]);
-  const [error, setError] = useState(null);
 
   const columns = [
     {
@@ -30,7 +29,7 @@ function Lotto({collapsed}) {
       const response = await apiClient.get('lotto');
       setResult(response.data);
     } catch (error) {
-      setError(error);
+      console.log(error);
     } finally {
       setLoading(false);
     }

@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Card, Row, Col, Statistic, Grid } from 'antd';
+import { Layout, Card, Row, Col, Statistic } from 'antd';
 import '../App.css';
 import apiClient from './api/api_client';
 
 const { Content } = Layout;
-const { useBreakpoint } = Grid;
 
 function Dashboard({collapsed}) {
     const [counts, setCounts] = useState({
@@ -13,8 +12,6 @@ function Dashboard({collapsed}) {
         note_count: 0,
         guest_book_count: 0,
     });
-
-    const screens = useBreakpoint();
 
     useEffect(() => {
         const getData = async () => {
