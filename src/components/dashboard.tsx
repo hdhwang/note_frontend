@@ -55,14 +55,13 @@ const Dashboard: React.FC<DashboardProps> = ({ collapsed }) => {
             <Content style={{ overflow: 'initial' }}>
                 <div style={{
                     textAlign: 'left',
-                    color: '#131629',
                 }}>
                     <Card style={{ textAlign: 'center', border: 'none', backgroundColor: 'transparent' }}>
                         <Row gutter={[16, 16]} style={{ textAlign: 'center' }} wrap={true}>
 
                             {/* 계좌번호 */}
                             <Col xs={24} sm={12} md={6}>
-                                <Card size='small' style={{ background: '#3F8600', border: 'none' }}
+                                <Card size='small' style={{ background: 'linear-gradient(135deg, #11998e, #38ef7d)', border: 'none', borderRadius: '12px' }}
                                       title={<div style={{ color: "#ffffff", fontWeight: "bold" }}>계좌번호</div>}>
                                     <Statistic
                                         value={counts.bank_account_count}
@@ -74,7 +73,7 @@ const Dashboard: React.FC<DashboardProps> = ({ collapsed }) => {
 
                             {/* 시리얼 번호 */}
                             <Col xs={24} sm={12} md={6}>
-                                <Card size='small' style={{ background: '#CC4525', border: 'none' }}
+                                <Card size='small' style={{ background: 'linear-gradient(135deg, #eb3349, #f45c43)', border: 'none', borderRadius: '12px' }}
                                       title={<div style={{ color: "#ffffff", fontWeight: "bold" }}>시리얼 번호</div>}>
                                     <Statistic
                                         value={counts.serial_count}
@@ -85,7 +84,7 @@ const Dashboard: React.FC<DashboardProps> = ({ collapsed }) => {
 
                             {/* 노트 */}
                             <Col xs={24} sm={12} md={6}>
-                                <Card size='small' style={{ background: '#E5AB19', border: 'none' }}
+                                <Card size='small' style={{ background: 'linear-gradient(135deg, #f7971e, #ffd200)', border: 'none', borderRadius: '12px' }}
                                       title={<div style={{ color: "#ffffff", fontWeight: "bold" }}>노트</div>}>
                                     <Statistic
                                         value={counts.note_count}
@@ -96,7 +95,7 @@ const Dashboard: React.FC<DashboardProps> = ({ collapsed }) => {
 
                             {/* 결혼식 방명록 */}
                             <Col xs={24} sm={12} md={6}>
-                                <Card size='small' style={{ background: '#346AF3', border: 'none' }}
+                                <Card size='small' style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)', border: 'none', borderRadius: '12px' }}
                                       title={<div style={{ color: "#ffffff", fontWeight: "bold" }}>결혼식 방명록</div>}>
                                     <Statistic
                                         value={counts.guest_book_count}

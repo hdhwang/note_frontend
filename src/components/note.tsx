@@ -230,8 +230,8 @@ const Note: React.FC<NoteProps> = ({ collapsed }) => {
       <div>
         <Content style={{ padding: '24px' }}>
           <Card>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-              <Space>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16, flexWrap: 'wrap', gap: '8px 0' }}>
+              <Space wrap>
                 <Button icon={<ReloadOutlined />} onClick={() => getData(pagination.current, pagination.pageSize)}>
                   새로고침
                 </Button>

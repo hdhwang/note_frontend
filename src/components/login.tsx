@@ -1,5 +1,5 @@
-import React from "react";
-import { Form, Input, Button, Typography, Card, message } from "antd";
+import React, { useState, useEffect } from "react";
+import { Form, Input, Button, Typography, Card, message, ConfigProvider, theme } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -47,14 +47,26 @@ const Login: React.FC = () => {
     }
   };
 
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(
+      window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false
+  );
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e: MediaQueryListEvent) => setIsDarkMode(e.matches);
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
   return (
+      <ConfigProvider theme={isDarkMode ? { algorithm: theme.darkAlgorithm } : undefined}>
       <div
           style={{
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
             height: "100vh",
-            backgroundColor: "#f0f2f5",
+            backgroundColor: isDarkMode ? '#141414' : '#f0f2f5',
           }}
       >
         <Card style={{ width: 400 }}>
@@ -97,6 +109,7 @@ const Login: React.FC = () => {
           </Form>
         </Card>
       </div>
+      </ConfigProvider>
   );
 };
 

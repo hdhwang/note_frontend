@@ -36,3 +36,75 @@ code {
   scrollbar-width: thin;
   scrollbar-color: #bfbfbf transparent;
 }
+
+/* 사이드바 리사이즈 핸들 */
+.sider-resize-handle {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  cursor: col-resize;
+  z-index: 11;
+  transition: background-color 0.2s;
+}
+
+.sider-resize-handle:hover,
+.sider-resize-handle:active {
+  background-color: rgba(24, 144, 255, 0.6);
+}
+
+/* 사이드바 메뉴 선택/호버 색상 (#1B3150 레이아웃과 통일) */
+.ant-menu-dark .ant-menu-item-selected {
+  background-color: #2A4D6E !important;
+}
+
+.ant-menu-dark .ant-menu-item:not(.ant-menu-item-selected):hover {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* 헤더 드롭다운 다크 테마 */
+.header-dropdown .ant-dropdown-menu {
+  background-color: #1B3150;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.header-dropdown .ant-dropdown-menu-item {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.header-dropdown .ant-dropdown-menu-item:hover {
+  background-color: #2A4D6E !important;
+  color: #ffffff;
+}
+
+.header-dropdown .ant-dropdown-menu-item-danger {
+  color: #ff7875 !important;
+}
+
+.header-dropdown .ant-dropdown-menu-item-danger:hover {
+  background-color: rgba(255, 77, 79, 0.15) !important;
+  color: #ff4d4f !important;
+}
+
+.header-dropdown .ant-dropdown-menu-item-divider {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+/* 모바일 반응형 스타일 */
+@media (max-width: 768px) {
+  /* 콘텐츠 영역 패딩 축소 */
+  .ant-layout-content .ant-card {
+    margin: 0;
+  }
+
+  /* 모바일 테이블 내부 패딩 축소 */
+  .ant-card-body {
+    padding: 12px !important;
+  }
+
+  /* 로그인 카드가 화면 너비에 맞도록 */
+  .ant-card {
+    max-width: calc(100vw - 32px);
+  }
+}
