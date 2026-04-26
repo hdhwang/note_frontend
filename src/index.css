@@ -36,3 +36,21 @@ code {
   scrollbar-width: thin;
   scrollbar-color: #bfbfbf transparent;
 }
+
+/* 모바일 반응형 스타일 */
+@media (max-width: 768px) {
+  /* 콘텐츠 영역 패딩 축소 */
+  .ant-layout-content .ant-card {
+    margin: 0;
+  }
+
+  /* 모바일 테이블 내부 패딩 축소 */
+  .ant-card-body {
+    padding: 12px !important;
+  }
+
+  /* 로그인 카드가 화면 너비에 맞도록 */
+  .ant-card {
+    max-width: calc(100vw - 32px);
+  }
+}

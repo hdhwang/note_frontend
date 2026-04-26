@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Layout, Menu, Space, Typography, MenuProps } from "antd";
+import { Layout, Menu, Space, Typography, Drawer, MenuProps } from "antd";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { jwtDecode } from 'jwt-decode';
 import {
@@ -20,6 +20,7 @@ interface LayoutNavProps {
   collapsed: boolean;
   setCollapsed: (collapsed: boolean) => void;
   permissions: string[];
+  isMobile: boolean;
 }
 
 // 2. JWT 토큰 구조 정의
@@ -28,7 +29,7 @@ interface DecodedToken {
   [key: string]: any; // 기타 필드 허용
 }
 
-const LayoutNav: React.FC<LayoutNavProps> = ({ collapsed, setCollapsed }) => {
+const LayoutNav: React.FC<LayoutNavProps> = ({ collapsed, setCollapsed, isMobile }) => {
   const location = useLocation();
   const { pathname } = location;
   const navigate = useNavigate();
@@ -48,39 +49,44 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ collapsed, setCollapsed }) => {
     if (e.key === pathname) return;
     setSelectedKeys([e.key]);
     navigate(e.key, { replace: true });
+    // 모바일에서 메뉴 클릭 시 사이드바 닫기
+    if (isMobile) {
+      setCollapsed(true);
+    }
   };
 
   // 3. 메뉴 아이템 타입 정의 (MenuProps['items'])
+  // label을 항상 제공하여 collapsed 상태에서 툴팁이 표시되도록 수정
   let menuItems: MenuProps['items'] = [
     {
       key: '/',
       icon: <DashboardOutlined />,
-      label: !collapsed ? <Link to={'/'}>대시보드</Link> : null,
+      label: <Link to={'/'}>대시보드</Link>,
     },
     {
       key: '/bank-account',
       icon: <BankOutlined />,
-      label: !collapsed ? <Link to={'/bank-account'}>계좌번호 관리</Link> : null,
+      label: <Link to={'/bank-account'}>계좌번호 관리</Link>,
     },
     {
       key: '/serial',
       icon: <KeyOutlined />,
-      label: !collapsed ? <Link to={'/serial'}>시리얼 번호 관리</Link> : null,
+      label: <Link to={'/serial'}>시리얼 번호 관리</Link>,
     },
     {
       key: '/note',
       icon: <FileTextOutlined />,
-      label: !collapsed ? <Link to={'/note'}>노트 관리</Link> : null,
+      label: <Link to={'/note'}>노트 관리</Link>,
     },
     {
       key: '/guest-book',
       icon: <BookOutlined />,
-      label: !collapsed ? <Link to={'/guest-book'}>결혼식 방명록</Link> : null,
+      label: <Link to={'/guest-book'}>결혼식 방명록</Link>,
     },
     {
       key: '/lotto',
       icon: <DotChartOutlined />,
-      label: !collapsed ? <Link to={'/lotto'}>로또 번호 생성</Link> : null,
+      label: <Link to={'/lotto'}>로또 번호 생성</Link>,
     },
   ];
 
@@ -94,7 +100,7 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ collapsed, setCollapsed }) => {
         menuItems.push({
           key: '/audit-log',
           icon: <AuditOutlined />,
-          label: !collapsed ? <Link to={'/audit-log'}>감사 로그</Link> : null,
+          label: <Link to={'/audit-log'}>감사 로그</Link>,
         });
       }
     }
@@ -102,6 +108,53 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ collapsed, setCollapsed }) => {
     console.error('Error permissionList:', error);
   }
 
+  // 사이드바 로고 영역
+  const logoContent = (
+      <NavLink to='/'>
+        <div style={{ padding: '16px 10px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Space orientation='horizontal' size='small'>
+            <EditOutlined style={{ color: '#ffffff', fontSize: 30 }} />
+            {(!collapsed || isMobile) && (
+                <Typography.Text style={{ color: '#ffffff', fontSize: 20 }}>
+                  <b>NOTEPAD</b>
+                </Typography.Text>
+            )}
+          </Space>
+        </div>
+      </NavLink>
+  );
+
+  // 사이드바 메뉴 영역
+  const menuContent = (
+      <Menu
+          theme='dark'
+          mode='inline'
+          onClick={onClick}
+          selectedKeys={selectedKeys}
+          items={menuItems}
+      />
+  );
+
+  // 모바일: Drawer로 오버레이 표시
+  if (isMobile) {
+    return (
+        <Drawer
+            placement="left"
+            open={!collapsed}
+            onClose={() => setCollapsed(true)}
+            width={200}
+            styles={{
+              body: { padding: 0, backgroundColor: '#001529' },
+              header: { display: 'none' },
+            }}
+        >
+          {logoContent}
+          {menuContent}
+        </Drawer>
+    );
+  }
+
+  // 데스크톱: 기존 Sider 유지
   return (
       <Sider
           collapsed={collapsed}
@@ -118,25 +171,8 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ collapsed, setCollapsed }) => {
             zIndex: 10,
           }}
       >
-        <NavLink to='/'>
-          <div style={{ padding: '16px 10px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Space orientation='horizontal' size='small'>
-              <EditOutlined style={{ color: '#ffffff', fontSize: 30 }} />
-              {!collapsed && (
-                  <Typography.Text style={{ color: '#ffffff', fontSize: 20 }}>
-                    <b>NOTEPAD</b>
-                  </Typography.Text>
-              )}
-            </Space>
-          </div>
-        </NavLink>
-        <Menu
-            theme='dark'
-            mode='inline'
-            onClick={onClick}
-            selectedKeys={selectedKeys}
-            items={menuItems}
-        />
+        {logoContent}
+        {menuContent}
       </Sider>
   );
 };

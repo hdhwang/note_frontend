@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LayoutNav from "./layout";
 import { Layout, Spin, Typography, message, Dropdown, Button, Modal, Form, Input, ConfigProvider, MenuProps } from "antd";
+import { MenuOutlined } from '@ant-design/icons';
 import koKR from 'antd/es/locale/ko_KR';
 import Forbidden from "./error/forbidden";
 import { jwtDecode } from 'jwt-decode';
@@ -23,6 +24,9 @@ interface SecureRouteProps {
     setCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+// 모바일 판별 기준 (Ant Design Sider의 md breakpoint와 동일)
+const MOBILE_BREAKPOINT = 768;
+
 const SecureRoute: React.FC<SecureRouteProps> = ({
                                                      component: Component,
                                                      permissionRequired,
@@ -35,9 +39,27 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
     const [username, setUsername] = useState<string>('');
     const [firstname, setFirstname] = useState<string>('');
     const [isPasswordModalVisible, setIsPasswordModalVisible] = useState<boolean>(false);
+    const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth < MOBILE_BREAKPOINT);
 
     const navigate = useNavigate();
     const [form] = Form.useForm();
+
+    // 화면 크기 변경 감지
+    useEffect(() => {
+        const handleResize = () => {
+            const mobile = window.innerWidth < MOBILE_BREAKPOINT;
+            setIsMobile(mobile);
+            // 모바일 전환 시 사이드바 자동으로 닫기
+            if (mobile) {
+                setCollapsed(true);
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        // 초기 실행
+        handleResize();
+        return () => window.removeEventListener('resize', handleResize);
+    }, [setCollapsed]);
 
     useEffect(() => {
         const verifyToken = async () => {
@@ -155,14 +177,17 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
         }
     }
 
+    // 모바일에서는 marginLeft 0, 데스크톱에서는 사이드바 너비만큼
+    const mainMarginLeft = isMobile ? 0 : (collapsed ? 80 : 200);
+
     return (
         <Layout style={{ minHeight: '100vh', overflow: 'hidden' }}>
-            {/* 왼쪽 사이드바 (fixed 고정) */}
-            <LayoutNav permissions={permissions} collapsed={collapsed} setCollapsed={setCollapsed} />
+            {/* 왼쪽 사이드바 (fixed 고정 / 모바일에서는 Drawer) */}
+            <LayoutNav permissions={permissions} collapsed={collapsed} setCollapsed={setCollapsed} isMobile={isMobile} />
 
             {/* 오른쪽 메인 영역 */}
             <Layout style={{
-                marginLeft: collapsed ? 80 : 200,
+                marginLeft: mainMarginLeft,
                 transition: 'margin-left 0.2s',
                 height: '100vh',
                 display: 'flex',
@@ -170,7 +195,7 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
             }}>
                 <Header style={{
                     display: 'flex',
-                    justifyContent: 'flex-end',
+                    justifyContent: 'space-between',
                     alignItems: 'center',
                     backgroundColor: '#131629',
                     padding: '0 20px',
@@ -179,6 +204,17 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
                     zIndex: 10,
                     width: '100%'
                 }}>
+                    {/* 모바일: 햄버거 메뉴 버튼 / 데스크톱: 빈 공간 */}
+                    <div>
+                        {isMobile && (
+                            <Button
+                                type="text"
+                                icon={<MenuOutlined />}
+                                onClick={() => setCollapsed(!collapsed)}
+                                style={{ color: '#ffffff', fontSize: 18 }}
+                            />
+                        )}
+                    </div>
                     <Dropdown menu={{ items }} trigger={['click']} placement="bottomRight">
                         <Typography.Text style={{ color: '#ffffff', fontSize: 15, cursor: 'pointer' }}>
                             <b>{username} ({firstname})</b>
