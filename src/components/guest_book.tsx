@@ -1,15 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Card, Table, Button, Input, message, Modal, Form, Select, Space, Checkbox, Dropdown } from 'antd';
-import {DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, EyeOutlined} from "@ant-design/icons";
+import type { MenuProps, TablePaginationConfig } from 'antd';
+import type { ColumnsType, ColumnType } from 'antd/es/table';
+import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, EyeOutlined } from "@ant-design/icons";
 import '../App.css';
 import apiClient from './api/api_client';
 
 const { Content } = Layout;
 const { Option } = Select;
 
-function GuestBook({ collapsed }) {
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState([]);
+// 1. 데이터 구조 인터페이스 정의
+interface GuestBookData {
+  id: number;
+  name: string;
+  amount: number;
+  date: string;
+  area: string;
+  attend: 'Y' | 'N' | '-';
+  description: string;
+}
+
+// 2. Props 타입 정의
+interface GuestBookProps {
+  collapsed: boolean;
+}
+
+const GuestBook: React.FC<GuestBookProps> = ({ collapsed }) => {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [result, setResult] = useState<GuestBookData[]>([]);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
   const [visibleColumns, setVisibleColumns] = useState({
     name: true,
@@ -20,12 +38,12 @@ function GuestBook({ collapsed }) {
     description: true,
     actions: true,
   });
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
-  const [currentGuest, setCurrentGuest] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [isAddModalVisible, setIsAddModalVisible] = useState<boolean>(false);
+  const [currentGuest, setCurrentGuest] = useState<GuestBookData | null>(null);
   const [form] = Form.useForm();
 
-  const columnLabels = {
+  const columnLabels: Record<string, string> = {
     name: '이름',
     amount: '금액',
     date: '일자',
@@ -35,88 +53,84 @@ function GuestBook({ collapsed }) {
     actions: '작업',
   };
 
-  const handleColumnVisibilityChange = (columnKey) => {
+  const handleColumnVisibilityChange = (columnKey: string) => {
     setVisibleColumns(prevState => ({
       ...prevState,
-      [columnKey]: !prevState[columnKey],
+      [columnKey as keyof typeof visibleColumns]: !prevState[columnKey as keyof typeof visibleColumns],
     }));
   };
 
   // 필드 설정 드롭다운 메뉴 구성
-  const menuItems = Object.keys(columnLabels).map(columnKey => ({
+  const menuItems: MenuProps['items'] = Object.keys(columnLabels).map(columnKey => ({
     key: columnKey,
     label: (
         <Checkbox
-            checked={visibleColumns[columnKey]}
+            checked={visibleColumns[columnKey as keyof typeof visibleColumns]}
             onChange={() => handleColumnVisibilityChange(columnKey)}
-            onClick={(e) => e.stopPropagation()} // 클릭 시 드롭다운 닫힘 방지
+            onClick={(e) => e.stopPropagation()}
         >
           {columnLabels[columnKey]}
         </Checkbox>
     ),
   }));
 
-  const columns = [
+  // 전체 컬럼 정의 (align: 'center' as const 적용)
+  const allColumns: ColumnType<GuestBookData>[] = [
     {
       title: '번호',
       dataIndex: 'index',
       key: 'index',
-      align: 'center',
-      render: (text, record, index) => (pagination.current - 1) * pagination.pageSize + index + 1,
+      align: 'center' as const,
+      render: (_: any, __: any, index: number) => (pagination.current - 1) * pagination.pageSize + index + 1,
     },
     {
       title: '이름',
       dataIndex: 'name',
       key: 'name',
-      align: 'center',
+      align: 'center' as const,
       sorter: true,
-      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: any) => (
           <div style={{ padding: 8 }}>
             <Input
                 value={selectedKeys[0]}
                 onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-                onPressEnter={confirm}
+                onPressEnter={() => confirm()}
                 style={{ marginBottom: 8, display: 'block' }}
             />
             <Space>
-              <Button type="primary" onClick={confirm} size="small" style={{ width: 90 }}>확인</Button>
-              <Button onClick={clearFilters} size="small" style={{ width: 90 }}>초기화</Button>
+              <Button type="primary" onClick={() => confirm()} size="small" style={{ width: 90 }}>확인</Button>
+              <Button onClick={() => clearFilters && clearFilters()} size="small" style={{ width: 90 }}>초기화</Button>
             </Space>
           </div>
       ),
-      onFilter: (value, record) => record.name,
-      open: visibleColumns.name,
     },
     {
       title: '금액',
       dataIndex: 'amount',
       key: 'amount',
-      align: 'center',
+      align: 'center' as const,
       sorter: true,
-      render: (text) => new Intl.NumberFormat().format(text),
-      open: visibleColumns.amount,
+      render: (text: number) => new Intl.NumberFormat().format(text),
     },
     {
       title: '일자',
       dataIndex: 'date',
       key: 'date',
-      align: 'center',
+      align: 'center' as const,
       sorter: true,
-      open: visibleColumns.date,
     },
     {
       title: '장소',
       dataIndex: 'area',
       key: 'area',
-      align: 'center',
+      align: 'center' as const,
       sorter: true,
-      open: visibleColumns.area,
     },
     {
       title: '참석 여부',
       dataIndex: 'attend',
       key: 'attend',
-      align: 'center',
+      align: 'center' as const,
       sorter: true,
       filters: [
         { text: '참석', value: 'Y' },
@@ -124,34 +138,35 @@ function GuestBook({ collapsed }) {
         { text: '- (미정)', value: '-' },
       ],
       filterMultiple: false,
-      onFilter: (value, record) => record.attend,
-      render: (text) => {
+      render: (text: string) => {
         if (text === 'Y') return '참석';
         if (text === 'N') return '미참석';
         return '미정';
       },
-      open: visibleColumns.attend,
     },
     {
       title: '설명',
       dataIndex: 'description',
       key: 'description',
-      align: 'center',
-      open: visibleColumns.description,
+      align: 'center' as const,
     },
     {
       title: '작업',
       key: 'actions',
-      align: 'center',
-      render: (text, record) => (
+      align: 'center' as const,
+      render: (_: any, record: GuestBookData) => (
           <Space>
             <Button type="primary" icon={<EditOutlined />} onClick={() => showEditModal(record)} />
             <Button type="primary" danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)} />
           </Space>
       ),
-      open: visibleColumns.actions,
     },
-  ].filter(column => column.open);
+  ];
+
+  // 필터링된 컬럼 생성 및 타입 단언
+  const columns = allColumns.filter(column =>
+      column.key === 'index' || visibleColumns[column.key as keyof typeof visibleColumns]
+  ) as ColumnsType<GuestBookData>;
 
   const getData = async (page = 1, pageSize = 10, ordering = 'name', filters = {}) => {
     setLoading(true);
@@ -161,13 +176,13 @@ function GuestBook({ collapsed }) {
       setResult(response.data.results);
       setPagination({ current: page, pageSize, total: response.data.count });
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: number) => {
     Modal.confirm({
       title: '삭제하시겠습니까?',
       okType: 'danger',
@@ -181,7 +196,7 @@ function GuestBook({ collapsed }) {
     });
   };
 
-  const showEditModal = (guest) => {
+  const showEditModal = (guest: GuestBookData) => {
     setCurrentGuest(guest);
     form.setFieldsValue(guest);
     setIsModalVisible(true);
@@ -192,14 +207,14 @@ function GuestBook({ collapsed }) {
     setIsAddModalVisible(true);
   };
 
-  const handleAddOrEdit = async (mode) => {
+  const handleAddOrEdit = async (mode: 'add' | 'edit') => {
     try {
       const values = await form.validateFields();
       if (mode === 'add') {
         await apiClient.post('guest-book', values);
         message.success('추가되었습니다.');
         setIsAddModalVisible(false);
-      } else {
+      } else if (mode === 'edit' && currentGuest) {
         await apiClient.put(`guest-book/${currentGuest.id}`, values);
         message.success('수정되었습니다.');
         setIsModalVisible(false);
@@ -210,13 +225,17 @@ function GuestBook({ collapsed }) {
 
   useEffect(() => { getData(); }, []);
 
-  const handleTableChange = (p, f, s) => {
+  const handleTableChange = (
+      p: TablePaginationConfig,
+      f: Record<string, any>,
+      s: any
+  ) => {
     const order = s.field ? (s.order === 'ascend' ? s.field : `-${s.field}`) : 'name';
-    getData(p.current, p.pageSize, order, f);
+    getData(p.current || 1, p.pageSize || 10, order, f);
   };
 
   return (
-      <Layout style={{ marginLeft: collapsed ? 80 : 200, transition: 'margin-left 0.2s' }}>
+      <div>
         <Content style={{ padding: '24px' }}>
           <Card>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
@@ -241,37 +260,40 @@ function GuestBook({ collapsed }) {
           </Card>
         </Content>
 
-        {/* 추가/편집 모달 재사용 구조 (내용은 동일) */}
-        {[
-          { title: "추가", visible: isAddModalVisible, setVisible: setIsAddModalVisible, onOk: () => handleAddOrEdit('add') },
-          { title: "편집", visible: isModalVisible, setVisible: setIsModalVisible, onOk: () => handleAddOrEdit('edit') }
-        ].map(modal => (
-            <Modal
-                key={modal.title}
-                title={`결혼식 방명록 ${modal.title}`}
-                open={modal.visible}
-                onOk={modal.onOk}
-                onCancel={() => modal.setVisible(false)}
-            >
-              <Form form={form} layout="vertical">
-                <Form.Item name="name" label="이름" rules={[{ required: true }]}><Input /></Form.Item>
-                <Form.Item name="amount" label="금액"><Input type="number" /></Form.Item>
-                <Form.Item name="date" label="일자" rules={[{ pattern: /^\d{4}-\d{2}-\d{2}$/, message: 'YYYY-MM-DD 형식' }]}>
-                  <Input placeholder="YYYY-MM-DD" />
-                </Form.Item>
-                <Form.Item name="area" label="장소"><Input /></Form.Item>
-                <Form.Item name="attend" label="참석 여부" rules={[{ required: true }]}>
-                  <Select>
-                    <Option value="Y">참석</Option>
-                    <Option value="N">미참석</Option>
-                    <Option value="-">미정</Option>
-                  </Select>
-                </Form.Item>
-                <Form.Item name="description" label="설명"><Input.TextArea autoSize={{ minRows: 2 }} /></Form.Item>
-              </Form>
-            </Modal>
-        ))}
-      </Layout>
+        {/* 추가/편집 모달 재사용 구조 */}
+        {(['add', 'edit'] as const).map(mode => {
+          const isAdd = mode === 'add';
+          const visible = isAdd ? isAddModalVisible : isModalVisible;
+          const setVisible = isAdd ? setIsAddModalVisible : setIsModalVisible;
+
+          return (
+              <Modal
+                  key={mode}
+                  title={`결혼식 방명록 ${isAdd ? '추가' : '편집'}`}
+                  open={visible}
+                  onOk={() => handleAddOrEdit(mode)}
+                  onCancel={() => setVisible(false)}
+              >
+                <Form form={form} layout="vertical">
+                  <Form.Item name="name" label="이름" rules={[{ required: true }]}><Input /></Form.Item>
+                  <Form.Item name="amount" label="금액"><Input type="number" /></Form.Item>
+                  <Form.Item name="date" label="일자" rules={[{ pattern: /^\d{4}-\d{2}-\d{2}$/, message: 'YYYY-MM-DD 형식' }]}>
+                    <Input placeholder="YYYY-MM-DD" />
+                  </Form.Item>
+                  <Form.Item name="area" label="장소"><Input /></Form.Item>
+                  <Form.Item name="attend" label="참석 여부" rules={[{ required: true }]}>
+                    <Select>
+                      <Option value="Y">참석</Option>
+                      <Option value="N">미참석</Option>
+                      <Option value="-">미정</Option>
+                    </Select>
+                  </Form.Item>
+                  <Form.Item name="description" label="설명"><Input.TextArea autoSize={{ minRows: 2 }} /></Form.Item>
+                </Form>
+              </Modal>
+          )
+        })}
+      </div>
   );
 }
 

@@ -1,14 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Card, Table, Button, Input, message, Modal, Checkbox, Form, Space, Dropdown } from "antd";
+import type { MenuProps, TablePaginationConfig } from 'antd';
 import '../App.css';
 import apiClient from './api/api_client';
-import {DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, EyeOutlined} from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, EyeOutlined } from "@ant-design/icons";
 
 const { Content } = Layout;
 
-function Note({ collapsed }) {
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState([]);
+// 1. 데이터 구조 인터페이스 정의
+interface NoteData {
+  id: number;
+  title: string;
+  note: string;
+  date: string;
+}
+
+// 2. Props 타입 정의
+interface NoteProps {
+  collapsed: boolean;
+}
+
+const Note: React.FC<NoteProps> = ({ collapsed }) => {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [result, setResult] = useState<NoteData[]>([]);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
   const [visibleColumns, setVisibleColumns] = useState({
     title: true,
@@ -16,33 +30,33 @@ function Note({ collapsed }) {
     date: true,
     actions: true,
   });
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
-  const [currentNote, setCurrentNote] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [isAddModalVisible, setIsAddModalVisible] = useState<boolean>(false);
+  const [currentNote, setCurrentNote] = useState<NoteData | null>(null);
   const [form] = Form.useForm();
 
-  const columnLabels = {
+  const columnLabels: Record<string, string> = {
     title: '제목',
     note: '내용',
     date: '등록 일자',
     actions: '작업',
   };
 
-  const handleColumnVisibilityChange = (columnKey) => {
+  const handleColumnVisibilityChange = (columnKey: string) => {
     setVisibleColumns(prevState => ({
       ...prevState,
-      [columnKey]: !prevState[columnKey],
+      [columnKey as keyof typeof visibleColumns]: !prevState[columnKey as keyof typeof visibleColumns],
     }));
   };
 
-  // 필드 보기 드롭다운 메뉴 아이템 구성
-  const menuItems = Object.keys(columnLabels).map(columnKey => ({
+  // 필드 설정 드롭다운 메뉴 아이템 구성
+  const menuItems: MenuProps['items'] = Object.keys(columnLabels).map(columnKey => ({
     key: columnKey,
     label: (
         <Checkbox
-            checked={visibleColumns[columnKey]}
+            checked={visibleColumns[columnKey as keyof typeof visibleColumns]}
             onChange={() => handleColumnVisibilityChange(columnKey)}
-            onClick={(e) => e.stopPropagation()} // 메뉴 닫힘 방지
+            onClick={(e) => e.stopPropagation()}
         >
           {columnLabels[columnKey]}
         </Checkbox>
@@ -54,56 +68,56 @@ function Note({ collapsed }) {
       title: '번호',
       dataIndex: 'index',
       key: 'index',
-      align: 'center',
-      render: (text, record, index) => (pagination.current - 1) * pagination.pageSize + index + 1,
+      align: 'center' as const,
+      render: (_: any, __: any, index: number) => (pagination.current - 1) * pagination.pageSize + index + 1,
     },
     {
       title: '제목',
       dataIndex: 'title',
       key: 'title',
-      align: 'center',
+      align: 'center' as const,
       sorter: true,
-      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: any) => (
           <div style={{ padding: 8 }}>
             <Input
                 value={selectedKeys[0]}
                 onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-                onPressEnter={confirm}
+                onPressEnter={() => confirm()}
                 style={{ marginBottom: 8, display: 'block' }}
             />
             <Space>
-              <Button type="primary" onClick={confirm} size="small" style={{ width: 90 }}>
+              <Button type="primary" onClick={() => confirm()} size="small" style={{ width: 90 }}>
                 확인
               </Button>
-              <Button onClick={clearFilters} size="small" style={{ width: 90 }}>
+              <Button onClick={() => clearFilters && clearFilters()} size="small" style={{ width: 90 }}>
                 초기화
               </Button>
             </Space>
           </div>
       ),
-      onFilter: (value, record) => record.title,
+      onFilter: (value: any, record: NoteData) => record.title.indexOf(value as string) === 0,
       open: visibleColumns.title,
     },
     {
       title: '내용',
       dataIndex: 'note',
       key: 'note',
-      align: 'center',
+      align: 'center' as const,
       open: visibleColumns.note,
     },
     {
       title: '등록 일자',
       dataIndex: 'date',
       key: 'date',
-      align: 'center',
+      align: 'center' as const,
       sorter: true,
       open: visibleColumns.date,
     },
     {
       title: '작업',
       key: 'actions',
-      align: 'center',
-      render: (text, record) => (
+      align: 'center' as const,
+      render: (_: any, record: NoteData) => (
           <Space>
             <Button
                 type="primary"
@@ -139,13 +153,13 @@ function Note({ collapsed }) {
         total: response.data.count,
       });
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: number) => {
     Modal.confirm({
       title: '선택한 노트를 삭제 하시겠습니까?',
       okType: 'danger',
@@ -161,13 +175,14 @@ function Note({ collapsed }) {
     });
   };
 
-  const showEditModal = (note) => {
+  const showEditModal = (note: NoteData) => {
     setCurrentNote(note);
     form.setFieldsValue(note);
     setIsModalVisible(true);
   };
 
   const handleEdit = async () => {
+    if (!currentNote) return;
     try {
       const values = await form.validateFields();
       await apiClient.put(`note/${currentNote.id}`, values);
@@ -200,7 +215,11 @@ function Note({ collapsed }) {
     getData();
   }, []);
 
-  const handleTableChange = (pagination, filters, sorter) => {
+  const handleTableChange = (
+      pagination: TablePaginationConfig,
+      filters: Record<string, any>,
+      sorter: any
+  ) => {
     const sortField = sorter.field;
     const sortOrder = sorter.order === 'ascend' ? '' : '-';
     const order = sortField ? sortOrder + sortField : '-date';
@@ -208,7 +227,7 @@ function Note({ collapsed }) {
   };
 
   return (
-      <Layout style={{ marginLeft: collapsed ? 80 : 200, transition: 'margin-left 0.2s' }}>
+      <div>
         <Content style={{ padding: '24px' }}>
           <Card>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
@@ -270,7 +289,7 @@ function Note({ collapsed }) {
             </Form.Item>
           </Form>
         </Modal>
-      </Layout>
+      </div>
   );
 }
 
