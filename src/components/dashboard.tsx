@@ -13,12 +13,7 @@ interface DashboardStats {
     guest_book_count: number;
 }
 
-// 2. Props 타입 정의
-interface DashboardProps {
-    collapsed: boolean;
-}
-
-const Dashboard: React.FC<DashboardProps> = ({ collapsed }) => {
+const Dashboard: React.FC = () => {
     // 초기 상태값에 인터페이스 적용
     const [counts, setCounts] = useState<DashboardStats>({
         bank_account_count: 0,

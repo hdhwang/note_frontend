@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSettings } from './settings_context';
 import { Layout, Card, Table, Button, Input, message, Modal, Form, Select, Space, Checkbox, Dropdown } from 'antd';
 import type { MenuProps, TablePaginationConfig } from 'antd';
 import type { ColumnsType, ColumnType } from 'antd/es/table';
@@ -20,12 +21,8 @@ interface GuestBookData {
   description: string;
 }
 
-// 2. Props 타입 정의
-interface GuestBookProps {
-  collapsed: boolean;
-}
-
-const GuestBook: React.FC<GuestBookProps> = ({ collapsed }) => {
+const GuestBook: React.FC = () => {
+  const { settings } = useSettings();
   const [loading, setLoading] = useState<boolean>(false);
   const [result, setResult] = useState<GuestBookData[]>([]);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
@@ -249,6 +246,7 @@ const GuestBook: React.FC<GuestBookProps> = ({ collapsed }) => {
             </div>
 
             <Table
+                size={settings.tableDensity}
                 dataSource={result}
                 columns={columns}
                 loading={loading}

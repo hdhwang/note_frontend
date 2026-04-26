@@ -53,42 +53,13 @@ code {
   background-color: rgba(24, 144, 255, 0.6);
 }
 
-/* 사이드바 메뉴 선택/호버 색상 (#1B3150 레이아웃과 통일) */
+/* 사이드바 메뉴 선택/호버 색상 (동적 테마 연동) */
 .ant-menu-dark .ant-menu-item-selected {
-  background-color: #2A4D6E !important;
+  background-color: var(--layout-color-selected) !important;
 }
 
 .ant-menu-dark .ant-menu-item:not(.ant-menu-item-selected):hover {
   background-color: rgba(255, 255, 255, 0.08) !important;
-}
-
-/* 헤더 드롭다운 다크 테마 */
-.header-dropdown .ant-dropdown-menu {
-  background-color: #1B3150;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-}
-
-.header-dropdown .ant-dropdown-menu-item {
-  color: rgba(255, 255, 255, 0.85);
-}
-
-.header-dropdown .ant-dropdown-menu-item:hover {
-  background-color: #2A4D6E !important;
-  color: #ffffff;
-}
-
-.header-dropdown .ant-dropdown-menu-item-danger {
-  color: #ff7875 !important;
-}
-
-.header-dropdown .ant-dropdown-menu-item-danger:hover {
-  background-color: rgba(255, 77, 79, 0.15) !important;
-  color: #ff4d4f !important;
-}
-
-.header-dropdown .ant-dropdown-menu-item-divider {
-  background-color: rgba(255, 255, 255, 0.12);
 }
 
 /* 모바일 반응형 스타일 */

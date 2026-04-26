@@ -12,42 +12,35 @@ import Login from './login';
 import Forbidden from "./error/forbidden";
 import NotFound from "./error/not_found";
 
-// 1. Props 타입 정의
-interface AppRoutesProps {
-    collapsed: boolean;
-    // React의 useState에서 반환하는 set 함수 타입입니다.
-    setCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-const AppRoutes: React.FC<AppRoutesProps> = ({ collapsed, setCollapsed }) => {
+const AppRoutes: React.FC = () => {
     return useRoutes([
         {
             path: '/',
-            element: <SecureRoute component={Dashboard} permissionRequired={['사용자', '관리자']} collapsed={collapsed} setCollapsed={setCollapsed} />
+            element: <SecureRoute component={Dashboard} permissionRequired={['사용자', '관리자']} />
         },
         {
             path: '/bank-account',
-            element: <SecureRoute component={BankAccount} permissionRequired={['사용자','관리자']} collapsed={collapsed} setCollapsed={setCollapsed} />
+            element: <SecureRoute component={BankAccount} permissionRequired={['사용자','관리자']} />
         },
         {
             path: '/serial',
-            element: <SecureRoute component={Serial} permissionRequired={['사용자', '관리자']} collapsed={collapsed} setCollapsed={setCollapsed} />
+            element: <SecureRoute component={Serial} permissionRequired={['사용자', '관리자']} />
         },
         {
             path: '/note',
-            element: <SecureRoute component={Note} permissionRequired={['사용자', '관리자']} collapsed={collapsed} setCollapsed={setCollapsed} />
+            element: <SecureRoute component={Note} permissionRequired={['사용자', '관리자']} />
         },
         {
             path: '/guest-book',
-            element: <SecureRoute component={GuestBook} permissionRequired={['사용자', '관리자']} collapsed={collapsed} setCollapsed={setCollapsed} />
+            element: <SecureRoute component={GuestBook} permissionRequired={['사용자', '관리자']} />
         },
         {
             path: '/lotto',
-            element: <SecureRoute component={Lotto} permissionRequired={['사용자', '관리자']} collapsed={collapsed} setCollapsed={setCollapsed} />
+            element: <SecureRoute component={Lotto} permissionRequired={['사용자', '관리자']} />
         },
         {
             path: '/audit-log',
-            element: <SecureRoute component={AuditLog} permissionRequired={['관리자']} collapsed={collapsed} setCollapsed={setCollapsed} />
+            element: <SecureRoute component={AuditLog} permissionRequired={['관리자']} />
         },
 
         { path: "/login", element: <Login /> },

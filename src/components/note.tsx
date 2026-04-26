@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSettings } from './settings_context';
 import { Layout, Card, Table, Button, Input, message, Modal, Checkbox, Form, Space, Dropdown } from "antd";
 import type { MenuProps, TablePaginationConfig } from 'antd';
 import '../App.css';
@@ -15,12 +16,8 @@ interface NoteData {
   date: string;
 }
 
-// 2. Props 타입 정의
-interface NoteProps {
-  collapsed: boolean;
-}
-
-const Note: React.FC<NoteProps> = ({ collapsed }) => {
+const Note: React.FC = () => {
+  const { settings } = useSettings();
   const [loading, setLoading] = useState<boolean>(false);
   const [result, setResult] = useState<NoteData[]>([]);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
@@ -247,6 +244,7 @@ const Note: React.FC<NoteProps> = ({ collapsed }) => {
             </div>
 
             <Table
+                size={settings.tableDensity}
                 dataSource={result}
                 columns={columns}
                 loading={loading}
