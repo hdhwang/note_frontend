@@ -1,10 +1,12 @@
-import React, {useState, useEffect} from 'react';
-import {Layout, Card, Table, Button, Input, Checkbox}  from "antd";
+import React, { useState, useEffect } from 'react';
+import { Layout, Card, Table, Button, Input, Checkbox, Dropdown, Space } from "antd";
+import { EyeOutlined, ReloadOutlined } from "@ant-design/icons";
 import '../App.css';
 import apiClient from './api/api_client';
-const {Content} = Layout;
 
-function AuditLog({collapsed}) {
+const { Content } = Layout;
+
+function AuditLog({ collapsed }) {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState([]);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
@@ -28,6 +30,27 @@ function AuditLog({collapsed}) {
     date: '일자',
   };
 
+  const handleColumnVisibilityChange = (columnKey) => {
+    setVisibleColumns(prevState => ({
+      ...prevState,
+      [columnKey]: !prevState[columnKey],
+    }));
+  };
+
+  // 필드 설정 드롭다운 메뉴 아이템 구성
+  const menuItems = Object.keys(columnLabels).map(columnKey => ({
+    key: columnKey,
+    label: (
+        <Checkbox
+            checked={visibleColumns[columnKey]}
+            onChange={() => handleColumnVisibilityChange(columnKey)}
+            onClick={(e) => e.stopPropagation()} // 클릭 시 드롭다운 닫힘 방지
+        >
+          {columnLabels[columnKey]}
+        </Checkbox>
+    ),
+  }));
+
   const columns = [
     {
       title: '번호',
@@ -35,7 +58,6 @@ function AuditLog({collapsed}) {
       key: 'index',
       align: 'center',
       render: (text, record, index) => (pagination.current - 1) * pagination.pageSize + index + 1,
-      open: true,
     },
     {
       title: '사용자',
@@ -51,12 +73,10 @@ function AuditLog({collapsed}) {
                 onPressEnter={confirm}
                 style={{ marginBottom: 8, display: 'block' }}
             />
-            <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
-              확인
-            </Button>
-            <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
-              초기화
-            </Button>
+            <Space>
+              <Button type="primary" onClick={confirm} size="small" style={{ width: 90 }}>확인</Button>
+              <Button onClick={clearFilters} size="small" style={{ width: 90 }}>초기화</Button>
+            </Space>
           </div>
       ),
       onFilter: (value, record) => record.user,
@@ -76,12 +96,10 @@ function AuditLog({collapsed}) {
                 onPressEnter={confirm}
                 style={{ marginBottom: 8, display: 'block' }}
             />
-            <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
-              확인
-            </Button>
-            <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
-              초기화
-            </Button>
+            <Space>
+              <Button type="primary" onClick={confirm} size="small" style={{ width: 90 }}>확인</Button>
+              <Button onClick={clearFilters} size="small" style={{ width: 90 }}>초기화</Button>
+            </Space>
           </div>
       ),
       onFilter: (value, record) => record.ip,
@@ -138,12 +156,10 @@ function AuditLog({collapsed}) {
                 onPressEnter={confirm}
                 style={{ marginBottom: 8, display: 'block' }}
             />
-            <Button type="primary" onClick={confirm} style={{ width: '100%' }}>
-              확인
-            </Button>
-            <Button onClick={clearFilters} style={{ width: '100%', marginTop: 8 }}>
-              초기화
-            </Button>
+            <Space>
+              <Button type="primary" onClick={confirm} size="small" style={{ width: 90 }}>확인</Button>
+              <Button onClick={clearFilters} size="small" style={{ width: 90 }}>초기화</Button>
+            </Space>
           </div>
       ),
       onFilter: (value, record) => record.action,
@@ -175,22 +191,12 @@ function AuditLog({collapsed}) {
 
   const getData = async (page = 1, pageSize = 10, ordering = '-date', filters = {}) => {
     setLoading(true);
-    const filterParams = Object.keys(filters).reduce((acc, key) => {
-      if (filters[key]){
-        if (Array.isArray(filters[key])) {
-          acc[key] = filters[key].join(',');
-        } else {
-          acc[key] = filters[key];
-        }
-      }
-      return acc;
-    }, {});
     try {
       const params = {
         page: page,
         page_size: pageSize,
         ordering: ordering,
-        ...filterParams,
+        ...filters,
       };
       const response = await apiClient.get('audit-log', { params });
       setResult(response.data.results);
@@ -210,65 +216,42 @@ function AuditLog({collapsed}) {
     getData();
   }, []);
 
-  const handleTableChange =  (pagination, filters, sorter) => {
-    const sortField = sorter.field;
-    const sortOrder = sorter.order === 'ascend' ? '' : '-';
-    const order = sortField ? sortOrder + sortField : '-date';
+  const handleTableChange = (pagination, filters, sorter) => {
+    const order = sorter.field ? (sorter.order === 'ascend' ? sorter.field : `-${sorter.field}`) : '-date';
     getData(pagination.current, pagination.pageSize, order, filters);
   };
 
-  const handleColumnVisibilityChange = (columnKey) => {
-    setVisibleColumns(prevState => ({
-      ...prevState,
-      [columnKey]: !prevState[columnKey],
-    }));
-  };
-
   return (
-    <Layout style={{ marginLeft: collapsed ? 80 : 200 }}>
-        <Content style={{overflow: 'initial'}}>
-          <div style={{
-            'textAlign': 'left',
-            'maxHeight': '100%',
-            'maxwidth': '100%',
-            'display': 'inline',
-            'flexDirection': 'column',
-            'justifyContent': 'left',
-            'color': '#131629',
-          }}>
-            <Card style={{padding: '0px 10px'}}>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', flexWrap: 'wrap', marginBottom: 16 }}>
-              <Button onClick={() => getData(pagination.current, pagination.pageSize)} style={{ marginBottom: 16 }}>
+      <Layout style={{ marginLeft: collapsed ? 80 : 200, transition: 'margin-left 0.2s' }}>
+        <Content style={{ padding: '24px' }}>
+          <Card>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+              <Space>
+                <Button
+                    icon={<ReloadOutlined />}
+                    onClick={() => getData(pagination.current, pagination.pageSize)}
+                >
                   새로고침
                 </Button>
-              </div>
-              <div style={{ marginBottom: 16 }}>
-                {Object.keys(visibleColumns).map(columnKey => (
-                  <Checkbox
-                    key={columnKey}
-                    checked={visibleColumns[columnKey]}
-                    onChange={() => handleColumnVisibilityChange(columnKey)}
-                  >
-                    {columnLabels[columnKey]}
-                  </Checkbox>
-                ))}
-              </div>
-              <Table
-                  dataSource={result}
-                  columns={columns}
-                  loading={loading}
-                  pagination={{
-                    current: pagination.current,
-                    pageSize: pagination.pageSize,
-                    total: pagination.total,
-                    showSizeChanger: true,
-                  }}
-                  onChange={handleTableChange}
-                  rowKey="id"
-                  scroll={{ x: 'max-content' }}
-              />
-            </Card>
-          </div>
+                {/* 필드 보기 드롭다운 추가 */}
+                <Dropdown menu={{ items: menuItems }} trigger={['click']} placement="bottomRight">
+                  <Button icon={<EyeOutlined />}>
+                    필드 보기
+                  </Button>
+                </Dropdown>
+              </Space>
+            </div>
+
+            <Table
+                dataSource={result}
+                columns={columns}
+                loading={loading}
+                pagination={pagination}
+                onChange={handleTableChange}
+                rowKey="id"
+                scroll={{ x: 'max-content' }}
+            />
+          </Card>
         </Content>
       </Layout>
   );
