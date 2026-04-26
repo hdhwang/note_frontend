@@ -49,13 +49,16 @@ const Dashboard: React.FC = () => {
         <div style={{ padding: '0px' }}>
             <Content style={{ overflow: 'initial' }}>
                 <div style={{
-                    textAlign: 'left',
+                    maxWidth: 1200,
+                    margin: '0 auto',
+                    padding: '24px 16px',
+                    textAlign: 'center',
+                    boxSizing: 'border-box'
                 }}>
-                    <Card style={{ textAlign: 'center', border: 'none', backgroundColor: 'transparent' }}>
-                        <Row gutter={[16, 16]} style={{ textAlign: 'center' }} wrap={true}>
+                    <Row gutter={[16, 16]} justify="center">
 
                             {/* 계좌번호 */}
-                            <Col xs={24} sm={12} md={6}>
+                            <Col xs={12} sm={12} md={6}>
                                 <Card size='small' style={{ background: 'linear-gradient(135deg, #11998e, #38ef7d)', border: 'none', borderRadius: '12px' }}
                                       title={<div style={{ color: "#ffffff", fontWeight: "bold" }}>계좌번호</div>}>
                                     <Statistic
@@ -67,7 +70,7 @@ const Dashboard: React.FC = () => {
                             </Col>
 
                             {/* 시리얼 번호 */}
-                            <Col xs={24} sm={12} md={6}>
+                            <Col xs={12} sm={12} md={6}>
                                 <Card size='small' style={{ background: 'linear-gradient(135deg, #eb3349, #f45c43)', border: 'none', borderRadius: '12px' }}
                                       title={<div style={{ color: "#ffffff", fontWeight: "bold" }}>시리얼 번호</div>}>
                                     <Statistic
@@ -78,7 +81,7 @@ const Dashboard: React.FC = () => {
                             </Col>
 
                             {/* 노트 */}
-                            <Col xs={24} sm={12} md={6}>
+                            <Col xs={12} sm={12} md={6}>
                                 <Card size='small' style={{ background: 'linear-gradient(135deg, #f7971e, #ffd200)', border: 'none', borderRadius: '12px' }}
                                       title={<div style={{ color: "#ffffff", fontWeight: "bold" }}>노트</div>}>
                                     <Statistic
@@ -89,7 +92,7 @@ const Dashboard: React.FC = () => {
                             </Col>
 
                             {/* 결혼식 방명록 */}
-                            <Col xs={24} sm={12} md={6}>
+                            <Col xs={12} sm={12} md={6}>
                                 <Card size='small' style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)', border: 'none', borderRadius: '12px' }}
                                       title={<div style={{ color: "#ffffff", fontWeight: "bold" }}>결혼식 방명록</div>}>
                                     <Statistic
@@ -100,7 +103,6 @@ const Dashboard: React.FC = () => {
                             </Col>
 
                         </Row>
-                    </Card>
                 </div>
             </Content>
         </div>

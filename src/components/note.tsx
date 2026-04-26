@@ -65,6 +65,7 @@ const Note: React.FC = () => {
       title: '번호',
       dataIndex: 'index',
       key: 'index',
+      open: true,
       align: 'center' as const,
       render: (_: any, __: any, index: number) => (pagination.current - 1) * pagination.pageSize + index + 1,
     },
@@ -115,16 +116,11 @@ const Note: React.FC = () => {
       key: 'actions',
       align: 'center' as const,
       render: (_: any, record: NoteData) => (
-          <Space>
-            <Button
-                type="primary"
-                icon={<EditOutlined />}
+          <Space size={2}>
+            <Button type="text" icon={<EditOutlined />}
                 onClick={() => showEditModal(record)}
             />
-            <Button
-                type="primary"
-                danger
-                icon={<DeleteOutlined />}
+            <Button type="text" danger icon={<DeleteOutlined />}
                 onClick={() => handleDelete(record.id)}
             />
           </Space>
@@ -226,17 +222,17 @@ const Note: React.FC = () => {
   return (
       <div>
         <Content style={{ padding: '24px' }}>
-          <Card>
+          <Card bordered={false} style={{ width: "100%" }}>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16, flexWrap: 'wrap', gap: '8px 0' }}>
               <Space wrap>
-                <Button icon={<ReloadOutlined />} onClick={() => getData(pagination.current, pagination.pageSize)}>
+                <Button className="responsive-icon-btn" icon={<ReloadOutlined />} onClick={() => getData(pagination.current, pagination.pageSize)}>
                   새로고침
                 </Button>
-                <Button type="primary" icon={<PlusOutlined />} onClick={showAddModal}>
+                <Button className="responsive-icon-btn" icon={<PlusOutlined />} onClick={showAddModal}>
                   추가
                 </Button>
                 <Dropdown menu={{ items: menuItems }} trigger={['click']} placement="bottomRight">
-                  <Button icon={<EyeOutlined />}>
+                  <Button className="responsive-icon-btn" icon={<EyeOutlined />}>
                     필드 보기
                   </Button>
                 </Dropdown>
