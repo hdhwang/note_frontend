@@ -100,3 +100,8 @@ code {
     max-width: calc(100vw - 32px);
   }
 }
+
+/* 사이드바(좌측 레이아웃) 높이 조절 시 애니메이션 래그 방지 */
+.ant-layout-sider {
+  transition: width 0.2s, min-width 0.2s, max-width 0.2s !important;
+}

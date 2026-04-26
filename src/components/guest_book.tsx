@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSettings } from './settings_context';
 import { Layout, Card, Table, Button, Input, message, Modal, Form, Select, Space, Checkbox, Dropdown } from 'antd';
+import { SmartTable } from "./SmartTable";
 import type { MenuProps, TablePaginationConfig } from 'antd';
 import type { ColumnsType, ColumnType } from 'antd/es/table';
 import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, EyeOutlined } from "@ant-design/icons";
@@ -245,7 +246,7 @@ const GuestBook: React.FC = () => {
               </Space>
             </div>
 
-            <Table
+            <SmartTable tableId="guest_book_table"
                 size={settings.tableDensity}
                 dataSource={result}
                 columns={columns}

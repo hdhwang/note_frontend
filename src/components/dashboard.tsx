@@ -95,8 +95,7 @@ const Dashboard: React.FC = () => {
         <div style={{ padding: '0px' }}>
             <Content style={{ overflow: 'initial' }}>
                 <div style={{
-                    maxWidth: 1200,
-                    margin: '0 auto',
+                    width: '100%',
                     padding: '24px 16px',
                     textAlign: 'center',
                     boxSizing: 'border-box'

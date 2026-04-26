@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSettings } from './settings_context';
 import { Layout, Card, Table, Button, Input, Checkbox, Dropdown, Space } from "antd";
+import { SmartTable } from "./SmartTable";
 import type { MenuProps, TablePaginationConfig } from 'antd';
 import type { ColumnsType, ColumnType } from 'antd/es/table';
 import { EyeOutlined, ReloadOutlined } from "@ant-design/icons";
@@ -253,7 +254,7 @@ const AuditLog: React.FC = () => {
               </Space>
             </div>
 
-            <Table
+            <SmartTable tableId="audit_log_table"
                 size={settings.tableDensity}
                 dataSource={result}
                 columns={columns}

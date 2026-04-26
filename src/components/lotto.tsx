@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSettings } from './settings_context';
 import { Layout, Card, Table, Button, Space } from "antd";
+import { SmartTable } from "./SmartTable";
 import type { ColumnsType } from 'antd/es/table'; // 테이블 컬럼 타입 임포트
 import '../App.css';
 import apiClient from './api/api_client';
@@ -66,7 +67,7 @@ const Lotto: React.FC = () => {
               </Space>
             </div>
 
-            <Table
+            <SmartTable tableId="lotto_table"
                 size={settings.tableDensity}
                 dataSource={result.map((item, index) => ({ ...item, key: index }))}
                 columns={columns}
