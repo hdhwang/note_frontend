@@ -38,7 +38,7 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({ open, onClose }) => {
     >
       {/* 테이블 밀도 */}
       <div style={{ marginBottom: 24 }}>
-        <Title level={5} style={{ marginBottom: 12 }}>테이블 밀도</Title>
+        <Title level={5} style={{ marginTop: 0, marginBottom: 12 }}>테이블 밀도</Title>
         <Radio.Group
           value={settings.tableDensity}
           onChange={(e) => updateSettings({ tableDensity: e.target.value })}

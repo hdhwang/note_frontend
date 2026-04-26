@@ -2,15 +2,47 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LayoutNav from "./layout";
 import SettingsDrawer from "./settings";
-import { Layout, Spin, Typography, message, Dropdown, Button, Modal, Form, Input, ConfigProvider, MenuProps, theme } from "antd";
-import { MenuOutlined, MenuFoldOutlined, MenuUnfoldOutlined, SettingOutlined } from '@ant-design/icons';
+import { Layout, Spin, Typography, message, Dropdown, Button, Modal, Form, Input, ConfigProvider, MenuProps, theme, Badge, Popover, List } from "antd";
+import { MenuOutlined, MenuFoldOutlined, MenuUnfoldOutlined, SettingOutlined, BellOutlined, CheckCircleFilled, CloseCircleFilled, InfoCircleFilled, ExclamationCircleFilled } from '@ant-design/icons';
 import koKR from 'antd/es/locale/ko_KR';
 import Forbidden from "./error/forbidden";
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 import { useSettings } from './settings_context';
+import { useNotification } from './notification_context';
 
 const { Header, Footer, Content } = Layout;
+
+const getMenuName = (item: any) => {
+    if (typeof item.content === 'string') {
+        if (item.content.includes('설정')) return '환경 설정';
+        if (item.content.includes('비밀번호')) return '보안 설정';
+        if (item.content.includes('로그인')) return '로그인';
+    }
+    const path = item.pathname || '/';
+    const mainPath = path === '/' ? '/' : `/${path.split('/')[1]}`;
+    switch (mainPath) {
+        case '/': return '대시보드';
+        case '/bank-account': return '계좌번호 관리';
+        case '/serial': return '시리얼 번호 관리';
+        case '/note': return '노트 관리';
+        case '/guest-book': return '결혼식 방명록';
+        case '/lotto': return '로또 번호 생성';
+        case '/audit-log': return '감사 로그';
+        case '/login': return '로그인';
+        default: return '시스템 알림';
+    }
+};
+
+const getNotificationIcon = (type: string) => {
+    switch (type) {
+        case 'success': return <CheckCircleFilled style={{ color: '#52c41a', fontSize: 20 }} />;
+        case 'error': return <CloseCircleFilled style={{ color: '#ff4d4f', fontSize: 20 }} />;
+        case 'warning': return <ExclamationCircleFilled style={{ color: '#faad14', fontSize: 20 }} />;
+        case 'info':
+        default: return <InfoCircleFilled style={{ color: '#1677ff', fontSize: 20 }} />;
+    }
+};
 
 interface DecodedToken {
     groups?: string[];
@@ -36,6 +68,8 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
     const siderWidth = settings.siderWidth;
     const isDarkMode = settings.themeMode === 'dark';
     const layoutColor = settings.layoutColor;
+
+    const { notifications, unreadCount, markAsRead, clearNotifications } = useNotification();
 
     const [spinning, setSpinning] = useState<boolean>(true);
     const [permissions, setPermissions] = useState<string[]>([]);
@@ -223,11 +257,53 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
                             style={{ color: '#ffffff', fontSize: 18 }}
                         />
                     </div>
-                    <Dropdown menu={{ items }} trigger={['click']} placement="bottomRight">
-                        <Typography.Text style={{ color: '#ffffff', fontSize: 15, cursor: 'pointer' }}>
-                            <b>{username} ({firstname})</b>
-                        </Typography.Text>
-                    </Dropdown>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                        <Popover
+                            content={
+                                <div style={{ width: 300, maxHeight: 400, overflowY: 'auto' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+                                        <Typography.Text strong>최근 알림</Typography.Text>
+                                        <Button type="link" size="small" onClick={clearNotifications}>모두 지우기</Button>
+                                    </div>
+                                    {notifications.length === 0 ? (
+                                        <div style={{ textAlign: 'center', padding: 20, color: '#999' }}>새로운 알림이 없습니다.</div>
+                                    ) : (
+                                        <List
+                                            dataSource={notifications}
+                                            renderItem={(item) => (
+                                                <List.Item style={{ opacity: item.read ? 0.6 : 1, padding: '12px 16px', borderBottom: '1px solid rgba(140, 140, 140, 0.12)' }}>
+                                                    <List.Item.Meta
+                                                        avatar={<div style={{ marginTop: 2 }}>{getNotificationIcon(item.type)}</div>}
+                                                        title={
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                                                                <Typography.Text type="secondary" style={{ fontSize: 12 }}>{getMenuName(item)}</Typography.Text>
+                                                                <Typography.Text type="secondary" style={{ fontSize: 11 }}>{new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Typography.Text>
+                                                            </div>
+                                                        }
+                                                        description={<Typography.Text style={{ color: isDarkMode ? '#e0e0e0' : '#333', fontSize: 14 }}>{item.content as React.ReactNode}</Typography.Text>}
+                                                    />
+                                                </List.Item>
+                                            )}
+                                        />
+                                    )}
+                                </div>
+                            }
+                            trigger="click"
+                            placement="bottomRight"
+                            onOpenChange={(visible) => {
+                                if (visible) markAsRead();
+                            }}
+                        >
+                            <Badge count={unreadCount} size="small" offset={[-2, 2]}>
+                                <BellOutlined style={{ fontSize: 20, color: '#fff', cursor: 'pointer' }} />
+                            </Badge>
+                        </Popover>
+                        <Dropdown menu={{ items }} trigger={['click']} placement="bottomRight">
+                            <Typography.Text style={{ color: '#ffffff', fontSize: 15, cursor: 'pointer' }}>
+                                <b>{username} ({firstname})</b>
+                            </Typography.Text>
+                        </Dropdown>
+                    </div>
                 </Header>
 
                 <Content style={{
