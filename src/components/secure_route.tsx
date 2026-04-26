@@ -310,7 +310,7 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
                     flex: 1,
                     overflowY: 'auto',
                     overflowX: 'hidden',
-                    backgroundColor: isDarkMode ? '#141414' : '#f0f2f5',
+                    backgroundColor: isDarkMode ? '#141414' : '#ffffff',
                 }}>
                     {spinning ? (
                         <div style={{ textAlign: 'center', padding: '50px' }}><Spin size="large" /></div>
@@ -322,7 +322,7 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
                 <Footer style={{
                     textAlign: 'center',
                     color: isDarkMode ? '#999' : '#666',
-                    backgroundColor: isDarkMode ? '#141414' : '#f0f2f5',
+                    backgroundColor: isDarkMode ? '#141414' : '#ffffff',
                     padding: '10px',
                     flexShrink: 0,
                     height: '44px',
