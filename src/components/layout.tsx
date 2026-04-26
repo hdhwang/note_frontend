@@ -98,9 +98,9 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ isMobile, onOpenSettings }) => {
   // 메뉴 아이템
   let menuItems: MenuProps['items'] = [
     { key: '/', icon: <DashboardOutlined />, label: <Link to={'/'}>대시보드</Link> },
-    { key: '/bank-account', icon: <BankOutlined />, label: <Link to={'/bank-account'}>계좌번호 관리</Link> },
-    { key: '/serial', icon: <KeyOutlined />, label: <Link to={'/serial'}>시리얼 번호 관리</Link> },
-    { key: '/note', icon: <FileTextOutlined />, label: <Link to={'/note'}>노트 관리</Link> },
+    { key: '/bank-account', icon: <BankOutlined />, label: <Link to={'/bank-account'}>계좌번호</Link> },
+    { key: '/serial', icon: <KeyOutlined />, label: <Link to={'/serial'}>시리얼 번호</Link> },
+    { key: '/note', icon: <FileTextOutlined />, label: <Link to={'/note'}>노트</Link> },
     { key: '/guest-book', icon: <BookOutlined />, label: <Link to={'/guest-book'}>결혼식 방명록</Link> },
     { key: '/lotto', icon: <DotChartOutlined />, label: <Link to={'/lotto'}>로또 번호 생성</Link> },
   ];
