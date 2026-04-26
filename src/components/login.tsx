@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Form, Input, Button, Typography, Card, message, ConfigProvider, theme } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useSettings } from './settings_context';
 
 const { Title } = Typography;
 
-// 1. API 응답 데이터 구조 정의
 interface LoginResponse {
   access: string;
   refresh: string;
@@ -14,30 +14,24 @@ interface LoginResponse {
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const { settings } = useSettings();
+  const isDarkMode = settings.themeMode === 'dark';
 
-  // 2. 폼 제출 핸들러 (any 대신 구체적인 타입을 지정할 수 있으나 폼 데이터는 주로 any나 Record를 사용)
   const onFinish = async (values: any) => {
     try {
-      // 환경 변수 타입 안전성 확보
       const apiUrl = import.meta.env.VITE_API_URL;
-
       const response = await axios.post<LoginResponse>(`${apiUrl}/token`, {
         username: values.username,
         password: values.password,
       });
 
       if (response.status === 200) {
-        // 로그인 성공: 토큰 데이터 추출
         const { access, refresh } = response.data;
-
-        // 토큰 저장
         localStorage.setItem("access_token", access);
         localStorage.setItem("refresh_token", refresh);
-
-        navigate("/"); // 메인 페이지로 이동
+        navigate("/");
       }
     } catch (error: any) {
-      // 로그인 실패 처리
       if (error.response && error.response.status === 401) {
         message.error("아이디 또는 비밀번호가 잘못되었습니다.");
       } else {
@@ -46,17 +40,6 @@ const Login: React.FC = () => {
       console.error(error);
     }
   };
-
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(
-      window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false
-  );
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e: MediaQueryListEvent) => setIsDarkMode(e.matches);
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
 
   return (
       <ConfigProvider theme={isDarkMode ? { algorithm: theme.darkAlgorithm } : undefined}>

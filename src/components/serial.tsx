@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSettings } from './settings_context';
 import { Layout, Card, Table, Button, Input, message, Modal, Form, Select, Space, Checkbox, Dropdown } from 'antd';
 import type { MenuProps, TablePaginationConfig } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, EyeOutlined } from "@ant-design/icons";
@@ -17,12 +18,8 @@ interface SerialData {
   description: string;
 }
 
-// 2. Props 타입 정의
-interface SerialProps {
-  collapsed: boolean;
-}
-
-const Serial: React.FC<SerialProps> = ({ collapsed }) => {
+const Serial: React.FC = () => {
+  const { settings } = useSettings();
   const [loading, setLoading] = useState<boolean>(false);
   const [result, setResult] = useState<SerialData[]>([]);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
@@ -265,6 +262,7 @@ const Serial: React.FC<SerialProps> = ({ collapsed }) => {
             </div>
 
             <Table
+                size={settings.tableDensity}
                 dataSource={result}
                 columns={columns}
                 loading={loading}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSettings } from './settings_context';
 import { Layout, Card, Table, Button, Space } from "antd";
 import type { ColumnsType } from 'antd/es/table'; // 테이블 컬럼 타입 임포트
 import '../App.css';
@@ -14,12 +15,8 @@ interface LottoData {
   key?: number; // Table용 고유 키
 }
 
-// 2. Props 타입 정의
-interface LottoProps {
-  collapsed: boolean;
-}
-
-const Lotto: React.FC<LottoProps> = ({ collapsed }) => {
+const Lotto: React.FC = () => {
+  const { settings } = useSettings();
   const [loading, setLoading] = useState<boolean>(false);
   const [result, setResult] = useState<LottoData[]>([]);
 
@@ -71,6 +68,7 @@ const Lotto: React.FC<LottoProps> = ({ collapsed }) => {
             </div>
 
             <Table
+                size={settings.tableDensity}
                 dataSource={result.map((item, index) => ({ ...item, key: index }))}
                 columns={columns}
                 loading={loading}

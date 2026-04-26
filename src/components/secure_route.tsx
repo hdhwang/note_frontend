@@ -1,14 +1,48 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LayoutNav from "./layout";
-import { Layout, Spin, Typography, message, Dropdown, Button, Modal, Form, Input, ConfigProvider, MenuProps, theme } from "antd";
-import { MenuOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
+import SettingsDrawer from "./settings";
+import { Layout, Spin, Typography, message, Dropdown, Button, Modal, Form, Input, ConfigProvider, MenuProps, theme, Badge, Popover, List } from "antd";
+import { MenuOutlined, MenuFoldOutlined, MenuUnfoldOutlined, SettingOutlined, BellOutlined, CheckCircleFilled, CloseCircleFilled, InfoCircleFilled, ExclamationCircleFilled } from '@ant-design/icons';
 import koKR from 'antd/es/locale/ko_KR';
 import Forbidden from "./error/forbidden";
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
+import { useSettings } from './settings_context';
+import { useNotification } from './notification_context';
 
 const { Header, Footer, Content } = Layout;
+
+const getMenuName = (item: any) => {
+    if (typeof item.content === 'string') {
+        if (item.content.includes('설정')) return '환경 설정';
+        if (item.content.includes('비밀번호')) return '보안 설정';
+        if (item.content.includes('로그인')) return '로그인';
+    }
+    const path = item.pathname || '/';
+    const mainPath = path === '/' ? '/' : `/${path.split('/')[1]}`;
+    switch (mainPath) {
+        case '/': return '대시보드';
+        case '/bank-account': return '계좌번호 관리';
+        case '/serial': return '시리얼 번호 관리';
+        case '/note': return '노트 관리';
+        case '/guest-book': return '결혼식 방명록';
+        case '/lotto': return '로또 번호 생성';
+        case '/audit-log': return '감사 로그';
+        case '/login': return '로그인';
+        default: return '시스템 알림';
+    }
+};
+
+const getNotificationIcon = (type: string) => {
+    switch (type) {
+        case 'success': return <CheckCircleFilled style={{ color: '#52c41a', fontSize: 20 }} />;
+        case 'error': return <CloseCircleFilled style={{ color: '#ff4d4f', fontSize: 20 }} />;
+        case 'warning': return <ExclamationCircleFilled style={{ color: '#faad14', fontSize: 20 }} />;
+        case 'info':
+        default: return <InfoCircleFilled style={{ color: '#1677ff', fontSize: 20 }} />;
+    }
+};
 
 interface DecodedToken {
     groups?: string[];
@@ -20,30 +54,31 @@ interface DecodedToken {
 interface SecureRouteProps {
     component: React.ComponentType<any>;
     permissionRequired?: string[];
-    collapsed: boolean;
-    setCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-// 모바일 판별 기준 (Ant Design Sider의 md breakpoint와 동일)
 const MOBILE_BREAKPOINT = 768;
 
 const SecureRoute: React.FC<SecureRouteProps> = ({
                                                      component: Component,
                                                      permissionRequired,
-                                                     collapsed,
-                                                     setCollapsed
                                                  }) => {
+    const { settings, updateSettings } = useSettings();
+    const collapsed = settings.collapsed;
+    const setCollapsed = (val: boolean) => updateSettings({ collapsed: val });
+    const siderWidth = settings.siderWidth;
+    const isDarkMode = settings.themeMode === 'dark';
+    const layoutColor = settings.layoutColor;
+
+    const { notifications, unreadCount, markAsRead, clearNotifications } = useNotification();
+
     const [spinning, setSpinning] = useState<boolean>(true);
     const [permissions, setPermissions] = useState<string[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [username, setUsername] = useState<string>('');
     const [firstname, setFirstname] = useState<string>('');
     const [isPasswordModalVisible, setIsPasswordModalVisible] = useState<boolean>(false);
+    const [isSettingsVisible, setIsSettingsVisible] = useState<boolean>(false);
     const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth < MOBILE_BREAKPOINT);
-    const [siderWidth, setSiderWidth] = useState<number>(200);
-    const [isDarkMode, setIsDarkMode] = useState<boolean>(
-        window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false
-    );
 
     const navigate = useNavigate();
     const [form] = Form.useForm();
@@ -53,24 +88,14 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
         const handleResize = () => {
             const mobile = window.innerWidth < MOBILE_BREAKPOINT;
             setIsMobile(mobile);
-            // 모바일 전환 시 사이드바 자동으로 닫기
             if (mobile) {
                 setCollapsed(true);
             }
         };
 
         window.addEventListener('resize', handleResize);
-        // 초기 실행
         handleResize();
         return () => window.removeEventListener('resize', handleResize);
-    }, [setCollapsed]);
-
-    // 시스템 다크 모드 감지
-    useEffect(() => {
-        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        const handleChange = (e: MediaQueryListEvent) => setIsDarkMode(e.matches);
-        mediaQuery.addEventListener('change', handleChange);
-        return () => mediaQuery.removeEventListener('change', handleChange);
     }, []);
 
     useEffect(() => {
@@ -167,20 +192,24 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
 
     const items: MenuProps['items'] = [
         {
+            label: '환경 설정',
+            key: 'settings',
+            onClick: () => setIsSettingsVisible(true),
+        },
+        {
             label: '비밀번호 변경',
-            key: '0',
+            key: 'password',
             onClick: showPasswordModal,
         },
         { type: 'divider' },
         {
             label: '로그아웃',
-            key: '1',
+            key: 'logout',
             danger: true,
             onClick: handleLogout,
         },
     ];
 
-    // 런타임 에러 방지: 컴포넌트 이름은 반드시 대문자 'Spin'이어야 함
     if (loading) {
         return <Spin spinning={spinning} fullscreen />;
     }
@@ -192,7 +221,6 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
         }
     }
 
-    // 모바일에서는 marginLeft 0, 데스크톱에서는 사이드바 너비만큼
     const mainMarginLeft = isMobile ? 0 : (collapsed ? 80 : siderWidth);
 
     return (
@@ -201,10 +229,8 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
             theme={isDarkMode ? { algorithm: theme.darkAlgorithm } : undefined}
         >
         <Layout style={{ minHeight: '100vh', overflow: 'hidden' }}>
-            {/* 왼쪽 사이드바 (fixed 고정 / 모바일에서는 Drawer) */}
-            <LayoutNav permissions={permissions} collapsed={collapsed} setCollapsed={setCollapsed} isMobile={isMobile} siderWidth={siderWidth} onSiderWidthChange={setSiderWidth} />
+            <LayoutNav permissions={permissions} isMobile={isMobile} onOpenSettings={() => setIsSettingsVisible(true)} />
 
-            {/* 오른쪽 메인 영역 */}
             <Layout style={{
                 marginLeft: mainMarginLeft,
                 transition: 'margin-left 0.2s',
@@ -216,14 +242,13 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    backgroundColor: '#1B3150',
+                    backgroundColor: layoutColor,
                     padding: '0 20px',
                     height: '64px',
                     flexShrink: 0,
                     zIndex: 10,
                     width: '100%'
                 }}>
-                    {/* 사이드바 접기/펼치기 토글 버튼 */}
                     <div>
                         <Button
                             type="text"
@@ -232,14 +257,55 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
                             style={{ color: '#ffffff', fontSize: 18 }}
                         />
                     </div>
-                    <Dropdown menu={{ items }} trigger={['click']} placement="bottomRight" overlayClassName="header-dropdown">
-                        <Typography.Text style={{ color: '#ffffff', fontSize: 15, cursor: 'pointer' }}>
-                            <b>{username} ({firstname})</b>
-                        </Typography.Text>
-                    </Dropdown>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                        <Popover
+                            content={
+                                <div style={{ width: 300, maxHeight: 400, overflowY: 'auto' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+                                        <Typography.Text strong>최근 알림</Typography.Text>
+                                        <Button type="link" size="small" onClick={clearNotifications}>모두 지우기</Button>
+                                    </div>
+                                    {notifications.length === 0 ? (
+                                        <div style={{ textAlign: 'center', padding: 20, color: '#999' }}>새로운 알림이 없습니다.</div>
+                                    ) : (
+                                        <List
+                                            dataSource={notifications}
+                                            renderItem={(item) => (
+                                                <List.Item style={{ opacity: item.read ? 0.6 : 1, padding: '12px 16px', borderBottom: '1px solid rgba(140, 140, 140, 0.12)' }}>
+                                                    <List.Item.Meta
+                                                        avatar={<div style={{ marginTop: 2 }}>{getNotificationIcon(item.type)}</div>}
+                                                        title={
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                                                                <Typography.Text type="secondary" style={{ fontSize: 12 }}>{getMenuName(item)}</Typography.Text>
+                                                                <Typography.Text type="secondary" style={{ fontSize: 11 }}>{new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Typography.Text>
+                                                            </div>
+                                                        }
+                                                        description={<Typography.Text style={{ color: isDarkMode ? '#e0e0e0' : '#333', fontSize: 14 }}>{item.content as React.ReactNode}</Typography.Text>}
+                                                    />
+                                                </List.Item>
+                                            )}
+                                        />
+                                    )}
+                                </div>
+                            }
+                            trigger="click"
+                            placement="bottomRight"
+                            onOpenChange={(visible) => {
+                                if (visible) markAsRead();
+                            }}
+                        >
+                            <Badge count={unreadCount} size="small" offset={[-2, 2]}>
+                                <BellOutlined style={{ fontSize: 20, color: '#fff', cursor: 'pointer' }} />
+                            </Badge>
+                        </Popover>
+                        <Dropdown menu={{ items }} trigger={['click']} placement="bottomRight">
+                            <Typography.Text style={{ color: '#ffffff', fontSize: 15, cursor: 'pointer' }}>
+                                <b>{username} ({firstname})</b>
+                            </Typography.Text>
+                        </Dropdown>
+                    </div>
                 </Header>
 
-                {/* 실제 스크롤이 발생하는 핵심 영역 */}
                 <Content style={{
                     flex: 1,
                     overflowY: 'auto',
@@ -249,7 +315,7 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
                     {spinning ? (
                         <div style={{ textAlign: 'center', padding: '50px' }}><Spin size="large" /></div>
                     ) : (
-                        <Component collapsed={collapsed} />
+                        <Component />
                     )}
                 </Content>
 
@@ -266,7 +332,6 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
                 </Footer>
             </Layout>
 
-            {/* 비밀번호 변경 모달 */}
             <Modal
                 title="비밀번호 변경"
                 open={isPasswordModalVisible}
@@ -290,6 +355,8 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
                     </Form.Item>
                 </Form>
             </Modal>
+
+            <SettingsDrawer open={isSettingsVisible} onClose={() => setIsSettingsVisible(false)} />
         </Layout>
         </ConfigProvider>
     );
