@@ -162,14 +162,25 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ isMobile, onOpenSettings }) => {
         placement="left"
         open={!collapsed}
         onClose={() => setCollapsed(true)}
-        width={200}
+        width={170}
         styles={{
-          body: { padding: 0, backgroundColor: layoutColor },
+          body: { padding: 0, backgroundColor: layoutColor, overflowX: 'hidden' },
           header: { display: 'none' },
         }}
       >
-        {logoContent}
-        {menuContent}
+        <Layout style={{ minHeight: '100vh', backgroundColor: layoutColor }}>
+          <Sider
+            collapsed={false}
+            width={170}
+            style={{
+              height: '100vh',
+              backgroundColor: layoutColor,
+            }}
+          >
+            {logoContent}
+            {menuContent}
+          </Sider>
+        </Layout>
       </Drawer>
     );
   }

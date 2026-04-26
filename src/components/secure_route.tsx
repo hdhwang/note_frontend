@@ -260,7 +260,7 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
                     <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
                         <Popover
                             content={
-                                <div style={{ width: 300, maxHeight: 400, overflowY: 'auto' }}>
+                                <div style={{ width: isMobile ? 280 : 300, maxHeight: 400, overflowY: 'auto' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
                                         <Typography.Text strong>최근 알림</Typography.Text>
                                         <Button type="link" size="small" onClick={clearNotifications}>모두 지우기</Button>
@@ -289,7 +289,7 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
                                 </div>
                             }
                             trigger="click"
-                            placement="bottomRight"
+                            placement={isMobile ? "bottom" : "bottomRight"}
                             onOpenChange={(visible) => {
                                 if (visible) markAsRead();
                             }}
