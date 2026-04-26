@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LayoutNav from "./layout";
-import { Layout, Spin, Typography, message, Dropdown, Button, Modal, Form, Input, ConfigProvider, MenuProps } from "antd";
-import { MenuOutlined } from '@ant-design/icons';
+import { Layout, Spin, Typography, message, Dropdown, Button, Modal, Form, Input, ConfigProvider, MenuProps, theme } from "antd";
+import { MenuOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 import koKR from 'antd/es/locale/ko_KR';
 import Forbidden from "./error/forbidden";
 import { jwtDecode } from 'jwt-decode';
@@ -40,6 +40,10 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
     const [firstname, setFirstname] = useState<string>('');
     const [isPasswordModalVisible, setIsPasswordModalVisible] = useState<boolean>(false);
     const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth < MOBILE_BREAKPOINT);
+    const [siderWidth, setSiderWidth] = useState<number>(200);
+    const [isDarkMode, setIsDarkMode] = useState<boolean>(
+        window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false
+    );
 
     const navigate = useNavigate();
     const [form] = Form.useForm();
@@ -60,6 +64,14 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
         handleResize();
         return () => window.removeEventListener('resize', handleResize);
     }, [setCollapsed]);
+
+    // 시스템 다크 모드 감지
+    useEffect(() => {
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        const handleChange = (e: MediaQueryListEvent) => setIsDarkMode(e.matches);
+        mediaQuery.addEventListener('change', handleChange);
+        return () => mediaQuery.removeEventListener('change', handleChange);
+    }, []);
 
     useEffect(() => {
         const verifyToken = async () => {
@@ -155,13 +167,16 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
 
     const items: MenuProps['items'] = [
         {
-            label: <Button type="link" onClick={showPasswordModal} style={{ padding: 0 }}>비밀번호 변경</Button>,
+            label: '비밀번호 변경',
             key: '0',
+            onClick: showPasswordModal,
         },
         { type: 'divider' },
         {
-            label: <Button type="link" onClick={handleLogout} style={{ padding: 0 }}>로그아웃</Button>,
+            label: '로그아웃',
             key: '1',
+            danger: true,
+            onClick: handleLogout,
         },
     ];
 
@@ -178,12 +193,16 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
     }
 
     // 모바일에서는 marginLeft 0, 데스크톱에서는 사이드바 너비만큼
-    const mainMarginLeft = isMobile ? 0 : (collapsed ? 80 : 200);
+    const mainMarginLeft = isMobile ? 0 : (collapsed ? 80 : siderWidth);
 
     return (
+        <ConfigProvider
+            locale={koKR}
+            theme={isDarkMode ? { algorithm: theme.darkAlgorithm } : undefined}
+        >
         <Layout style={{ minHeight: '100vh', overflow: 'hidden' }}>
             {/* 왼쪽 사이드바 (fixed 고정 / 모바일에서는 Drawer) */}
-            <LayoutNav permissions={permissions} collapsed={collapsed} setCollapsed={setCollapsed} isMobile={isMobile} />
+            <LayoutNav permissions={permissions} collapsed={collapsed} setCollapsed={setCollapsed} isMobile={isMobile} siderWidth={siderWidth} onSiderWidthChange={setSiderWidth} />
 
             {/* 오른쪽 메인 영역 */}
             <Layout style={{
@@ -197,25 +216,23 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    backgroundColor: '#131629',
+                    backgroundColor: '#1B3150',
                     padding: '0 20px',
                     height: '64px',
                     flexShrink: 0,
                     zIndex: 10,
                     width: '100%'
                 }}>
-                    {/* 모바일: 햄버거 메뉴 버튼 / 데스크톱: 빈 공간 */}
+                    {/* 사이드바 접기/펼치기 토글 버튼 */}
                     <div>
-                        {isMobile && (
-                            <Button
-                                type="text"
-                                icon={<MenuOutlined />}
-                                onClick={() => setCollapsed(!collapsed)}
-                                style={{ color: '#ffffff', fontSize: 18 }}
-                            />
-                        )}
+                        <Button
+                            type="text"
+                            icon={isMobile ? <MenuOutlined /> : (collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />)}
+                            onClick={() => setCollapsed(!collapsed)}
+                            style={{ color: '#ffffff', fontSize: 18 }}
+                        />
                     </div>
-                    <Dropdown menu={{ items }} trigger={['click']} placement="bottomRight">
+                    <Dropdown menu={{ items }} trigger={['click']} placement="bottomRight" overlayClassName="header-dropdown">
                         <Typography.Text style={{ color: '#ffffff', fontSize: 15, cursor: 'pointer' }}>
                             <b>{username} ({firstname})</b>
                         </Typography.Text>
@@ -227,25 +244,23 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
                     flex: 1,
                     overflowY: 'auto',
                     overflowX: 'hidden',
-                    backgroundColor: '#f0f2f5',
+                    backgroundColor: isDarkMode ? '#141414' : '#f0f2f5',
                 }}>
                     {spinning ? (
                         <div style={{ textAlign: 'center', padding: '50px' }}><Spin size="large" /></div>
                     ) : (
-                        <ConfigProvider locale={koKR}>
-                            <Component collapsed={collapsed} />
-                        </ConfigProvider>
+                        <Component collapsed={collapsed} />
                     )}
                 </Content>
 
                 <Footer style={{
                     textAlign: 'center',
-                    color: '#666',
-                    backgroundColor: '#f0f2f5',
+                    color: isDarkMode ? '#999' : '#666',
+                    backgroundColor: isDarkMode ? '#141414' : '#f0f2f5',
                     padding: '10px',
                     flexShrink: 0,
                     height: '44px',
-                    borderTop: '1px solid #e8e8e8'
+                    borderTop: isDarkMode ? '1px solid #303030' : '1px solid #e8e8e8'
                 }}>
                     COPYRIGHT © HWANG HADONG. ALL RIGHT RESERVED
                 </Footer>
@@ -276,6 +291,7 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
                 </Form>
             </Modal>
         </Layout>
+        </ConfigProvider>
     );
 };
 

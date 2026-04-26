@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Layout, Menu, Space, Typography, Drawer, MenuProps } from "antd";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { jwtDecode } from 'jwt-decode';
@@ -15,12 +15,19 @@ import {
 
 const { Sider } = Layout;
 
+// 사이드바 너비 제한
+const SIDER_MIN_WIDTH = 160;
+const SIDER_MAX_WIDTH = 400;
+const SIDER_COLLAPSED_WIDTH = 80;
+
 // 1. Props 타입 정의
 interface LayoutNavProps {
   collapsed: boolean;
   setCollapsed: (collapsed: boolean) => void;
   permissions: string[];
   isMobile: boolean;
+  siderWidth: number;
+  onSiderWidthChange: (width: number) => void;
 }
 
 // 2. JWT 토큰 구조 정의
@@ -29,11 +36,13 @@ interface DecodedToken {
   [key: string]: any; // 기타 필드 허용
 }
 
-const LayoutNav: React.FC<LayoutNavProps> = ({ collapsed, setCollapsed, isMobile }) => {
+const LayoutNav: React.FC<LayoutNavProps> = ({ collapsed, setCollapsed, isMobile, siderWidth, onSiderWidthChange }) => {
   const location = useLocation();
   const { pathname } = location;
   const navigate = useNavigate();
   const [selectedKeys, setSelectedKeys] = useState<string[]>(['']);
+  const [isResizing, setIsResizing] = useState<boolean>(false);
+  const siderRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // 경로 일치 로직을 조금 더 깔끔하게 정리했습니다.
@@ -54,6 +63,38 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ collapsed, setCollapsed, isMobile
       setCollapsed(true);
     }
   };
+
+  // 리사이즈 핸들 드래그 로직
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+  }, []);
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!isResizing) return;
+    const newWidth = Math.min(SIDER_MAX_WIDTH, Math.max(SIDER_MIN_WIDTH, e.clientX));
+    onSiderWidthChange(newWidth);
+  }, [isResizing, onSiderWidthChange]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsResizing(false);
+  }, []);
+
+  useEffect(() => {
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      // 드래그 중 텍스트 선택 방지
+      document.body.style.userSelect = 'none';
+      document.body.style.cursor = 'col-resize';
+    }
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
+    };
+  }, [isResizing, handleMouseMove, handleMouseUp]);
 
   // 3. 메뉴 아이템 타입 정의 (MenuProps['items'])
   // label을 항상 제공하여 collapsed 상태에서 툴팁이 표시되도록 수정
@@ -115,7 +156,7 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ collapsed, setCollapsed, isMobile
           <Space orientation='horizontal' size='small'>
             <EditOutlined style={{ color: '#ffffff', fontSize: 30 }} />
             {(!collapsed || isMobile) && (
-                <Typography.Text style={{ color: '#ffffff', fontSize: 20 }}>
+                <Typography.Text style={{ color: '#ffffff', fontSize: 20, whiteSpace: 'nowrap' }}>
                   <b>NOTEPAD</b>
                 </Typography.Text>
             )}
@@ -132,6 +173,16 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ collapsed, setCollapsed, isMobile
           onClick={onClick}
           selectedKeys={selectedKeys}
           items={menuItems}
+          style={{ backgroundColor: '#1B3150' }}
+      />
+  );
+
+  // 리사이즈 핸들 (사이드바 우측 가장자리에 위치)
+  const resizeHandle = (
+      <div
+          className="sider-resize-handle"
+          style={{ left: siderWidth - 2 }}
+          onMouseDown={handleMouseDown}
       />
   );
 
@@ -144,7 +195,7 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ collapsed, setCollapsed, isMobile
             onClose={() => setCollapsed(true)}
             width={200}
             styles={{
-              body: { padding: 0, backgroundColor: '#001529' },
+              body: { padding: 0, backgroundColor: '#1B3150' },
               header: { display: 'none' },
             }}
         >
@@ -154,26 +205,34 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ collapsed, setCollapsed, isMobile
     );
   }
 
-  // 데스크톱: 기존 Sider 유지
+  // 데스크톱: Sider + 리사이즈 핸들
+  const currentWidth = collapsed ? SIDER_COLLAPSED_WIDTH : siderWidth;
+
   return (
-      <Sider
-          collapsed={collapsed}
-          onCollapse={(value) => setCollapsed(value)}
-          breakpoint="md"
-          collapsedWidth="80"
-          style={{
-            overflow: 'auto',
-            height: '100vh',
-            position: 'fixed',
-            left: 0,
-            top: 0,
-            bottom: 0,
-            zIndex: 10,
-          }}
-      >
-        {logoContent}
-        {menuContent}
-      </Sider>
+      <div ref={siderRef} style={{ position: 'relative' }}>
+        <Sider
+            collapsed={collapsed}
+            onCollapse={(value) => setCollapsed(value)}
+            breakpoint="md"
+            collapsedWidth={SIDER_COLLAPSED_WIDTH}
+            width={siderWidth}
+            style={{
+              overflow: 'auto',
+              height: '100vh',
+              position: 'fixed',
+              left: 0,
+              top: 0,
+              bottom: 0,
+              zIndex: 10,
+              backgroundColor: '#1B3150',
+            }}
+        >
+          {logoContent}
+          {menuContent}
+        </Sider>
+        {/* 접히지 않은 상태에서만 리사이즈 핸들 표시 */}
+        {!collapsed && resizeHandle}
+      </div>
   );
 };
 
