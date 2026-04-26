@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSettings } from './settings_context';
-import { Layout, Card, Table, Button, Input, Checkbox, Dropdown, Space } from "antd";
+import { Layout, Table, Button, Input, Checkbox, Dropdown, Space } from "antd";
 import { SmartTable } from "./SmartTable";
 import type { MenuProps, TablePaginationConfig } from 'antd';
 import type { ColumnsType, ColumnType } from 'antd/es/table';
@@ -238,7 +238,7 @@ const AuditLog: React.FC = () => {
   return (
       <div>
         <Content style={{ padding: '24px' }}>
-          <Card bordered={false} style={{ width: "100%" }}>
+          <div style={{ width: "100%" }}>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16, flexWrap: 'wrap', gap: '8px 0' }}>
               <Space wrap>
                 <Button className="responsive-icon-btn" icon={<ReloadOutlined />}
@@ -264,7 +264,7 @@ const AuditLog: React.FC = () => {
                 rowKey="id"
                 scroll={{ x: 'max-content' }}
             />
-          </Card>
+          </div>
         </Content>
       </div>
   );

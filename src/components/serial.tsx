@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSettings } from './settings_context';
-import { Layout, Card, Table, Button, Input, message, Modal, Form, Select, Space, Checkbox, Dropdown } from 'antd';
+import { Layout, Table, Button, Input, message, Modal, Form, Select, Space, Checkbox, Dropdown } from 'antd';
 import { SmartTable } from "./SmartTable";
 import type { MenuProps, TablePaginationConfig } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, EyeOutlined } from "@ant-design/icons";
@@ -241,7 +241,7 @@ const Serial: React.FC = () => {
   return (
       <div>
         <Content style={{ padding: '24px' }}>
-          <Card bordered={false} style={{ width: "100%" }}>
+          <div style={{ width: "100%" }}>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16, flexWrap: 'wrap', gap: '8px 0' }}>
               <Space wrap>
                 <Button className="responsive-icon-btn" icon={<ReloadOutlined />} onClick={() => getData(pagination.current, pagination.pageSize)}>
@@ -268,7 +268,7 @@ const Serial: React.FC = () => {
                 rowKey="id"
                 scroll={{ x: 'max-content' }}
             />
-          </Card>
+          </div>
         </Content>
 
         <Modal title="시리얼 번호 추가" open={isAddModalVisible} onOk={handleAdd} onCancel={() => setIsAddModalVisible(false)}>
