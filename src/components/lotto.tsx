@@ -55,11 +55,10 @@ const Lotto: React.FC = () => {
   return (
       <div>
         <Content style={{ padding: '24px' }}>
-          <Card>
+          <Card bordered={false} style={{ width: "100%" }}>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16, flexWrap: 'wrap', gap: '8px 0' }}>
               <Space wrap>
-                <Button
-                    icon={<ReloadOutlined />}
+                <Button className="responsive-icon-btn" icon={<ReloadOutlined />}
                     onClick={getData}
                 >
                   새로고침

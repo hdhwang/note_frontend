@@ -52,7 +52,7 @@ const Login: React.FC = () => {
             backgroundColor: isDarkMode ? '#141414' : '#f0f2f5',
           }}
       >
-        <Card style={{ width: 400 }}>
+        <Card className="login-card" style={{ width: 400 }}>
           <Title level={3} style={{ fontSize: 30, textAlign: "center" }}>
             <b>Notepad</b>
           </Title>
