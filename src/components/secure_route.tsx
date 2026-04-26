@@ -353,6 +353,24 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
                     >
                         <Input.Password />
                     </Form.Item>
+                    <Form.Item
+                        name="confirmPassword"
+                        label="새 비밀번호 확인"
+                        dependencies={['newPassword']}
+                        rules={[
+                            { required: true, message: '새 비밀번호를 다시 입력해주세요.' },
+                            ({ getFieldValue }) => ({
+                                validator(_, value) {
+                                    if (!value || getFieldValue('newPassword') === value) {
+                                        return Promise.resolve();
+                                    }
+                                    return Promise.reject(new Error('새 비밀번호가 일치하지 않습니다.'));
+                                },
+                            }),
+                        ]}
+                    >
+                        <Input.Password />
+                    </Form.Item>
                 </Form>
             </Modal>
 
