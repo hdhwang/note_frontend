@@ -119,8 +119,8 @@ const LayoutNav = ({collapsed, setCollapsed}) => {
         }}
       >
         <NavLink to='/'>
-          <Space direction='vertical' style={{ padding: 10, justifyContent: 'center', textAlign: 'center', width: '100%', height: '64px', }}>
-            <Space direction='horizontal' size='small' style={{ marginBottom: -5 }}>
+          <Space orientation='vertical' style={{ padding: 10, justifyContent: 'center', textAlign: 'center', width: '100%', height: '64px', }}>
+            <Space orientation='horizontal' size='small' style={{ marginBottom: -5 }}>
               <EditOutlined style={{ color: '#ffffff', fontSize: 30 }} />
               {!collapsed && <Typography.Text style={{ color: '#ffffff', fontSize: 25 }}><b>NOTEPAD</b></Typography.Text>}
             </Space>
