@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSettings } from './settings_context';
 import { Layout, Card, Table, Button, Input, message, Modal, Checkbox, Form, Space, Dropdown } from "antd";
+import { SmartTable } from "./SmartTable";
 import type { MenuProps, TablePaginationConfig } from 'antd';
 import '../App.css';
 import apiClient from './api/api_client';
@@ -239,7 +240,7 @@ const Note: React.FC = () => {
               </Space>
             </div>
 
-            <Table
+            <SmartTable tableId="note_table"
                 size={settings.tableDensity}
                 dataSource={result}
                 columns={columns}

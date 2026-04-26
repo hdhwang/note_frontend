@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSettings } from './settings_context';
 import { Layout, Card, Table, Button, Input, message, Modal, Checkbox, Form, Space, Dropdown } from "antd";
+import { SmartTable } from "./SmartTable";
 import type { MenuProps, TablePaginationConfig } from 'antd';
 import type { ColumnsType, ColumnType } from 'antd/es/table';
 import '../App.css';
@@ -204,7 +205,7 @@ const BankAccount: React.FC = () => {
                 </Dropdown>
               </Space>
             </div>
-            <Table
+            <SmartTable tableId="bank_account_table"
                 size={settings.tableDensity}
                 dataSource={result}
                 columns={columns}

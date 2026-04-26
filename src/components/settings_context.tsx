@@ -15,7 +15,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   tableDensity: 'middle',
   themeMode: 'light',
   layoutColor: '#1B3150',
-  siderWidth: 200,
+  siderWidth: 160,
   collapsed: false,
 };
 
@@ -89,6 +89,17 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const resetSettings = useCallback(() => {
     setSettings({ ...DEFAULT_SETTINGS });
     updateCSSVariables(DEFAULT_SETTINGS.layoutColor);
+    
+    // 테이블 컬럼/순서 관련 설정 삭제
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('smart_table_')) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(k => localStorage.removeItem(k));
+    window.dispatchEvent(new Event('reset_table_settings'));
   }, []);
 
   const value = useMemo(() => ({ settings, updateSettings, resetSettings }), [settings, updateSettings, resetSettings]);
