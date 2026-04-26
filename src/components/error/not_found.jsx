@@ -1,4 +1,3 @@
-import type {CountdownProps} from "antd";
 import {Button, Result, Statistic} from "antd";
 import {useNavigate} from "react-router-dom";
 
@@ -8,7 +7,7 @@ const deadline = Date.now() + 3000;
 
 const NotFound = () => {
     const navigate = useNavigate();
-    const onFinish: CountdownProps['onFinish'] = () => navigate('/');
+    const onFinish = () => navigate('/');
     return (
         <>
             <Result

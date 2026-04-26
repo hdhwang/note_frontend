@@ -29,7 +29,7 @@ const SecureRoute = ({ component: Component, permissionRequired, collapsed, setC
             }
 
             try {
-                await axios.post(`${process.env.REACT_APP_API_URL}/token/verify`, {
+                await axios.post(`${import.meta.env.VITE_API_URL}/token/verify`, {
                     token: accessToken
                 },{
                     headers: { Authorization: `Bearer ${accessToken}` },
@@ -44,7 +44,7 @@ const SecureRoute = ({ component: Component, permissionRequired, collapsed, setC
             } catch (error) {
                 if (error.response && error.response.status === 401 && refreshToken) {
                     try {
-                        const response = await axios.post(`${process.env.REACT_APP_API_URL}/token/refresh`, {
+                        const response = await axios.post(`${import.meta.env.VITE_API_URL}/token/refresh`, {
                             refresh: refreshToken,
                         });
 
@@ -92,7 +92,7 @@ const SecureRoute = ({ component: Component, permissionRequired, collapsed, setC
         try {
             const accessToken = localStorage.getItem("access_token");
             await axios.put(
-              `${process.env.REACT_APP_API_URL}/api/v1/account/user`,
+              `${import.meta.env.VITE_API_URL}/api/v1/account/user`,
               {
                   password: values.currentPassword,
                   new_password: values.newPassword,
