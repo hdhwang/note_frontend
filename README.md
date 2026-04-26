@@ -8,7 +8,7 @@ $ npm install
 
 > .env 파일 생성
 ```
-REACT_APP_API_URL=XXXX
+VITE_API_URL=XXXX
 ```
 
 > 인증서 파일 생성

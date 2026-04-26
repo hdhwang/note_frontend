@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Axios 인스턴스 생성
 const apiClient = axios.create({
-    baseURL: `${process.env.REACT_APP_API_URL}/api/v1`,
+    baseURL: `${import.meta.env.VITE_API_URL}/api/v1`,
     headers: {
         'Content-Type': 'application/json',
     },
@@ -38,7 +38,7 @@ apiClient.interceptors.response.use((response) => response,
           if (refreshToken) {
               try {
                   // 리프레시 토큰을 사용하여 새로운 액세스 토큰 발급
-                  const url = `${process.env.REACT_APP_API_URL}/token/refresh`;
+                  const url = `${import.meta.env.VITE_API_URL}/token/refresh`;
                   const response = await axios.post(url, {
                       refresh: refreshToken,
                   });
