@@ -11,3 +11,28 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* 전역 스크롤바 스타일링 (Webkit 기반 - Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 6px; /* 스크롤바 너비 */
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* 배경 투명 */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #bfbfbf; /* AntD 기본 회색과 유사한 색상 */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8c8c8c; /* 호버 시 조금 더 진하게 */
+}
+
+/* Firefox 전용 */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #bfbfbf transparent;
+}
