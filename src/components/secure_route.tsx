@@ -227,7 +227,13 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
     return (
         <ConfigProvider
             locale={koKR}
-            theme={isDarkMode ? { algorithm: theme.darkAlgorithm } : undefined}
+            theme={{
+                algorithm: isDarkMode ? theme.darkAlgorithm : undefined,
+                token: {
+                    motionDurationSlow: '0.15s', // 기본 0.3s -> 약간 빠르고 부드러운 속도
+                    motionDurationMid: '0.1s',   // 기본 0.2s
+                }
+            }}
         >
         <Layout style={{ minHeight: '100vh', overflow: 'hidden' }}>
             <LayoutNav permissions={permissions} isMobile={isMobile} onOpenSettings={() => setIsSettingsVisible(true)} />

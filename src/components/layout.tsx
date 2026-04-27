@@ -13,12 +13,15 @@ import {
   EditOutlined,
   SettingOutlined,
   UserOutlined,
+  DatabaseOutlined,
+  ToolOutlined,
+  LockOutlined,
 } from '@ant-design/icons';
 import { useSettings } from './settings_context';
 
 const { Sider } = Layout;
 
-const SIDER_MIN_WIDTH = 160;
+const SIDER_MIN_WIDTH = 220;
 const SIDER_MAX_WIDTH = 400;
 const SIDER_COLLAPSED_WIDTH = 80;
 
@@ -44,17 +47,42 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ isMobile, onOpenSettings }) => {
   const { pathname } = location;
   const navigate = useNavigate();
   const [selectedKeys, setSelectedKeys] = useState<string[]>(['']);
+  const [openKeys, setOpenKeys] = useState<string[]>([]);
   const [isResizing, setIsResizing] = useState<boolean>(false);
   const siderRef = useRef<HTMLDivElement>(null);
 
+  const pathToGroup: Record<string, string> = {
+    '/bank-account': 'group-data',
+    '/serial': 'group-data',
+    '/note': 'group-data',
+    '/guest-book': 'group-utils',
+    '/lotto': 'group-utils',
+    '/users': 'group-admin',
+    '/audit-log': 'group-admin',
+  };
+
+  const rootSubmenuKeys = ['group-data', 'group-utils', 'group-admin'];
+
   useEffect(() => {
-    const path = pathname === '/' ? '/' : pathname.split('/')[1];
-    if (path === '/') {
-      setSelectedKeys(['/']);
+    const path = pathname === '/' ? '/' : `/${pathname.split('/')[1]}`;
+    setSelectedKeys([path]);
+    
+    const group = pathToGroup[path];
+    if (group) {
+      setOpenKeys([group]);
     } else {
-      setSelectedKeys([`/${path}`]);
+      setOpenKeys([]);
     }
   }, [pathname]);
+
+  const onOpenChange: MenuProps['onOpenChange'] = (keys) => {
+    const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1);
+    if (latestOpenKey && rootSubmenuKeys.indexOf(latestOpenKey) === -1) {
+      setOpenKeys(keys);
+    } else {
+      setOpenKeys(latestOpenKey ? [latestOpenKey] : []);
+    }
+  };
 
   const onClick: MenuProps['onClick'] = (e) => {
     if (e.key === pathname) return;
@@ -99,11 +127,25 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ isMobile, onOpenSettings }) => {
   // 메뉴 아이템
   let menuItems: MenuProps['items'] = [
     { key: '/', icon: <DashboardOutlined />, label: <Link to={'/'}>대시보드</Link> },
-    { key: '/bank-account', icon: <BankOutlined />, label: <Link to={'/bank-account'}>계좌번호</Link> },
-    { key: '/serial', icon: <KeyOutlined />, label: <Link to={'/serial'}>시리얼 번호</Link> },
-    { key: '/note', icon: <FileTextOutlined />, label: <Link to={'/note'}>노트</Link> },
-    { key: '/guest-book', icon: <BookOutlined />, label: <Link to={'/guest-book'}>결혼식 방명록</Link> },
-    { key: '/lotto', icon: <DotChartOutlined />, label: <Link to={'/lotto'}>로또 번호 생성</Link> },
+    {
+      key: 'group-data',
+      icon: <DatabaseOutlined />,
+      label: '데이터 관리',
+      children: [
+        { key: '/bank-account', label: <Link to={'/bank-account'}>계좌번호</Link> },
+        { key: '/serial', label: <Link to={'/serial'}>시리얼 번호</Link> },
+        { key: '/note', label: <Link to={'/note'}>노트</Link> },
+      ]
+    },
+    {
+      key: 'group-utils',
+      icon: <ToolOutlined />,
+      label: '유틸리티',
+      children: [
+        { key: '/guest-book', label: <Link to={'/guest-book'}>결혼식 방명록</Link> },
+        { key: '/lotto', label: <Link to={'/lotto'}>로또 번호 생성</Link> },
+      ]
+    }
   ];
 
   try {
@@ -113,14 +155,13 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ isMobile, onOpenSettings }) => {
       const permissionList = decodedToken.groups || [];
       if (permissionList.includes('관리자')) {
         menuItems.push({
-          key: '/users',
-          icon: <UserOutlined />,
-          label: <Link to={'/users'}>사용자 관리</Link>,
-        });
-        menuItems.push({
-          key: '/audit-log',
-          icon: <AuditOutlined />,
-          label: <Link to={'/audit-log'}>감사 로그</Link>,
+          key: 'group-admin',
+          icon: <LockOutlined />,
+          label: '시스템 관리',
+          children: [
+            { key: '/users', label: <Link to={'/users'}>사용자 관리</Link> },
+            { key: '/audit-log', label: <Link to={'/audit-log'}>감사 로그</Link> },
+          ]
         });
       }
     }
@@ -149,6 +190,8 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ isMobile, onOpenSettings }) => {
       mode='inline'
       onClick={onClick}
       selectedKeys={selectedKeys}
+      openKeys={openKeys}
+      onOpenChange={onOpenChange}
       items={menuItems}
       style={{ backgroundColor: layoutColor }}
     />
