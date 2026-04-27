@@ -28,6 +28,7 @@ const getMenuName = (item: any) => {
         case '/note': return '노트 관리';
         case '/guest-book': return '결혼식 방명록';
         case '/lotto': return '로또 번호 생성';
+        case '/users': return '사용자 관리';
         case '/audit-log': return '감사 로그';
         case '/login': return '로그인';
         default: return '시스템 알림';

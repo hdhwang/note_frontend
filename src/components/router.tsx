@@ -9,6 +9,7 @@ import GuestBook from './guest_book';
 import Lotto from './lotto';
 import AuditLog from './audit_log';
 import Login from './login';
+import Users from './users';
 import Forbidden from "./error/forbidden";
 import NotFound from "./error/not_found";
 
@@ -41,6 +42,10 @@ const AppRoutes: React.FC = () => {
         {
             path: '/audit-log',
             element: <SecureRoute component={AuditLog} permissionRequired={['관리자']} />
+        },
+        {
+            path: '/users',
+            element: <SecureRoute component={Users} permissionRequired={['관리자']} />
         },
 
         { path: "/login", element: <Login /> },
