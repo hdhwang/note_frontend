@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useSettings } from './settings_context';
-import { Layout, Table, Button, Input, message, Modal, Checkbox, Form, Space, Dropdown } from "antd";
+import { Layout, Table, Button, Input, message, Modal, Checkbox, Form, Space, Dropdown, Descriptions } from "antd";
 import { SmartTable } from "./SmartTable";
 import type { MenuProps, TablePaginationConfig } from 'antd';
 import type { ColumnsType, ColumnType } from 'antd/es/table';
 import '../App.css';
 import apiClient from './api/api_client';
-import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, EyeOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, EyeOutlined, InfoCircleOutlined } from "@ant-design/icons";
 
 const { Content } = Layout;
 
@@ -35,7 +35,9 @@ const BankAccount: React.FC = () => {
 
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [isAddModalVisible, setIsAddModalVisible] = useState<boolean>(false);
+  const [isDetailModalVisible, setIsDetailModalVisible] = useState<boolean>(false);
   const [currentAccount, setCurrentAccount] = useState<BankAccountData | null>(null);
+  const [contextMenu, setContextMenu] = useState<{ visible: boolean, x: number, y: number, record: BankAccountData | null }>({ visible: false, x: 0, y: 0, record: null });
   const [form] = Form.useForm();
 
   const columnLabels: Record<string, string> = {
@@ -108,8 +110,9 @@ const BankAccount: React.FC = () => {
       align: 'center' as const,
       render: (_: any, record: BankAccountData) => (
           <Space size={2}>
-            <Button type="text" icon={<EditOutlined />} onClick={() => showEditModal(record)} />
-            <Button type="text" danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)} />
+            <Button type="text" icon={<InfoCircleOutlined />} onClick={(e) => { e.stopPropagation(); showDetail(record); }} />
+            <Button type="text" icon={<EditOutlined />} onClick={(e) => { e.stopPropagation(); showEditModal(record); }} />
+            <Button type="text" danger icon={<DeleteOutlined />} onClick={(e) => { e.stopPropagation(); handleDelete(record.id); }} />
           </Space>
       ),
     },
@@ -135,6 +138,11 @@ const BankAccount: React.FC = () => {
   };
 
   useEffect(() => { getData(); }, []);
+
+  const showDetail = (account: BankAccountData) => {
+    setCurrentAccount(account);
+    setIsDetailModalVisible(true);
+  };
 
   const showEditModal = (account: BankAccountData) => {
     setCurrentAccount(account);
@@ -214,7 +222,47 @@ const BankAccount: React.FC = () => {
                 onChange={handleTableChange}
                 rowKey="id"
                 scroll={{ x: 'max-content' }}
+                onRow={(record: BankAccountData) => ({
+                    onContextMenu: (e) => {
+                        e.preventDefault();
+                        if (!contextMenu.visible) {
+                            const closeMenu = () => {
+                                setContextMenu({ visible: false, x: 0, y: 0, record: null });
+                                document.removeEventListener('click', closeMenu);
+                            };
+                            document.addEventListener('click', closeMenu);
+                        }
+                        setContextMenu({
+                            visible: true,
+                            x: e.clientX,
+                            y: e.clientY,
+                            record
+                        });
+                    }
+                })}
             />
+            {contextMenu.visible && contextMenu.record && (
+                <ul style={{
+                    position: 'fixed', top: contextMenu.y, left: contextMenu.x, zIndex: 9999,
+                    background: 'white', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                    listStyle: 'none', padding: '4px 0', margin: 0, minWidth: '120px'
+                }}>
+                    <li style={{ padding: '8px 16px', cursor: 'pointer' }} onClick={() => { getData(pagination.current, pagination.pageSize); setContextMenu(prev => ({...prev, visible: false})); }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                        <ReloadOutlined style={{ marginRight: 8 }} /> 새로고침
+                    </li>
+                    <li style={{ height: 1, background: '#f0f0f0', margin: '4px 0' }} />
+                    <li style={{ padding: '8px 16px', cursor: 'pointer' }} onClick={() => { showEditModal(contextMenu.record!); setContextMenu(prev => ({...prev, visible: false})); }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                        <EditOutlined style={{ marginRight: 8 }} /> 수정
+                    </li>
+                    <li style={{ padding: '8px 16px', cursor: 'pointer', color: 'red' }} onClick={() => { handleDelete(contextMenu.record!.id); setContextMenu(prev => ({...prev, visible: false})); }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fff1f0'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                        <DeleteOutlined style={{ marginRight: 8 }} /> 삭제
+                    </li>
+                    <li style={{ height: 1, background: '#f0f0f0', margin: '4px 0' }} />
+                    <li style={{ padding: '8px 16px', cursor: 'pointer' }} onClick={() => { showDetail(contextMenu.record!); setContextMenu(prev => ({...prev, visible: false})); }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                        <InfoCircleOutlined style={{ marginRight: 8 }} /> 상세 보기
+                    </li>
+                </ul>
+            )}
           </div>
         </Content>
 
@@ -234,6 +282,17 @@ const BankAccount: React.FC = () => {
             <Form.Item name="account_holder" label="예금주" rules={[{ required: true }]}><Input /></Form.Item>
             <Form.Item name="description" label="설명"><Input.TextArea /></Form.Item>
           </Form>
+        </Modal>
+
+        <Modal title="계좌번호 상세" open={isDetailModalVisible} onCancel={() => setIsDetailModalVisible(false)} footer={[<Button key="close" onClick={() => setIsDetailModalVisible(false)}>닫기</Button>]}>
+            {currentAccount && (
+                <Descriptions column={1} bordered size="small">
+                    <Descriptions.Item label="은행">{currentAccount.bank}</Descriptions.Item>
+                    <Descriptions.Item label="계좌번호">{currentAccount.account}</Descriptions.Item>
+                    <Descriptions.Item label="예금주">{currentAccount.account_holder}</Descriptions.Item>
+                    <Descriptions.Item label="설명">{currentAccount.description}</Descriptions.Item>
+                </Descriptions>
+            )}
         </Modal>
       </div>
   );

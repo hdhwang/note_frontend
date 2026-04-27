@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useSettings } from './settings_context';
-import { Layout, Table, Button, Input, message, Modal, Checkbox, Form, Space, Dropdown } from "antd";
+import { Layout, Table, Button, Input, message, Modal, Checkbox, Form, Space, Dropdown, Descriptions } from "antd";
 import { SmartTable } from "./SmartTable";
 import type { MenuProps, TablePaginationConfig } from 'antd';
 import '../App.css';
 import apiClient from './api/api_client';
-import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, EyeOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, EyeOutlined, InfoCircleOutlined } from "@ant-design/icons";
 
 const { Content } = Layout;
 
@@ -30,7 +30,9 @@ const Note: React.FC = () => {
   });
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [isAddModalVisible, setIsAddModalVisible] = useState<boolean>(false);
+  const [isDetailModalVisible, setIsDetailModalVisible] = useState<boolean>(false);
   const [currentNote, setCurrentNote] = useState<NoteData | null>(null);
+  const [contextMenu, setContextMenu] = useState<{ visible: boolean, x: number, y: number, record: NoteData | null }>({ visible: false, x: 0, y: 0, record: null });
   const [form] = Form.useForm();
 
   const columnLabels: Record<string, string> = {
@@ -118,12 +120,9 @@ const Note: React.FC = () => {
       align: 'center' as const,
       render: (_: any, record: NoteData) => (
           <Space size={2}>
-            <Button type="text" icon={<EditOutlined />}
-                onClick={() => showEditModal(record)}
-            />
-            <Button type="text" danger icon={<DeleteOutlined />}
-                onClick={() => handleDelete(record.id)}
-            />
+            <Button type="text" icon={<InfoCircleOutlined />} onClick={(e) => { e.stopPropagation(); showDetail(record); }} />
+            <Button type="text" icon={<EditOutlined />} onClick={(e) => { e.stopPropagation(); showEditModal(record); }} />
+            <Button type="text" danger icon={<DeleteOutlined />} onClick={(e) => { e.stopPropagation(); handleDelete(record.id); }} />
           </Space>
       ),
       open: visibleColumns.actions,
@@ -167,6 +166,11 @@ const Note: React.FC = () => {
         }
       },
     });
+  };
+
+  const showDetail = (note: NoteData) => {
+    setCurrentNote(note);
+    setIsDetailModalVisible(true);
   };
 
   const showEditModal = (note: NoteData) => {
@@ -249,7 +253,47 @@ const Note: React.FC = () => {
                 onChange={handleTableChange}
                 rowKey="id"
                 scroll={{ x: 'max-content' }}
+                onRow={(record: NoteData) => ({
+                    onContextMenu: (e) => {
+                        e.preventDefault();
+                        if (!contextMenu.visible) {
+                            const closeMenu = () => {
+                                setContextMenu({ visible: false, x: 0, y: 0, record: null });
+                                document.removeEventListener('click', closeMenu);
+                            };
+                            document.addEventListener('click', closeMenu);
+                        }
+                        setContextMenu({
+                            visible: true,
+                            x: e.clientX,
+                            y: e.clientY,
+                            record
+                        });
+                    }
+                })}
             />
+            {contextMenu.visible && contextMenu.record && (
+                <ul style={{
+                    position: 'fixed', top: contextMenu.y, left: contextMenu.x, zIndex: 9999,
+                    background: 'white', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                    listStyle: 'none', padding: '4px 0', margin: 0, minWidth: '120px'
+                }}>
+                    <li style={{ padding: '8px 16px', cursor: 'pointer' }} onClick={() => { getData(pagination.current, pagination.pageSize); setContextMenu(prev => ({...prev, visible: false})); }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                        <ReloadOutlined style={{ marginRight: 8 }} /> 새로고침
+                    </li>
+                    <li style={{ height: 1, background: '#f0f0f0', margin: '4px 0' }} />
+                    <li style={{ padding: '8px 16px', cursor: 'pointer' }} onClick={() => { showEditModal(contextMenu.record!); setContextMenu(prev => ({...prev, visible: false})); }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                        <EditOutlined style={{ marginRight: 8 }} /> 수정
+                    </li>
+                    <li style={{ padding: '8px 16px', cursor: 'pointer', color: 'red' }} onClick={() => { handleDelete(contextMenu.record!.id); setContextMenu(prev => ({...prev, visible: false})); }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fff1f0'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                        <DeleteOutlined style={{ marginRight: 8 }} /> 삭제
+                    </li>
+                    <li style={{ height: 1, background: '#f0f0f0', margin: '4px 0' }} />
+                    <li style={{ padding: '8px 16px', cursor: 'pointer' }} onClick={() => { showDetail(contextMenu.record!); setContextMenu(prev => ({...prev, visible: false})); }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                        <InfoCircleOutlined style={{ marginRight: 8 }} /> 상세 보기
+                    </li>
+                </ul>
+            )}
           </div>
         </Content>
 
@@ -283,6 +327,16 @@ const Note: React.FC = () => {
               <Input.TextArea autoSize={{ minRows: 2, maxRows: 10 }}/>
             </Form.Item>
           </Form>
+        </Modal>
+
+        <Modal title="노트 상세" open={isDetailModalVisible} onCancel={() => setIsDetailModalVisible(false)} footer={[<Button key="close" onClick={() => setIsDetailModalVisible(false)}>닫기</Button>]}>
+            {currentNote && (
+                <Descriptions column={1} bordered size="small">
+                    <Descriptions.Item label="제목">{currentNote.title}</Descriptions.Item>
+                    <Descriptions.Item label="등록 일자">{currentNote.date}</Descriptions.Item>
+                    <Descriptions.Item label="내용"><pre style={{ whiteSpace: 'pre-wrap', margin: 0, fontFamily: 'inherit' }}>{currentNote.note}</pre></Descriptions.Item>
+                </Descriptions>
+            )}
         </Modal>
       </div>
   );

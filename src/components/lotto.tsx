@@ -20,6 +20,7 @@ const Lotto: React.FC = () => {
   const { settings } = useSettings();
   const [loading, setLoading] = useState<boolean>(false);
   const [result, setResult] = useState<LottoData[]>([]);
+  const [contextMenu, setContextMenu] = useState<{ visible: boolean, x: number, y: number }>({ visible: false, x: 0, y: 0 });
 
   // 3. 테이블 컬럼에 타입 적용
   const columns: ColumnsType<LottoData> = [
@@ -75,7 +76,35 @@ const Lotto: React.FC = () => {
                 pagination={false}
                 rowKey="key"
                 bordered
+                onRow={() => ({
+                    onContextMenu: (e) => {
+                        e.preventDefault();
+                        if (!contextMenu.visible) {
+                            const closeMenu = () => {
+                                setContextMenu({ visible: false, x: 0, y: 0 });
+                                document.removeEventListener('click', closeMenu);
+                            };
+                            document.addEventListener('click', closeMenu);
+                        }
+                        setContextMenu({
+                            visible: true,
+                            x: e.clientX,
+                            y: e.clientY,
+                        });
+                    }
+                })}
             />
+            {contextMenu.visible && (
+                <ul style={{
+                    position: 'fixed', top: contextMenu.y, left: contextMenu.x, zIndex: 9999,
+                    background: 'white', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                    listStyle: 'none', padding: '4px 0', margin: 0, minWidth: '120px'
+                }}>
+                    <li style={{ padding: '8px 16px', cursor: 'pointer' }} onClick={() => { getData(); setContextMenu(prev => ({...prev, visible: false})); }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                        <ReloadOutlined style={{ marginRight: 8 }} /> 새로고침
+                    </li>
+                </ul>
+            )}
           </div>
         </Content>
       </div>

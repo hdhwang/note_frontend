@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useSettings } from './settings_context';
-import { Layout, Table, Button, Input, Checkbox, Dropdown, Space } from "antd";
+import { Layout, Table, Button, Input, Checkbox, Dropdown, Space, Modal, Descriptions, Tag } from "antd";
 import { SmartTable } from "./SmartTable";
 import type { MenuProps, TablePaginationConfig } from 'antd';
 import type { ColumnsType, ColumnType } from 'antd/es/table';
-import { EyeOutlined, ReloadOutlined } from "@ant-design/icons";
+import { EyeOutlined, ReloadOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import '../App.css';
 import apiClient from './api/api_client';
 
@@ -36,7 +36,12 @@ const AuditLog: React.FC = () => {
     action: true,
     result: true,
     date: true,
+    actions: true,
   });
+
+  const [isDetailModalVisible, setIsDetailModalVisible] = useState<boolean>(false);
+  const [currentLog, setCurrentLog] = useState<AuditLogData | null>(null);
+  const [contextMenu, setContextMenu] = useState<{ visible: boolean, x: number, y: number, record: AuditLogData | null }>({ visible: false, x: 0, y: 0, record: null });
 
   const columnLabels: Record<string, string> = {
     user: '사용자',
@@ -46,6 +51,7 @@ const AuditLog: React.FC = () => {
     action: '내용',
     result: '결과',
     date: '일자',
+    actions: '작업',
   };
 
   const handleColumnVisibilityChange = (columnKey: string) => {
@@ -184,6 +190,10 @@ const AuditLog: React.FC = () => {
         { text: '실패', value: '실패' },
       ],
       filterMultiple: false,
+      render: (text: string) => {
+          let color = text === '성공' ? 'green' : (text === '실패' ? 'volcano' : 'default');
+          return <Tag color={color}>{text}</Tag>;
+      },
     },
     {
       title: '일자',
@@ -191,6 +201,16 @@ const AuditLog: React.FC = () => {
       key: 'date',
       align: 'center' as const,
       sorter: true,
+    },
+    {
+      title: '작업',
+      key: 'actions',
+      align: 'center' as const,
+      render: (_: any, record: AuditLogData) => (
+          <Space size={2}>
+            <Button type="text" icon={<InfoCircleOutlined />} onClick={(e) => { e.stopPropagation(); showDetail(record); }} />
+          </Space>
+      ),
     },
   ];
 
@@ -225,6 +245,11 @@ const AuditLog: React.FC = () => {
   useEffect(() => {
     getData();
   }, []);
+
+  const showDetail = (log: AuditLogData) => {
+    setCurrentLog(log);
+    setIsDetailModalVisible(true);
+  };
 
   const handleTableChange = (
       pagination: TablePaginationConfig,
@@ -263,9 +288,56 @@ const AuditLog: React.FC = () => {
                 onChange={handleTableChange}
                 rowKey="id"
                 scroll={{ x: 'max-content' }}
+                onRow={(record: AuditLogData) => ({
+                    onContextMenu: (e) => {
+                        e.preventDefault();
+                        if (!contextMenu.visible) {
+                            const closeMenu = () => {
+                                setContextMenu({ visible: false, x: 0, y: 0, record: null });
+                                document.removeEventListener('click', closeMenu);
+                            };
+                            document.addEventListener('click', closeMenu);
+                        }
+                        setContextMenu({
+                            visible: true,
+                            x: e.clientX,
+                            y: e.clientY,
+                            record
+                        });
+                    }
+                })}
             />
+            {contextMenu.visible && contextMenu.record && (
+                <ul style={{
+                    position: 'fixed', top: contextMenu.y, left: contextMenu.x, zIndex: 9999,
+                    background: 'white', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                    listStyle: 'none', padding: '4px 0', margin: 0, minWidth: '120px'
+                }}>
+                    <li style={{ padding: '8px 16px', cursor: 'pointer' }} onClick={() => { getData(pagination.current, pagination.pageSize); setContextMenu(prev => ({...prev, visible: false})); }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                        <ReloadOutlined style={{ marginRight: 8 }} /> 새로고침
+                    </li>
+                    <li style={{ height: 1, background: '#f0f0f0', margin: '4px 0' }} />
+                    <li style={{ padding: '8px 16px', cursor: 'pointer' }} onClick={() => { showDetail(contextMenu.record!); setContextMenu(prev => ({...prev, visible: false})); }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                        <InfoCircleOutlined style={{ marginRight: 8 }} /> 상세 보기
+                    </li>
+                </ul>
+            )}
           </div>
         </Content>
+
+        <Modal title="감사 로그 상세" open={isDetailModalVisible} onCancel={() => setIsDetailModalVisible(false)} footer={[<Button key="close" onClick={() => setIsDetailModalVisible(false)}>닫기</Button>]}>
+            {currentLog && (
+                <Descriptions column={1} bordered size="small">
+                    <Descriptions.Item label="사용자">{currentLog.user}</Descriptions.Item>
+                    <Descriptions.Item label="IP 주소">{currentLog.ip}</Descriptions.Item>
+                    <Descriptions.Item label="카테고리">{currentLog.category}</Descriptions.Item>
+                    <Descriptions.Item label="보조 카테고리">{currentLog.sub_category}</Descriptions.Item>
+                    <Descriptions.Item label="내용">{currentLog.action}</Descriptions.Item>
+                    <Descriptions.Item label="결과">{currentLog.result}</Descriptions.Item>
+                    <Descriptions.Item label="일자">{currentLog.date}</Descriptions.Item>
+                </Descriptions>
+            )}
+        </Modal>
       </div>
   );
 }
