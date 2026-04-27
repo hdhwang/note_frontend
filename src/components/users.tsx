@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useSettings } from './settings_context';
-import { Layout, Button, Input, message, Modal, Checkbox, Form, Space, Dropdown, Select, Tag, Radio } from "antd";
+import { Layout, Button, Input, message, Modal, Checkbox, Form, Space, Dropdown, Select, Tag, Radio, Descriptions } from "antd";
 import { SmartTable } from "./SmartTable";
 import type { MenuProps, TablePaginationConfig } from 'antd';
 import type { ColumnsType, ColumnType } from 'antd/es/table';
 import '../App.css';
 import apiClient from './api/api_client';
-import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, EyeOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, EyeOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import moment from 'moment';
 
 const { Content } = Layout;
@@ -42,7 +42,9 @@ const Users: React.FC = () => {
 
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [isAddModalVisible, setIsAddModalVisible] = useState<boolean>(false);
+  const [isDetailModalVisible, setIsDetailModalVisible] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<UserData | null>(null);
+  const [contextMenu, setContextMenu] = useState<{ visible: boolean, x: number, y: number, record: UserData | null }>({ visible: false, x: 0, y: 0, record: null });
   const [form] = Form.useForm();
 
   const columnLabels: Record<string, string> = {
@@ -204,8 +206,9 @@ const Users: React.FC = () => {
       align: 'center' as const,
       render: (_: any, record: UserData) => (
         <Space size={2}>
-          <Button type="text" icon={<EditOutlined />} onClick={() => showEditModal(record)} />
-          <Button type="text" danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)} />
+          <Button type="text" icon={<InfoCircleOutlined />} onClick={(e) => { e.stopPropagation(); showDetail(record); }} />
+          <Button type="text" icon={<EditOutlined />} onClick={(e) => { e.stopPropagation(); showEditModal(record); }} />
+          <Button type="text" danger icon={<DeleteOutlined />} onClick={(e) => { e.stopPropagation(); handleDelete(record.id); }} />
         </Space>
       ),
     },
@@ -230,6 +233,11 @@ const Users: React.FC = () => {
   };
 
   useEffect(() => { getData(); }, []);
+
+  const showDetail = (user: UserData) => {
+    setCurrentUser(user);
+    setIsDetailModalVisible(true);
+  };
 
   const showEditModal = (user: UserData) => {
     setCurrentUser(user);
@@ -348,7 +356,47 @@ const Users: React.FC = () => {
             onChange={handleTableChange}
             rowKey="id"
             scroll={{ x: 'max-content' }}
+            onRow={(record: UserData) => ({
+                onContextMenu: (e) => {
+                    e.preventDefault();
+                    if (!contextMenu.visible) {
+                        const closeMenu = () => {
+                            setContextMenu({ visible: false, x: 0, y: 0, record: null });
+                            document.removeEventListener('click', closeMenu);
+                        };
+                        document.addEventListener('click', closeMenu);
+                    }
+                    setContextMenu({
+                        visible: true,
+                        x: e.clientX,
+                        y: e.clientY,
+                        record
+                    });
+                }
+            })}
           />
+          {contextMenu.visible && contextMenu.record && (
+              <ul style={{
+                  position: 'fixed', top: contextMenu.y, left: contextMenu.x, zIndex: 9999,
+                  background: 'white', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                  listStyle: 'none', padding: '4px 0', margin: 0, minWidth: '120px'
+              }}>
+                  <li style={{ padding: '8px 16px', cursor: 'pointer' }} onClick={() => { getData(pagination.current, pagination.pageSize); setContextMenu(prev => ({...prev, visible: false})); }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                      <ReloadOutlined style={{ marginRight: 8 }} /> 새로고침
+                  </li>
+                  <li style={{ height: 1, background: '#f0f0f0', margin: '4px 0' }} />
+                  <li style={{ padding: '8px 16px', cursor: 'pointer' }} onClick={() => { showEditModal(contextMenu.record!); setContextMenu(prev => ({...prev, visible: false})); }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                      <EditOutlined style={{ marginRight: 8 }} /> 수정
+                  </li>
+                  <li style={{ padding: '8px 16px', cursor: 'pointer', color: 'red' }} onClick={() => { handleDelete(contextMenu.record!.id); setContextMenu(prev => ({...prev, visible: false})); }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fff1f0'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                      <DeleteOutlined style={{ marginRight: 8 }} /> 삭제
+                  </li>
+                  <li style={{ height: 1, background: '#f0f0f0', margin: '4px 0' }} />
+                  <li style={{ padding: '8px 16px', cursor: 'pointer' }} onClick={() => { showDetail(contextMenu.record!); setContextMenu(prev => ({...prev, visible: false})); }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                      <InfoCircleOutlined style={{ marginRight: 8 }} /> 상세 보기
+                  </li>
+              </ul>
+          )}
         </div>
       </Content>
 
@@ -438,6 +486,20 @@ const Users: React.FC = () => {
             <Radio.Group options={['사용자', '관리자']} />
           </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal title="사용자 상세" open={isDetailModalVisible} onCancel={() => setIsDetailModalVisible(false)} footer={[<Button key="close" onClick={() => setIsDetailModalVisible(false)}>닫기</Button>]}>
+          {currentUser && (
+              <Descriptions column={1} bordered size="small">
+                  <Descriptions.Item label="아이디">{currentUser.user_id}</Descriptions.Item>
+                  <Descriptions.Item label="이름">{currentUser.name}</Descriptions.Item>
+                  <Descriptions.Item label="이메일">{currentUser.email}</Descriptions.Item>
+                  <Descriptions.Item label="상태">{currentUser.status}</Descriptions.Item>
+                  <Descriptions.Item label="권한">{currentUser.permission?.join(', ')}</Descriptions.Item>
+                  <Descriptions.Item label="가입 일자">{currentUser.created_at ? moment(currentUser.created_at).format('YYYY-MM-DD HH:mm:ss') : '-'}</Descriptions.Item>
+                  <Descriptions.Item label="최근 로그인">{currentUser.last_login ? moment(currentUser.last_login).format('YYYY-MM-DD HH:mm:ss') : '-'}</Descriptions.Item>
+              </Descriptions>
+          )}
       </Modal>
     </div>
   );
