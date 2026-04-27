@@ -23,9 +23,9 @@ const getMenuName = (item: any) => {
     const mainPath = path === '/' ? '/' : `/${path.split('/')[1]}`;
     switch (mainPath) {
         case '/': return '대시보드';
-        case '/bank-account': return '계좌번호 관리';
-        case '/serial': return '시리얼 번호 관리';
-        case '/note': return '노트 관리';
+        case '/bank-account': return '계좌번호';
+        case '/serial': return '시리얼 번호';
+        case '/note': return '노트';
         case '/guest-book': return '결혼식 방명록';
         case '/lotto': return '로또 번호 생성';
         case '/users': return '사용자 관리';
@@ -196,10 +196,10 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
 
     const PAGES = [
         { name: '대시보드', path: '/', icon: <DashboardOutlined /> },
-        { name: '계좌번호 관리', path: '/bank-account', icon: <BankOutlined /> },
-        { name: '시리얼 번호 관리', path: '/serial', icon: <KeyOutlined /> },
-        { name: '노트 관리', path: '/note', icon: <FileTextOutlined /> },
         { name: '결혼식 방명록', path: '/guest-book', icon: <BookOutlined /> },
+        { name: '계좌번호', path: '/bank-account', icon: <BankOutlined /> },
+        { name: '노트', path: '/note', icon: <FileTextOutlined /> },
+        { name: '시리얼 번호', path: '/serial', icon: <KeyOutlined /> },
         { name: '로또 번호 생성', path: '/lotto', icon: <DotChartOutlined /> },
         { name: '사용자 관리', path: '/users', icon: <UserOutlined />, adminOnly: true },
         { name: '감사 로그', path: '/audit-log', icon: <AuditOutlined />, adminOnly: true },
