@@ -23,11 +23,12 @@ const NotFound: React.FC = () => {
                 <>
                     <div>Sorry, the page you visited does not exist.</div>
                     {/* format에 문구 추가 가능 (예: 's초 후 이동') */}
-                    <Countdown
+                    <Statistic.Timer
+                        type="countdown"
                         value={deadline}
                         onFinish={onFinish}
                         format="s"
-                        valueStyle={{ fontSize: '14px', color: '#999' }}
+                        styles={{ content: { fontSize: '14px', color: '#999' } }}
                     />
                 </>
             }
