@@ -71,7 +71,7 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ isMobile, onOpenSettings }) => {
     '/bank-account': 'group-data',
     '/serial': 'group-data',
     '/note': 'group-data',
-    '/guest-book': 'group-utils',
+    '/guest-book': 'group-data',
     '/lotto': 'group-utils',
     '/users': 'group-admin',
     '/audit-log': 'group-admin',
@@ -212,9 +212,10 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ isMobile, onOpenSettings }) => {
       icon: <DatabaseOutlined />,
       label: '데이터 관리',
       children: [
+        { key: '/guest-book', label: <Link to={'/guest-book'}>결혼식 방명록</Link> },
         { key: '/bank-account', label: <Link to={'/bank-account'}>계좌번호</Link> },
-        { key: '/serial', label: <Link to={'/serial'}>시리얼 번호</Link> },
         { key: '/note', label: <Link to={'/note'}>노트</Link> },
+        { key: '/serial', label: <Link to={'/serial'}>시리얼 번호</Link> },
       ]
     },
     {
@@ -222,7 +223,6 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ isMobile, onOpenSettings }) => {
       icon: <ToolOutlined />,
       label: '유틸리티',
       children: [
-        { key: '/guest-book', label: <Link to={'/guest-book'}>결혼식 방명록</Link> },
         { key: '/lotto', label: <Link to={'/lotto'}>로또 번호 생성</Link> },
       ]
     }
