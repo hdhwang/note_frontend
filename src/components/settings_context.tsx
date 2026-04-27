@@ -15,7 +15,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   tableDensity: 'middle',
   themeMode: 'light',
   layoutColor: '#1B3150',
-  siderWidth: 160,
+  siderWidth: 220,
   collapsed: false,
 };
 
@@ -33,7 +33,11 @@ function loadSettings(): AppSettings {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
-      return { ...DEFAULT_SETTINGS, ...JSON.parse(stored) };
+      const parsed = JSON.parse(stored);
+      if (parsed.siderWidth && parsed.siderWidth < 220) {
+        parsed.siderWidth = 220;
+      }
+      return { ...DEFAULT_SETTINGS, ...parsed };
     }
   } catch (e) {
     console.error('Failed to load settings:', e);
