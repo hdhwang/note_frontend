@@ -513,7 +513,7 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
                                 alignItems: 'center',
                                 justifyContent: 'center'
                             }}>
-                                {React.cloneElement(page.icon as React.ReactElement, { style: { fontSize: 18 } })}
+                                {React.cloneElement(page.icon as React.ReactElement<any>, { style: { fontSize: 18 } })}
                             </div>
                             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                                 <Typography.Text strong>{page.name}</Typography.Text>
