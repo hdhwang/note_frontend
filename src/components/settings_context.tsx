@@ -9,6 +9,8 @@ export interface AppSettings {
   layoutColor: string;
   siderWidth: number;
   collapsed: boolean;
+  favorites: string[];
+  favoritesExpanded: boolean;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -17,6 +19,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   layoutColor: '#1B3150',
   siderWidth: 220,
   collapsed: false,
+  favorites: [],
+  favoritesExpanded: true,
 };
 
 const STORAGE_KEY = 'app_settings';

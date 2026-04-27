@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import LayoutNav from "./layout";
 import SettingsDrawer from "./settings";
 import { Layout, Spin, Typography, message, Dropdown, Button, Modal, Form, Input, ConfigProvider, MenuProps, theme, Badge, Popover, List } from "antd";
-import { MenuOutlined, MenuFoldOutlined, MenuUnfoldOutlined, SettingOutlined, BellOutlined, CheckCircleFilled, CloseCircleFilled, InfoCircleFilled, ExclamationCircleFilled } from '@ant-design/icons';
+import { MenuOutlined, MenuFoldOutlined, MenuUnfoldOutlined, SettingOutlined, BellOutlined, CheckCircleFilled, CloseCircleFilled, InfoCircleFilled, ExclamationCircleFilled, StarOutlined, StarFilled } from '@ant-design/icons';
 import koKR from 'antd/es/locale/ko_KR';
 import Forbidden from "./error/forbidden";
 import { jwtDecode } from 'jwt-decode';
@@ -82,6 +82,7 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
     const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth < MOBILE_BREAKPOINT);
 
     const navigate = useNavigate();
+    const { pathname } = useLocation();
     const [form] = Form.useForm();
 
     // 화면 크기 변경 감지
@@ -262,6 +263,22 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
                             icon={isMobile ? <MenuOutlined /> : (collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />)}
                             onClick={() => setCollapsed(!collapsed)}
                             style={{ color: '#ffffff', fontSize: 18 }}
+                        />
+                        <Button
+                            type="text"
+                            icon={settings.favorites?.includes(pathname) ? <StarFilled style={{ color: '#fadb14' }} /> : <StarOutlined />}
+                            onClick={() => {
+                                const isFavorite = settings.favorites?.includes(pathname);
+                                let newFavorites = [...(settings.favorites || [])];
+                                if (isFavorite) {
+                                    newFavorites = newFavorites.filter(p => p !== pathname);
+                                } else {
+                                    newFavorites.push(pathname);
+                                }
+                                updateSettings({ favorites: newFavorites });
+                            }}
+                            style={{ color: '#ffffff', fontSize: 18, marginLeft: 8 }}
+                            title="즐겨찾기 추가/해제"
                         />
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>

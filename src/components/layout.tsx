@@ -16,6 +16,7 @@ import {
   DatabaseOutlined,
   ToolOutlined,
   LockOutlined,
+  StarOutlined,
 } from '@ant-design/icons';
 import { useSettings } from './settings_context';
 
@@ -24,6 +25,20 @@ const { Sider } = Layout;
 const SIDER_MIN_WIDTH = 220;
 const SIDER_MAX_WIDTH = 400;
 const SIDER_COLLAPSED_WIDTH = 80;
+
+const getMenuName = (path: string) => {
+  switch (path) {
+    case '/': return '대시보드';
+    case '/bank-account': return '계좌번호';
+    case '/serial': return '시리얼 번호';
+    case '/note': return '노트';
+    case '/guest-book': return '결혼식 방명록';
+    case '/lotto': return '로또 번호 생성';
+    case '/users': return '사용자 관리';
+    case '/audit-log': return '감사 로그';
+    default: return path;
+  }
+};
 
 interface LayoutNavProps {
   permissions: string[];
@@ -47,6 +62,7 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ isMobile, onOpenSettings }) => {
   const { pathname } = location;
   const navigate = useNavigate();
   const [selectedKeys, setSelectedKeys] = useState<string[]>(['']);
+  const [lastClickedKey, setLastClickedKey] = useState<string | null>(null);
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   const [isResizing, setIsResizing] = useState<boolean>(false);
   const siderRef = useRef<HTMLDivElement>(null);
@@ -61,33 +77,83 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ isMobile, onOpenSettings }) => {
     '/audit-log': 'group-admin',
   };
 
-  const rootSubmenuKeys = ['group-data', 'group-utils', 'group-admin'];
+  const accordionKeys = ['group-data', 'group-utils', 'group-admin'];
 
   useEffect(() => {
     const path = pathname === '/' ? '/' : `/${pathname.split('/')[1]}`;
-    setSelectedKeys([path]);
+    
+    // 마지막으로 클릭한 키가 현재 경로와 일치하면 그 키를 우선 사용
+    // 정보가 없는 경우(새로고침 등), 즐겨찾기에 있는 메뉴라면 즐겨찾기 키를 우선적으로 선택
+    let keyToSelect = path;
+    if (lastClickedKey && (lastClickedKey === path || lastClickedKey === `fav-${path}`)) {
+      keyToSelect = lastClickedKey;
+    } else if (settings.favorites?.includes(path)) {
+      keyToSelect = `fav-${path}`;
+    }
+    
+    setSelectedKeys([keyToSelect]);
     
     const group = pathToGroup[path];
-    if (group) {
-      setOpenKeys([group]);
-    } else {
-      setOpenKeys([]);
-    }
-  }, [pathname]);
+    
+    setOpenKeys(prev => {
+      let nextKeys = [...prev];
+      
+      // 1. 즐겨찾기 그룹: 설정에 저장된 펼침 상태 반영
+      const isFavOpen = settings.favoritesExpanded;
+      if (isFavOpen && !nextKeys.includes('group-favorites')) {
+        nextKeys.push('group-favorites');
+      } else if (!isFavOpen && nextKeys.includes('group-favorites')) {
+        nextKeys = nextKeys.filter(k => k !== 'group-favorites');
+      }
+      
+      // 현재 경로가 즐겨찾기에 있고 즐겨찾기 그룹이 닫혀있다면 강제로 열어줌 (사용자 편의)
+      if (settings.favorites?.includes(path) && !nextKeys.includes('group-favorites')) {
+        nextKeys.push('group-favorites');
+        updateSettings({ favoritesExpanded: true });
+      }
+      
+      // 2. 일반 그룹 (아코디언): 하나만 열리도록 관리
+      if (group && (!lastClickedKey || !lastClickedKey.startsWith('fav-'))) {
+        nextKeys = nextKeys.filter(k => !accordionKeys.includes(k) || k === group);
+        if (!nextKeys.includes(group)) nextKeys.push(group);
+      } else if (!group && (!lastClickedKey || !lastClickedKey.startsWith('fav-'))) {
+        nextKeys = nextKeys.filter(k => !accordionKeys.includes(k));
+      }
+      
+      return nextKeys;
+    });
+  }, [pathname, settings.favorites, settings.favoritesExpanded, lastClickedKey, updateSettings]);
 
   const onOpenChange: MenuProps['onOpenChange'] = (keys) => {
     const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1);
-    if (latestOpenKey && rootSubmenuKeys.indexOf(latestOpenKey) === -1) {
-      setOpenKeys(keys);
+    
+    // 즐겨찾기 그룹의 펼침 상태가 변경되었는지 확인
+    const isFavNowOpen = keys.includes('group-favorites');
+    if (isFavNowOpen !== settings.favoritesExpanded) {
+      updateSettings({ favoritesExpanded: isFavNowOpen });
+    }
+
+    if (latestOpenKey && accordionKeys.includes(latestOpenKey)) {
+      const nextKeys = keys.filter(k => !accordionKeys.includes(k) || k === latestOpenKey);
+      setOpenKeys(nextKeys);
     } else {
-      setOpenKeys(latestOpenKey ? [latestOpenKey] : []);
+      setOpenKeys(keys);
     }
   };
 
   const onClick: MenuProps['onClick'] = (e) => {
-    if (e.key === pathname) return;
+    const targetPath = e.key.startsWith('fav-') ? e.key.replace('fav-', '') : e.key;
+    if (targetPath === pathname) {
+      // 이미 같은 경로일 때도 클릭된 키 정보를 업데이트하여 하이라이트 유지
+      setLastClickedKey(e.key);
+      setSelectedKeys([e.key]);
+      return;
+    }
+    
+    setLastClickedKey(e.key);
     setSelectedKeys([e.key]);
-    navigate(e.key, { replace: true });
+    
+    navigate(targetPath, { replace: true });
     if (isMobile) {
       setCollapsed(true);
     }
@@ -125,7 +191,21 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ isMobile, onOpenSettings }) => {
   }, [isResizing, handleMouseMove, handleMouseUp]);
 
   // 메뉴 아이템
-  let menuItems: MenuProps['items'] = [
+  let menuItems: MenuProps['items'] = [];
+
+  if (settings.favorites && settings.favorites.length > 0) {
+    menuItems.push({
+      key: 'group-favorites',
+      icon: <StarOutlined />,
+      label: '즐겨찾기',
+      children: settings.favorites.map(path => ({
+        key: `fav-${path}`,
+        label: <Link to={path}>{getMenuName(path)}</Link>
+      }))
+    });
+  }
+
+  menuItems.push(
     { key: '/', icon: <DashboardOutlined />, label: <Link to={'/'}>대시보드</Link> },
     {
       key: 'group-data',
@@ -146,7 +226,7 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ isMobile, onOpenSettings }) => {
         { key: '/lotto', label: <Link to={'/lotto'}>로또 번호 생성</Link> },
       ]
     }
-  ];
+  );
 
   try {
     const accessToken = localStorage.getItem("access_token");
@@ -211,6 +291,7 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ isMobile, onOpenSettings }) => {
         placement="left"
         open={!collapsed}
         onClose={() => setCollapsed(true)}
+        width={240}
         styles={{
           body: { padding: 0, backgroundColor: layoutColor, overflowX: 'hidden' },
           header: { display: 'none' },
@@ -219,7 +300,7 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ isMobile, onOpenSettings }) => {
         <Layout style={{ minHeight: '100vh', backgroundColor: layoutColor }}>
           <Sider
             collapsed={false}
-            width={170}
+            width={240}
             style={{
               height: '100vh',
               backgroundColor: layoutColor,
