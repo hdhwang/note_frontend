@@ -309,12 +309,12 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     backgroundColor: layoutColor,
-                    padding: '0 20px',
+                    padding: isMobile ? '0 10px' : '0 20px',
                     height: '64px',
                     flexShrink: 0,
                     zIndex: 10,
                 }}>
-                    <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 4 : 8 }}>
                         <Button
                             type="text"
                             icon={isMobile ? <MenuOutlined /> : (collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />)}
@@ -325,25 +325,27 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
                             type="text"
                             icon={<SearchOutlined />}
                             onClick={() => setIsSearchModalVisible(true)}
-                            style={{ color: '#ffffff', fontSize: 18, marginLeft: 8 }}
+                            style={{ color: '#ffffff', fontSize: 18 }}
                             title="페이지 검색 (Ctrl+K)"
                         />
                         <Button
                             type="text"
                             icon={settings.favorites?.includes(pathname) ? <StarFilled style={{ color: '#fadb14' }} /> : <StarOutlined />}
                             onClick={toggleFavorite}
-                            style={{ color: '#ffffff', fontSize: 18, marginLeft: 8 }}
+                            style={{ color: '#ffffff', fontSize: 18 }}
                             title="즐겨찾기 추가/해제 (Alt+S)"
                         />
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-                        <Button
-                            type="text"
-                            icon={<QuestionCircleOutlined />}
-                            onClick={() => setIsHelpModalVisible(true)}
-                            style={{ color: '#ffffff', fontSize: 20 }}
-                            title="단축키 도움말 (Ctrl+/)"
-                        />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 20 }}>
+                        {!isMobile && (
+                            <Button
+                                type="text"
+                                icon={<QuestionCircleOutlined />}
+                                onClick={() => setIsHelpModalVisible(true)}
+                                style={{ color: '#ffffff', fontSize: 20 }}
+                                title="단축키 도움말 (Ctrl+/)"
+                            />
+                        )}
                         <Popover
                             content={
                                 <div style={{ width: isMobile ? 280 : 300, maxHeight: 400, overflowY: 'auto' }}>
@@ -388,9 +390,13 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
                             </Badge>
                         </Popover>
                         <Dropdown menu={{ items }} trigger={['click']} placement="bottomRight">
-                            <Typography.Text style={{ color: '#ffffff', fontSize: 15, cursor: 'pointer' }}>
-                                <b>{username} ({firstname})</b>
-                            </Typography.Text>
+                            {isMobile ? (
+                                <UserOutlined style={{ color: '#ffffff', fontSize: 20, cursor: 'pointer' }} />
+                            ) : (
+                                <Typography.Text style={{ color: '#ffffff', fontSize: 15, cursor: 'pointer' }}>
+                                    <b>{username} ({firstname})</b>
+                                </Typography.Text>
+                            )}
                         </Dropdown>
                     </div>
                 </Header>
