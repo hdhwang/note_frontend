@@ -116,3 +116,11 @@ code {
 .ant-layout-sider {
   transition: width 0.2s, min-width 0.2s, max-width 0.2s !important;
 }
+/* 페이지 검색 결과 아이템 호버 스타일 */
+.search-result-item {
+  transition: background-color 0.2s;
+}
+
+.search-result-item:hover {
+  background-color: rgba(22, 119, 255, 0.08) !important;
+}

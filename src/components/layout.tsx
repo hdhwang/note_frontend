@@ -79,50 +79,66 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ isMobile, onOpenSettings }) => {
 
   const accordionKeys = ['group-data', 'group-utils', 'group-admin'];
 
+  // 1. 선택된 키(하이라이트) 관리 - 뒤로가기/외부링크 등 경로 변화 시에만 대응
   useEffect(() => {
     const path = pathname === '/' ? '/' : `/${pathname.split('/')[1]}`;
     
-    // 마지막으로 클릭한 키가 현재 경로와 일치하면 그 키를 우선 사용
-    // 정보가 없는 경우(새로고침 등), 즐겨찾기에 있는 메뉴라면 즐겨찾기 키를 우선적으로 선택
+    // 현재 선택된 키가 이미 이 경로를 가리키고 있다면 변경하지 않음 (깜빡임 방지)
+    const currentKey = selectedKeys[0];
+    const currentPath = currentKey?.startsWith('fav-') ? currentKey.replace('fav-', '') : currentKey;
+    
+    if (currentPath === path) return;
+
+    // 경로가 완전히 달라진 경우에만 자동 선택 로직 수행
     let keyToSelect = path;
-    if (lastClickedKey && (lastClickedKey === path || lastClickedKey === `fav-${path}`)) {
-      keyToSelect = lastClickedKey;
-    } else if (settings.favorites?.includes(path)) {
+    if (settings.favorites?.includes(path)) {
       keyToSelect = `fav-${path}`;
     }
-    
     setSelectedKeys([keyToSelect]);
-    
+  }, [pathname, settings.favorites]); // selectedKeys는 의존성에서 제외 (무한 루프 방지)
+
+  // 2. 초기 렌더링 시 즐겨찾기 그룹 설정 반영
+  useEffect(() => {
+    if (settings.favoritesExpanded) {
+      setOpenKeys(prev => prev.includes('group-favorites') ? prev : [...prev, 'group-favorites']);
+    }
+  }, []); // 마운트 시 1회만 실행
+
+  // 3. 경로 변경 시에만 자동 그룹 펼침 (사용자의 수동 조작 방해 금지)
+  useEffect(() => {
+    const path = pathname === '/' ? '/' : `/${pathname.split('/')[1]}`;
     const group = pathToGroup[path];
     
+    // 현재 선택이 즐겨찾기 기반인지 판단
+    let isFavoriteSelection = false;
+    if (lastClickedKey && (lastClickedKey === path || lastClickedKey === `fav-${path}`)) {
+      isFavoriteSelection = lastClickedKey.startsWith('fav-');
+    } else if (settings.favorites?.includes(path)) {
+      isFavoriteSelection = true;
+    }
+
     setOpenKeys(prev => {
       let nextKeys = [...prev];
-      
-      // 1. 즐겨찾기 그룹: 설정에 저장된 펼침 상태 반영
-      const isFavOpen = settings.favoritesExpanded;
-      if (isFavOpen && !nextKeys.includes('group-favorites')) {
-        nextKeys.push('group-favorites');
-      } else if (!isFavOpen && nextKeys.includes('group-favorites')) {
-        nextKeys = nextKeys.filter(k => k !== 'group-favorites');
+      let changed = false;
+
+      if (isFavoriteSelection) {
+        // 즐겨찾기로 이동 시 원본 그룹은 무시하고 즐겨찾기 그룹만 펼침
+        if (!nextKeys.includes('group-favorites')) {
+          nextKeys.push('group-favorites');
+          changed = true;
+        }
+      } else if (group) {
+        // 일반 메뉴로 이동 시 해당 아코디언 그룹을 펼치고 다른 것은 닫음
+        if (!nextKeys.includes(group)) {
+          nextKeys = nextKeys.filter(k => !accordionKeys.includes(k));
+          nextKeys.push(group);
+          changed = true;
+        }
       }
-      
-      // 현재 경로가 즐겨찾기에 있고 즐겨찾기 그룹이 닫혀있다면 강제로 열어줌 (사용자 편의)
-      if (settings.favorites?.includes(path) && !nextKeys.includes('group-favorites')) {
-        nextKeys.push('group-favorites');
-        updateSettings({ favoritesExpanded: true });
-      }
-      
-      // 2. 일반 그룹 (아코디언): 하나만 열리도록 관리
-      if (group && (!lastClickedKey || !lastClickedKey.startsWith('fav-'))) {
-        nextKeys = nextKeys.filter(k => !accordionKeys.includes(k) || k === group);
-        if (!nextKeys.includes(group)) nextKeys.push(group);
-      } else if (!group && (!lastClickedKey || !lastClickedKey.startsWith('fav-'))) {
-        nextKeys = nextKeys.filter(k => !accordionKeys.includes(k));
-      }
-      
-      return nextKeys;
+
+      return changed ? nextKeys : prev;
     });
-  }, [pathname, settings.favorites, settings.favoritesExpanded, lastClickedKey, updateSettings]);
+  }, [pathname]); // 오직 페이지 이동 시에만 실행됨
 
   const onOpenChange: MenuProps['onOpenChange'] = (keys) => {
     const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1);
@@ -143,17 +159,14 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ isMobile, onOpenSettings }) => {
 
   const onClick: MenuProps['onClick'] = (e) => {
     const targetPath = e.key.startsWith('fav-') ? e.key.replace('fav-', '') : e.key;
-    if (targetPath === pathname) {
-      // 이미 같은 경로일 때도 클릭된 키 정보를 업데이트하여 하이라이트 유지
-      setLastClickedKey(e.key);
-      setSelectedKeys([e.key]);
-      return;
-    }
     
     setLastClickedKey(e.key);
     setSelectedKeys([e.key]);
     
-    navigate(targetPath, { replace: true });
+    if (targetPath !== pathname) {
+      navigate(targetPath, { replace: true });
+    }
+
     if (isMobile) {
       setCollapsed(true);
     }
@@ -253,12 +266,18 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ isMobile, onOpenSettings }) => {
     <NavLink to='/'>
       <div style={{ padding: '16px 10px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Space orientation='horizontal' size='small'>
-          <EditOutlined style={{ color: '#ffffff', fontSize: 30 }} />
-          {(!collapsed || isMobile) && (
-            <Typography.Text style={{ color: '#ffffff', fontSize: 20, whiteSpace: 'nowrap' }}>
+          <EditOutlined style={{ color: '#ffffff', fontSize: 30, flexShrink: 0 }} />
+          <div style={{ 
+            width: (!collapsed || isMobile) ? 'auto' : 0, 
+            opacity: (!collapsed || isMobile) ? 1 : 0, 
+            overflow: 'hidden', 
+            transition: 'all 0.2s ease-in-out',
+            whiteSpace: 'nowrap'
+          }}>
+            <Typography.Text style={{ color: '#ffffff', fontSize: 20, marginLeft: 10 }}>
               <b>NOTEPAD</b>
             </Typography.Text>
-          )}
+          </div>
         </Space>
       </div>
     </NavLink>
@@ -291,7 +310,7 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ isMobile, onOpenSettings }) => {
         placement="left"
         open={!collapsed}
         onClose={() => setCollapsed(true)}
-        width={240}
+        size={240}
         styles={{
           body: { padding: 0, backgroundColor: layoutColor, overflowX: 'hidden' },
           header: { display: 'none' },
