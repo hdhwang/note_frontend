@@ -34,7 +34,6 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({ open, onClose }) => {
       placement="right"
       onClose={onClose}
       open={open}
-      width={320}
     >
       {/* 테이블 밀도 */}
       <div style={{ marginBottom: 24 }}>

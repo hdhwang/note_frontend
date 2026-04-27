@@ -12,6 +12,7 @@ import {
   DotChartOutlined,
   EditOutlined,
   SettingOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
 import { useSettings } from './settings_context';
 
@@ -112,6 +113,11 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ isMobile, onOpenSettings }) => {
       const permissionList = decodedToken.groups || [];
       if (permissionList.includes('관리자')) {
         menuItems.push({
+          key: '/users',
+          icon: <UserOutlined />,
+          label: <Link to={'/users'}>사용자 관리</Link>,
+        });
+        menuItems.push({
           key: '/audit-log',
           icon: <AuditOutlined />,
           label: <Link to={'/audit-log'}>감사 로그</Link>,
@@ -162,7 +168,6 @@ const LayoutNav: React.FC<LayoutNavProps> = ({ isMobile, onOpenSettings }) => {
         placement="left"
         open={!collapsed}
         onClose={() => setCollapsed(true)}
-        width={170}
         styles={{
           body: { padding: 0, backgroundColor: layoutColor, overflowX: 'hidden' },
           header: { display: 'none' },
