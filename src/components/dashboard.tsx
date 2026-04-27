@@ -25,18 +25,18 @@ interface CardConfig {
 
 const initialCards: CardConfig[] = [
     {
+        id: 'guest_book',
+        path: '/guest-book',
+        title: '결혼식 방명록',
+        countKey: 'guest_book_count',
+        bg: 'linear-gradient(135deg, #667eea, #764ba2)'
+    },
+    {
         id: 'bank_account',
         path: '/bank-account',
         title: '계좌번호',
         countKey: 'bank_account_count',
         bg: 'linear-gradient(135deg, #11998e, #38ef7d)'
-    },
-    {
-        id: 'serial',
-        path: '/serial',
-        title: '시리얼 번호',
-        countKey: 'serial_count',
-        bg: 'linear-gradient(135deg, #eb3349, #f45c43)'
     },
     {
         id: 'note',
@@ -46,11 +46,11 @@ const initialCards: CardConfig[] = [
         bg: 'linear-gradient(135deg, #f7971e, #ffd200)'
     },
     {
-        id: 'guest_book',
-        path: '/guest-book',
-        title: '결혼식 방명록',
-        countKey: 'guest_book_count',
-        bg: 'linear-gradient(135deg, #667eea, #764ba2)'
+        id: 'serial',
+        path: '/serial',
+        title: '시리얼 번호',
+        countKey: 'serial_count',
+        bg: 'linear-gradient(135deg, #eb3349, #f45c43)'
     }
 ];
 
