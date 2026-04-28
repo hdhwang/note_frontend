@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useSettings } from './settings_context';
 import { Layout, Table, Button, Input, message, Modal, Form, Select, Space, Checkbox, Dropdown, Descriptions, Tag } from 'antd';
 import { SmartTable } from "./SmartTable";
+import { useQuery } from '@tanstack/react-query';
+import { useUrlQueryParams } from '../hooks/useUrlQueryParams';
 import type { MenuProps, TablePaginationConfig } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, EyeOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import '../App.css';
@@ -21,9 +23,20 @@ interface SerialData {
 
 const Serial: React.FC = () => {
   const { settings } = useSettings();
-  const [loading, setLoading] = useState<boolean>(false);
-  const [result, setResult] = useState<SerialData[]>([]);
-  const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
+  const [queryParams, setQueryParams] = useUrlQueryParams('title');
+
+  const { data, isFetching, refetch, dataUpdatedAt } = useQuery({
+      queryKey: ['serial', queryParams],
+      queryFn: async () => {
+          const params = { page: queryParams.page, page_size: queryParams.pageSize, ordering: queryParams.ordering, ...queryParams.filters };
+          const response = await apiClient.get('serial', { params });
+          return response.data;
+      }
+  });
+
+  const loading = isFetching;
+  const result = data?.results || [];
+  const pagination = { current: queryParams.page, pageSize: queryParams.pageSize, total: data?.count || 0 };
   const [visibleColumns, setVisibleColumns] = useState({
     type: true,
     title: true,
@@ -149,29 +162,22 @@ const Serial: React.FC = () => {
           </Space>
       ),
     },
-  ].filter(column => column.open);
+  ].map(col => {
+      if (col.key && (col as any).sorter) {
+          const orderParam = queryParams.ordering;
+          let sortOrder: 'ascend' | 'descend' | null = null;
+          if (orderParam === col.key) sortOrder = 'ascend';
+          else if (orderParam === `-${col.key}`) sortOrder = 'descend';
+          return { ...col, sortOrder };
+      }
+      return col;
+  }).filter(column => column.open) as any;
 
-  const getData = async (page = 1, pageSize = 10, ordering = 'title', filters = {}) => {
-    setLoading(true);
-    try {
-      const params = {
-        page: page,
-        page_size: pageSize,
-        ordering: ordering,
-        ...filters,
-      };
-      const response = await apiClient.get('serial', { params });
-      setResult(response.data.results);
-      setPagination({
-        current: page,
-        pageSize: pageSize,
-        total: response.data.count,
-      });
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
+  const getData = (page = queryParams.page, pageSize = queryParams.pageSize, ordering = queryParams.ordering, filters = queryParams.filters) => {
+      setQueryParams({ page, pageSize, ordering, filters });
+      if (page === queryParams.page && pageSize === queryParams.pageSize && ordering === queryParams.ordering && JSON.stringify(filters) === JSON.stringify(queryParams.filters)) {
+          refetch();
+      }
   };
 
   const handleDelete = async (id: number) => {
@@ -233,10 +239,6 @@ const Serial: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    getData();
-  }, []);
-
   const handleTableChange = (
       pagination: TablePaginationConfig,
       filters: Record<string, any>,
@@ -267,6 +269,7 @@ const Serial: React.FC = () => {
             </div>
 
             <SmartTable tableId="serial_table"
+                lastRefreshed={dataUpdatedAt}
                 size={settings.tableDensity}
                 dataSource={result}
                 columns={columns}
@@ -352,7 +355,12 @@ const Serial: React.FC = () => {
         <Modal title="시리얼 번호 상세" open={isDetailModalVisible} onCancel={() => setIsDetailModalVisible(false)} footer={[<Button key="close" onClick={() => setIsDetailModalVisible(false)}>닫기</Button>]}>
             {currentSerial && (
                 <Descriptions column={1} bordered size="small">
-                    <Descriptions.Item label="유형">{currentSerial.type}</Descriptions.Item>
+                    <Descriptions.Item label="유형">
+                        {(() => {
+                            let color = currentSerial.type === '게임' ? 'blue' : (currentSerial.type === '운영체제' ? 'purple' : (currentSerial.type === '유틸' ? 'cyan' : 'default'));
+                            return <Tag color={color}>{currentSerial.type}</Tag>;
+                        })()}
+                    </Descriptions.Item>
                     <Descriptions.Item label="제품 명">{currentSerial.title}</Descriptions.Item>
                     <Descriptions.Item label="시리얼 번호">{currentSerial.value}</Descriptions.Item>
                     <Descriptions.Item label="설명">{currentSerial.description}</Descriptions.Item>

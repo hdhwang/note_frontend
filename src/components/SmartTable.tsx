@@ -2,9 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Table } from 'antd';
 import type { TableProps } from 'antd';
 import { Resizable } from 'react-resizable';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import 'dayjs/locale/ko';
+
+dayjs.extend(relativeTime);
+dayjs.locale('ko');
 
 interface SmartTableProps<RecordType> extends TableProps<RecordType> {
   tableId: string;
+  lastRefreshed?: number;
 }
 
 // 가벼운 HTML5 기본 드래그 앤 드롭 및 리사이즈 지원 커스텀 헤더 셀
@@ -178,9 +185,32 @@ export function SmartTable<RecordType extends object>({ tableId, columns = [], .
     }),
   }));
 
+  let mergedPagination = restProps.pagination;
+  if (mergedPagination !== false && mergedPagination !== undefined) {
+      mergedPagination = {
+          showSizeChanger: true,
+          pageSizeOptions: ['10', '20', '50', '100'],
+          ...mergedPagination,
+          showTotal: (total, range) => (
+              <span style={{ marginRight: 16 }}>
+                  {restProps.lastRefreshed ? <span style={{ fontSize: '0.85em', color: '#888' }}>마지막 새로고침: {dayjs(restProps.lastRefreshed).fromNow()} | </span> : ''}
+                  총 {total}건 중 {range[0]}~{range[1]}건
+              </span>
+          ),
+      };
+  }
+
+  const customFooter = restProps.pagination === false && restProps.lastRefreshed ? () => (
+      <div style={{ textAlign: 'right', fontSize: '0.85em', color: '#888' }}>
+          마지막 새로고침: {dayjs(restProps.lastRefreshed).fromNow()}
+      </div>
+  ) : restProps.footer;
+
   return (
     <Table
       {...restProps}
+      pagination={mergedPagination}
+      footer={customFooter}
       columns={mergedColumns}
       components={{
         header: {

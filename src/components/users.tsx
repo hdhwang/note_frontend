@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useSettings } from './settings_context';
 import { Layout, Button, Input, message, Modal, Checkbox, Form, Space, Dropdown, Select, Tag, Radio, Descriptions } from "antd";
 import { SmartTable } from "./SmartTable";
+import { useQuery } from '@tanstack/react-query';
+import { useUrlQueryParams } from '../hooks/useUrlQueryParams';
 import type { MenuProps, TablePaginationConfig } from 'antd';
 import type { ColumnsType, ColumnType } from 'antd/es/table';
 import '../App.css';
 import apiClient from './api/api_client';
+import dayjs from 'dayjs';
 import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, EyeOutlined, InfoCircleOutlined } from "@ant-design/icons";
-import moment from 'moment';
 
 const { Content } = Layout;
 const { Option } = Select;
@@ -25,9 +27,20 @@ interface UserData {
 
 const Users: React.FC = () => {
   const { settings } = useSettings();
-  const [loading, setLoading] = useState<boolean>(false);
-  const [result, setResult] = useState<UserData[]>([]);
-  const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
+  const [queryParams, setQueryParams] = useUrlQueryParams('id');
+
+  const { data, isFetching, refetch, dataUpdatedAt } = useQuery({
+      queryKey: ['users', queryParams],
+      queryFn: async () => {
+          const params = { page: queryParams.page, page_size: queryParams.pageSize, ordering: queryParams.ordering, ...queryParams.filters };
+          const response = await apiClient.get('account/users', { params });
+          return response.data;
+      }
+  });
+
+  const loading = isFetching;
+  const result = data?.results || [];
+  const pagination = { current: queryParams.page, pageSize: queryParams.pageSize, total: data?.count || 0 };
 
   const [visibleColumns, setVisibleColumns] = useState({
     user_id: true,
@@ -190,7 +203,7 @@ const Users: React.FC = () => {
       key: 'created_at',
       align: 'center' as const,
       sorter: true,
-      render: (text: string) => text ? moment(text).format('YYYY-MM-DD HH:mm:ss') : '-',
+      render: (text: string) => text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-',
     },
     {
       title: '최근 로그인',
@@ -198,7 +211,7 @@ const Users: React.FC = () => {
       key: 'last_login',
       align: 'center' as const,
       sorter: true,
-      render: (text: string) => text ? moment(text).format('YYYY-MM-DD HH:mm:ss') : '-',
+      render: (text: string) => text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-',
     },
     {
       title: '작업',
@@ -214,25 +227,25 @@ const Users: React.FC = () => {
     },
   ];
 
-  const columns = allColumns.filter(column =>
+  const columns = allColumns.map(col => {
+      if (col.key && (col as any).sorter) {
+          const orderParam = queryParams.ordering;
+          let sortOrder: 'ascend' | 'descend' | null = null;
+          if (orderParam === col.key) sortOrder = 'ascend';
+          else if (orderParam === `-${col.key}`) sortOrder = 'descend';
+          return { ...col, sortOrder };
+      }
+      return col;
+  }).filter(column =>
     column.key === 'index' || visibleColumns[column.key as keyof typeof visibleColumns]
   ) as ColumnsType<UserData>;
 
-  const getData = async (page = 1, pageSize = 10, ordering = 'id', filters = {}) => {
-    setLoading(true);
-    try {
-      const params = { page, page_size: pageSize, ordering, ...filters };
-      const response = await apiClient.get('account/users', { params });
-      setResult(response.data.results);
-      setPagination({ current: page, pageSize, total: response.data.count });
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
+  const getData = (page = queryParams.page, pageSize = queryParams.pageSize, ordering = queryParams.ordering, filters = queryParams.filters) => {
+      setQueryParams({ page, pageSize, ordering, filters });
+      if (page === queryParams.page && pageSize === queryParams.pageSize && ordering === queryParams.ordering && JSON.stringify(filters) === JSON.stringify(queryParams.filters)) {
+          refetch();
+      }
   };
-
-  useEffect(() => { getData(); }, []);
 
   const showDetail = (user: UserData) => {
     setCurrentUser(user);
@@ -348,6 +361,7 @@ const Users: React.FC = () => {
             </Space>
           </div>
           <SmartTable tableId="users_table"
+            lastRefreshed={dataUpdatedAt}
             size={settings.tableDensity}
             dataSource={result}
             columns={columns}
@@ -494,10 +508,19 @@ const Users: React.FC = () => {
                   <Descriptions.Item label="아이디">{currentUser.user_id}</Descriptions.Item>
                   <Descriptions.Item label="이름">{currentUser.name}</Descriptions.Item>
                   <Descriptions.Item label="이메일">{currentUser.email}</Descriptions.Item>
-                  <Descriptions.Item label="상태">{currentUser.status}</Descriptions.Item>
-                  <Descriptions.Item label="권한">{currentUser.permission?.join(', ')}</Descriptions.Item>
-                  <Descriptions.Item label="가입 일자">{currentUser.created_at ? moment(currentUser.created_at).format('YYYY-MM-DD HH:mm:ss') : '-'}</Descriptions.Item>
-                  <Descriptions.Item label="최근 로그인">{currentUser.last_login ? moment(currentUser.last_login).format('YYYY-MM-DD HH:mm:ss') : '-'}</Descriptions.Item>
+                  <Descriptions.Item label="상태">
+                      {(() => {
+                          let color = currentUser.status === '활성화' ? 'green' : 'volcano';
+                          return <Tag color={color}>{currentUser.status}</Tag>;
+                      })()}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="권한">
+                      {currentUser.permission?.map(p => (
+                          <Tag color={p === '관리자' ? 'blue' : 'default'} key={p}>{p}</Tag>
+                      ))}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="가입 일자">{currentUser.created_at ? dayjs(currentUser.created_at).format('YYYY-MM-DD HH:mm:ss') : '-'}</Descriptions.Item>
+                  <Descriptions.Item label="최근 로그인">{currentUser.last_login ? dayjs(currentUser.last_login).format('YYYY-MM-DD HH:mm:ss') : '-'}</Descriptions.Item>
               </Descriptions>
           )}
       </Modal>
