@@ -58,7 +58,7 @@ const Serial: React.FC = () => {
     title: '제품 명',
     value: '시리얼 번호',
     description: '설명',
-    created_at: '등록 일자',
+    created_at: '생성 일자',
     actions: '작업',
   };
 
@@ -153,7 +153,7 @@ const Serial: React.FC = () => {
       open: visibleColumns.description,
     },
     {
-      title: '등록 일자',
+      title: '생성 일자',
       dataIndex: 'created_at',
       key: 'created_at',
       align: 'center' as const,
@@ -374,7 +374,7 @@ const Serial: React.FC = () => {
                     </Descriptions.Item>
                     <Descriptions.Item label="제품 명">{currentSerial.title}</Descriptions.Item>
                     <Descriptions.Item label="시리얼 번호">{currentSerial.value}</Descriptions.Item>
-                    <Descriptions.Item label="등록 일자">{currentSerial.created_at || '-'}</Descriptions.Item>
+                    <Descriptions.Item label="생성 일자">{currentSerial.created_at || '-'}</Descriptions.Item>
                     <Descriptions.Item label="설명">{currentSerial.description}</Descriptions.Item>
                 </Descriptions>
             )}

@@ -51,7 +51,7 @@ const Note: React.FC = () => {
   const columnLabels: Record<string, string> = {
     title: '제목',
     note: '내용',
-    created_at: '등록 일자',
+    created_at: '생성 일자',
     actions: '작업',
   };
 
@@ -120,7 +120,7 @@ const Note: React.FC = () => {
       open: visibleColumns.note,
     },
     {
-      title: '등록 일자',
+      title: '생성 일자',
       dataIndex: 'created_at',
       key: 'created_at',
       align: 'center' as const,
@@ -336,7 +336,7 @@ const Note: React.FC = () => {
             {currentNote && (
                 <Descriptions column={1} bordered size="small">
                     <Descriptions.Item label="제목">{currentNote.title}</Descriptions.Item>
-                    <Descriptions.Item label="등록 일자">{currentNote.created_at || '-'}</Descriptions.Item>
+                    <Descriptions.Item label="생성 일자">{currentNote.created_at || '-'}</Descriptions.Item>
                     <Descriptions.Item label="내용"><pre style={{ whiteSpace: 'pre-wrap', margin: 0, fontFamily: 'inherit' }}>{currentNote.note}</pre></Descriptions.Item>
                 </Descriptions>
             )}

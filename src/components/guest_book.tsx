@@ -65,7 +65,7 @@ const GuestBook: React.FC = () => {
     area: '장소',
     attend: '참석 여부',
     description: '설명',
-    created_at: '등록 일자',
+    created_at: '생성 일자',
     actions: '작업',
   };
 
@@ -167,7 +167,7 @@ const GuestBook: React.FC = () => {
       align: 'center' as const,
     },
     {
-      title: '등록 일자',
+      title: '생성 일자',
       dataIndex: 'created_at',
       key: 'created_at',
       align: 'center' as const,
@@ -375,7 +375,7 @@ const GuestBook: React.FC = () => {
                     <Descriptions.Item label="참석 여부">
                         {currentGuest.attend === 'Y' ? <Tag color="green">참석</Tag> : currentGuest.attend === 'N' ? <Tag color="volcano">미참석</Tag> : <Tag color="default">미정</Tag>}
                     </Descriptions.Item>
-                    <Descriptions.Item label="등록 일자">{currentGuest.created_at || '-'}</Descriptions.Item>
+                    <Descriptions.Item label="생성 일자">{currentGuest.created_at || '-'}</Descriptions.Item>
                     <Descriptions.Item label="설명">{currentGuest.description}</Descriptions.Item>
                 </Descriptions>
             )}

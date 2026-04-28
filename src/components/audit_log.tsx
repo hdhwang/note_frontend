@@ -92,7 +92,7 @@ const AuditLog: React.FC = () => {
     sub_category: '보조 카테고리',
     action: '내용',
     result: '결과',
-    date: '일자',
+    date: '생성 일자',
     actions: '작업',
   };
 
@@ -238,7 +238,7 @@ const AuditLog: React.FC = () => {
       },
     },
     {
-      title: '일자',
+      title: '생성 일자',
       dataIndex: 'date',
       key: 'date',
       align: 'center' as const,
@@ -382,7 +382,7 @@ const AuditLog: React.FC = () => {
                             return <Tag color={color}>{currentLog.result}</Tag>;
                         })()}
                     </Descriptions.Item>
-                    <Descriptions.Item label="일자">{currentLog.date}</Descriptions.Item>
+                    <Descriptions.Item label="생성 일자">{currentLog.date}</Descriptions.Item>
                 </Descriptions>
             )}
         </Modal>
