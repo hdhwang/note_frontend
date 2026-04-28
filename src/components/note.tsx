@@ -222,7 +222,7 @@ const Note: React.FC = () => {
   ) => {
     const sortField = sorter.field;
     const sortOrder = sorter.order === 'ascend' ? '' : '-';
-    const order = sortField ? sortOrder + sortField : '-date';
+    const order = sortField ? sortOrder + sortField : '-created_at';
     getData(pagination.current, pagination.pageSize, order, filters);
   };
 
