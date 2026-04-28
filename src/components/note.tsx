@@ -5,6 +5,7 @@ import { SmartTable } from "./SmartTable";
 import { useQuery } from '@tanstack/react-query';
 import { useUrlQueryParams } from '../hooks/useUrlQueryParams';
 import type { MenuProps, TablePaginationConfig } from 'antd';
+import type { ColumnsType, ColumnType } from 'antd/es/table';
 import '../App.css';
 import apiClient from './api/api_client';
 import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, EyeOutlined, InfoCircleOutlined } from "@ant-design/icons";
@@ -76,12 +77,11 @@ const Note: React.FC = () => {
     ),
   }));
 
-  const columns = [
+  const allColumns: ColumnType<NoteData>[] = [
     {
       title: '번호',
       dataIndex: 'index',
       key: 'index',
-      open: true,
       align: 'center' as const,
       render: (_: any, __: any, index: number) => (pagination.current - 1) * pagination.pageSize + index + 1,
     },
@@ -110,14 +110,12 @@ const Note: React.FC = () => {
           </div>
       ),
       onFilter: (value: any, record: NoteData) => record.title.indexOf(value as string) === 0,
-      open: visibleColumns.title,
     },
     {
       title: '내용',
       dataIndex: 'note',
       key: 'note',
       align: 'center' as const,
-      open: visibleColumns.note,
     },
     {
       title: '생성 일자',
@@ -125,7 +123,6 @@ const Note: React.FC = () => {
       key: 'created_at',
       align: 'center' as const,
       sorter: true,
-      open: visibleColumns.created_at,
     },
     {
       title: '작업',
@@ -138,9 +135,10 @@ const Note: React.FC = () => {
             <Button type="text" danger icon={<DeleteOutlined />} onClick={(e) => { e.stopPropagation(); handleDelete(record.id); }} />
           </Space>
       ),
-      open: visibleColumns.actions,
     },
-  ].map(col => {
+  ];
+
+  const columns = allColumns.map(col => {
       if (col.key && (col as any).sorter) {
           const orderParam = queryParams.ordering;
           let sortOrder: 'ascend' | 'descend' | null = null;
@@ -149,7 +147,9 @@ const Note: React.FC = () => {
           return { ...col, sortOrder };
       }
       return col;
-  }).filter(column => column.open) as any;
+  }).filter(column =>
+      column.key === 'index' || visibleColumns[column.key as keyof typeof visibleColumns]
+  ) as ColumnsType<NoteData>;
 
   const getData = (page = queryParams.page, pageSize = queryParams.pageSize, ordering = queryParams.ordering, filters = queryParams.filters) => {
       setQueryParams({ page, pageSize, ordering, filters });

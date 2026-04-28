@@ -126,7 +126,6 @@ const BankAccount: React.FC = () => {
       key: 'created_at',
       align: 'center' as const,
       sorter: true,
-      open: visibleColumns.created_at,
     },
     {
       title: '작업',

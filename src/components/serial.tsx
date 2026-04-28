@@ -5,6 +5,7 @@ import { SmartTable } from "./SmartTable";
 import { useQuery } from '@tanstack/react-query';
 import { useUrlQueryParams } from '../hooks/useUrlQueryParams';
 import type { MenuProps, TablePaginationConfig } from 'antd';
+import type { ColumnsType, ColumnType } from 'antd/es/table';
 import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, EyeOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import '../App.css';
 import apiClient from './api/api_client';
@@ -83,12 +84,11 @@ const Serial: React.FC = () => {
     ),
   }));
 
-  const columns = [
+  const allColumns: ColumnType<SerialData>[] = [
     {
       title: '번호',
       dataIndex: 'index',
       key: 'index',
-      open: true,
       align: 'center' as const,
       render: (_: any, __: any, index: number) => (pagination.current - 1) * pagination.pageSize + index + 1,
     },
@@ -109,7 +109,6 @@ const Serial: React.FC = () => {
           let color = text === '게임' ? 'blue' : (text === '운영체제' ? 'purple' : (text === '유틸' ? 'cyan' : 'default'));
           return <Tag color={color}>{text}</Tag>;
       },
-      open: visibleColumns.type,
     },
     {
       title: '제품 명',
@@ -134,7 +133,6 @@ const Serial: React.FC = () => {
           </div>
       ),
       onFilter: (value: any, record: SerialData) => record.title.indexOf(value as string) === 0,
-      open: visibleColumns.title,
     },
     {
       title: '시리얼 번호',
@@ -142,7 +140,6 @@ const Serial: React.FC = () => {
       key: 'value',
       align: 'center' as const,
       sorter: true,
-      open: visibleColumns.value,
     },
     {
       title: '설명',
@@ -150,7 +147,6 @@ const Serial: React.FC = () => {
       key: 'description',
       align: 'center' as const,
       sorter: true,
-      open: visibleColumns.description,
     },
     {
       title: '생성 일자',
@@ -158,13 +154,11 @@ const Serial: React.FC = () => {
       key: 'created_at',
       align: 'center' as const,
       sorter: true,
-      open: visibleColumns.created_at,
     },
     {
       title: '작업',
       key: 'actions',
       align: 'center' as const,
-      open: visibleColumns.actions,
       render: (_: any, record: SerialData) => (
           <Space size={2}>
             <Button type="text" icon={<InfoCircleOutlined />} onClick={(e) => { e.stopPropagation(); showDetail(record); }} />
@@ -173,7 +167,9 @@ const Serial: React.FC = () => {
           </Space>
       ),
     },
-  ].map(col => {
+  ];
+
+  const columns = allColumns.map(col => {
       if (col.key && (col as any).sorter) {
           const orderParam = queryParams.ordering;
           let sortOrder: 'ascend' | 'descend' | null = null;
@@ -182,7 +178,9 @@ const Serial: React.FC = () => {
           return { ...col, sortOrder };
       }
       return col;
-  }).filter(column => column.open) as any;
+  }).filter(column =>
+      column.key === 'index' || visibleColumns[column.key as keyof typeof visibleColumns]
+  ) as ColumnsType<SerialData>;
 
   const getData = (page = queryParams.page, pageSize = queryParams.pageSize, ordering = queryParams.ordering, filters = queryParams.filters) => {
       setQueryParams({ page, pageSize, ordering, filters });
