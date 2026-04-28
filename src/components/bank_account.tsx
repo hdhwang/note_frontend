@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useSettings } from './settings_context';
 import { Layout, Table, Button, Input, message, Modal, Checkbox, Form, Space, Dropdown, Descriptions } from "antd";
 import { SmartTable } from "./SmartTable";
+import { useQuery } from '@tanstack/react-query';
+import { useUrlQueryParams } from '../hooks/useUrlQueryParams';
 import type { MenuProps, TablePaginationConfig } from 'antd';
 import type { ColumnsType, ColumnType } from 'antd/es/table';
 import '../App.css';
@@ -21,9 +23,20 @@ interface BankAccountData {
 
 const BankAccount: React.FC = () => {
   const { settings } = useSettings();
-  const [loading, setLoading] = useState<boolean>(false);
-  const [result, setResult] = useState<BankAccountData[]>([]);
-  const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
+  const [queryParams, setQueryParams] = useUrlQueryParams('bank');
+
+  const { data, isFetching, refetch, dataUpdatedAt } = useQuery({
+      queryKey: ['bank-account', queryParams],
+      queryFn: async () => {
+          const params = { page: queryParams.page, page_size: queryParams.pageSize, ordering: queryParams.ordering, ...queryParams.filters };
+          const response = await apiClient.get('bank-account', { params });
+          return response.data;
+      }
+  });
+
+  const loading = isFetching;
+  const result = data?.results || [];
+  const pagination = { current: queryParams.page, pageSize: queryParams.pageSize, total: data?.count || 0 };
 
   const [visibleColumns, setVisibleColumns] = useState({
     bank: true,
@@ -118,26 +131,26 @@ const BankAccount: React.FC = () => {
     },
   ];
 
-  // 필터링된 컬럼 생성 및 타입 단언 (TS2322 해결)
-  const columns = allColumns.filter(column =>
+  // 필터링된 컬럼 생성 및 정렬 상태 동기화
+  const columns = allColumns.map(col => {
+      if (col.key && (col as any).sorter) {
+          const orderParam = queryParams.ordering;
+          let sortOrder: 'ascend' | 'descend' | null = null;
+          if (orderParam === col.key) sortOrder = 'ascend';
+          else if (orderParam === `-${col.key}`) sortOrder = 'descend';
+          return { ...col, sortOrder };
+      }
+      return col;
+  }).filter(column =>
       column.key === 'index' || visibleColumns[column.key as keyof typeof visibleColumns]
   ) as ColumnsType<BankAccountData>;
 
-  const getData = async (page = 1, pageSize = 10, ordering = 'bank', filters = {}) => {
-    setLoading(true);
-    try {
-      const params = { page, page_size: pageSize, ordering, ...filters };
-      const response = await apiClient.get('bank-account', { params });
-      setResult(response.data.results);
-      setPagination({ current: page, pageSize, total: response.data.count });
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
+  const getData = (page = queryParams.page, pageSize = queryParams.pageSize, ordering = queryParams.ordering, filters = queryParams.filters) => {
+      setQueryParams({ page, pageSize, ordering, filters });
+      if (page === queryParams.page && pageSize === queryParams.pageSize && ordering === queryParams.ordering && JSON.stringify(filters) === JSON.stringify(queryParams.filters)) {
+          refetch();
+      }
   };
-
-  useEffect(() => { getData(); }, []);
 
   const showDetail = (account: BankAccountData) => {
     setCurrentAccount(account);
@@ -214,6 +227,7 @@ const BankAccount: React.FC = () => {
               </Space>
             </div>
             <SmartTable tableId="bank_account_table"
+                lastRefreshed={dataUpdatedAt}
                 size={settings.tableDensity}
                 dataSource={result}
                 columns={columns}

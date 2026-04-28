@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useSettings } from './settings_context';
-import { Layout, Table, Button, Input, Checkbox, Dropdown, Space, Modal, Descriptions, Tag } from "antd";
+import { Layout, Table, Button, Input, Checkbox, Dropdown, Space, Modal, Descriptions, Tag, DatePicker } from "antd";
+const { RangePicker } = DatePicker;
 import { SmartTable } from "./SmartTable";
+import { useQuery } from '@tanstack/react-query';
+import { useUrlQueryParams } from '../hooks/useUrlQueryParams';
+import { useSearchParams } from 'react-router-dom';
+import dayjs from 'dayjs';
 import type { MenuProps, TablePaginationConfig } from 'antd';
 import type { ColumnsType, ColumnType } from 'antd/es/table';
 import { EyeOutlined, ReloadOutlined, InfoCircleOutlined } from "@ant-design/icons";
@@ -24,9 +29,46 @@ interface AuditLogData {
 
 const AuditLog: React.FC = () => {
   const { settings } = useSettings();
-  const [loading, setLoading] = useState<boolean>(false);
-  const [result, setResult] = useState<AuditLogData[]>([]);
-  const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
+  const [searchParams, setSearchParams] = useSearchParams();
+  const defaultStartDate = dayjs().subtract(1, 'month').format('YYYY-MM-DD HH:mm');
+  const defaultEndDate = dayjs().format('YYYY-MM-DD HH:mm');
+  
+  const initialDateRange: [string, string] = [
+      searchParams.get('start_date') || defaultStartDate,
+      searchParams.get('end_date') || defaultEndDate
+  ];
+  const [dateRange, setDateRangeState] = useState<[string, string]>(initialDateRange);
+  const [queryParams, setQueryParams] = useUrlQueryParams('-date');
+
+  const { data, isFetching, refetch, dataUpdatedAt } = useQuery({
+      queryKey: ['audit-log', queryParams, dateRange],
+      queryFn: async () => {
+          const params: any = {
+            page: queryParams.page,
+            page_size: queryParams.pageSize,
+            ordering: queryParams.ordering,
+            ...queryParams.filters,
+          };
+          if (dateRange && dateRange[0] && dateRange[1]) {
+            params.start_date = dateRange[0] + ':00';
+            params.end_date = dateRange[1] + ':59';
+          }
+          const response = await apiClient.get('audit-log', { params });
+          return response.data;
+      }
+  });
+
+  const loading = isFetching;
+  const result = data?.results || [];
+  const pagination = { current: queryParams.page, pageSize: queryParams.pageSize, total: data?.count || 0 };
+
+  const setDateRange = (newRange: [string, string]) => {
+      setDateRangeState(newRange);
+      const nextParams = new URLSearchParams(searchParams);
+      if (newRange[0]) nextParams.set('start_date', newRange[0]);
+      if (newRange[1]) nextParams.set('end_date', newRange[1]);
+      setSearchParams(nextParams, { replace: true });
+  };
 
   const [visibleColumns, setVisibleColumns] = useState({
     user: true,
@@ -214,37 +256,28 @@ const AuditLog: React.FC = () => {
     },
   ];
 
-  // 필터링된 컬럼 생성 및 타입 단언
-  const columns = allColumns.filter(column =>
+  // 필터링된 컬럼 생성 및 정렬 상태 동기화
+  const columns = allColumns.map(col => {
+      if (col.key && (col as any).sorter) {
+          const orderParam = queryParams.ordering;
+          let sortOrder: 'ascend' | 'descend' | null = null;
+          if (orderParam === col.key) sortOrder = 'ascend';
+          else if (orderParam === `-${col.key}`) sortOrder = 'descend';
+          return { ...col, sortOrder };
+      }
+      return col;
+  }).filter(column =>
       column.key === 'index' || visibleColumns[column.key as keyof typeof visibleColumns]
   ) as ColumnsType<AuditLogData>;
 
-  const getData = async (page = 1, pageSize = 10, ordering = '-date', filters = {}) => {
-    setLoading(true);
-    try {
-      const params = {
-        page,
-        page_size: pageSize,
-        ordering,
-        ...filters,
-      };
-      const response = await apiClient.get('audit-log', { params });
-      setResult(response.data.results);
-      setPagination({
-        current: page,
-        pageSize: pageSize,
-        total: response.data.count,
-      });
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
+  const getData = (page = queryParams.page, pageSize = queryParams.pageSize, ordering = queryParams.ordering, filters = queryParams.filters, dRange = dateRange) => {
+      setQueryParams({ page, pageSize, ordering, filters });
+      if (dRange !== dateRange) {
+          setDateRange(dRange);
+      } else if (page === queryParams.page && pageSize === queryParams.pageSize && ordering === queryParams.ordering && JSON.stringify(filters) === JSON.stringify(queryParams.filters)) {
+          refetch();
+      }
   };
-
-  useEffect(() => {
-    getData();
-  }, []);
 
   const showDetail = (log: AuditLogData) => {
     setCurrentLog(log);
@@ -264,7 +297,16 @@ const AuditLog: React.FC = () => {
       <div>
         <Content style={{ padding: '24px' }}>
           <div style={{ width: "100%" }}>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16, flexWrap: 'wrap', gap: '8px 0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: '8px 0' }}>
+              <RangePicker 
+                  showTime={{ format: 'HH:mm' }}
+                  format="YYYY-MM-DD HH:mm"
+                  value={dateRange[0] && dateRange[1] ? [dayjs(dateRange[0]), dayjs(dateRange[1])] : null}
+                  onChange={(dates, dateStrings) => {
+                      setDateRange(dateStrings as [string, string]);
+                      getData(1, pagination.pageSize, '-date', {}, dateStrings as [string, string]);
+                  }}
+              />
               <Space wrap>
                 <Button className="responsive-icon-btn" icon={<ReloadOutlined />}
                     onClick={() => getData(pagination.current, pagination.pageSize)}
@@ -280,6 +322,7 @@ const AuditLog: React.FC = () => {
             </div>
 
             <SmartTable tableId="audit_log_table"
+                lastRefreshed={dataUpdatedAt}
                 size={settings.tableDensity}
                 dataSource={result}
                 columns={columns}
@@ -333,7 +376,12 @@ const AuditLog: React.FC = () => {
                     <Descriptions.Item label="카테고리">{currentLog.category}</Descriptions.Item>
                     <Descriptions.Item label="보조 카테고리">{currentLog.sub_category}</Descriptions.Item>
                     <Descriptions.Item label="내용">{currentLog.action}</Descriptions.Item>
-                    <Descriptions.Item label="결과">{currentLog.result}</Descriptions.Item>
+                    <Descriptions.Item label="결과">
+                        {(() => {
+                            let color = currentLog.result === '성공' ? 'green' : (currentLog.result === '실패' ? 'volcano' : 'default');
+                            return <Tag color={color}>{currentLog.result}</Tag>;
+                        })()}
+                    </Descriptions.Item>
                     <Descriptions.Item label="일자">{currentLog.date}</Descriptions.Item>
                 </Descriptions>
             )}

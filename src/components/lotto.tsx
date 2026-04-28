@@ -3,6 +3,7 @@ import { useSettings } from './settings_context';
 import { Layout, Table, Button, Space } from "antd";
 import { SmartTable } from "./SmartTable";
 import type { ColumnsType } from 'antd/es/table'; // 테이블 컬럼 타입 임포트
+import { useQuery } from '@tanstack/react-query';
 import '../App.css';
 import apiClient from './api/api_client';
 import { ReloadOutlined } from "@ant-design/icons";
@@ -18,8 +19,16 @@ interface LottoData {
 
 const Lotto: React.FC = () => {
   const { settings } = useSettings();
-  const [loading, setLoading] = useState<boolean>(false);
-  const [result, setResult] = useState<LottoData[]>([]);
+  const { data, isFetching, refetch, dataUpdatedAt } = useQuery({
+      queryKey: ['lotto'],
+      queryFn: async () => {
+          const response = await apiClient.get<LottoData[]>('lotto');
+          return response.data;
+      }
+  });
+
+  const loading = isFetching;
+  const result = data || [];
   const [contextMenu, setContextMenu] = useState<{ visible: boolean, x: number, y: number }>({ visible: false, x: 0, y: 0 });
 
   // 3. 테이블 컬럼에 타입 적용
@@ -38,21 +47,9 @@ const Lotto: React.FC = () => {
     },
   ];
 
-  const getData = async () => {
-    setLoading(true);
-    try {
-      const response = await apiClient.get<LottoData[]>('lotto');
-      setResult(response.data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
+  const getData = () => {
+      refetch();
   };
-
-  useEffect(() => {
-    getData();
-  }, []);
 
   return (
       <div>

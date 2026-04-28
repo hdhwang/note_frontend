@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useSettings } from './settings_context';
 import { Layout, Table, Button, Input, message, Modal, Form, Select, Space, Checkbox, Dropdown, Descriptions, Tag } from 'antd';
 import { SmartTable } from "./SmartTable";
+import { useQuery } from '@tanstack/react-query';
+import { useUrlQueryParams } from '../hooks/useUrlQueryParams';
 import type { MenuProps, TablePaginationConfig } from 'antd';
 import type { ColumnsType, ColumnType } from 'antd/es/table';
 import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, EyeOutlined, InfoCircleOutlined } from "@ant-design/icons";
@@ -24,9 +26,20 @@ interface GuestBookData {
 
 const GuestBook: React.FC = () => {
   const { settings } = useSettings();
-  const [loading, setLoading] = useState<boolean>(false);
-  const [result, setResult] = useState<GuestBookData[]>([]);
-  const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
+  const [queryParams, setQueryParams] = useUrlQueryParams('name');
+
+  const { data, isFetching, refetch, dataUpdatedAt } = useQuery({
+      queryKey: ['guest-book', queryParams],
+      queryFn: async () => {
+          const params = { page: queryParams.page, page_size: queryParams.pageSize, ordering: queryParams.ordering, ...queryParams.filters };
+          const response = await apiClient.get('guest-book', { params });
+          return response.data;
+      }
+  });
+
+  const loading = isFetching;
+  const result = data?.results || [];
+  const pagination = { current: queryParams.page, pageSize: queryParams.pageSize, total: data?.count || 0 };
   const [visibleColumns, setVisibleColumns] = useState({
     name: true,
     amount: true,
@@ -164,23 +177,25 @@ const GuestBook: React.FC = () => {
     },
   ];
 
-  // 필터링된 컬럼 생성 및 타입 단언
-  const columns = allColumns.filter(column =>
+  // 필터링된 컬럼 생성 및 정렬 상태 동기화
+  const columns = allColumns.map(col => {
+      if (col.key && (col as any).sorter) {
+          const orderParam = queryParams.ordering;
+          let sortOrder: 'ascend' | 'descend' | null = null;
+          if (orderParam === col.key) sortOrder = 'ascend';
+          else if (orderParam === `-${col.key}`) sortOrder = 'descend';
+          return { ...col, sortOrder };
+      }
+      return col;
+  }).filter(column =>
       column.key === 'index' || visibleColumns[column.key as keyof typeof visibleColumns]
   ) as ColumnsType<GuestBookData>;
 
-  const getData = async (page = 1, pageSize = 10, ordering = 'name', filters = {}) => {
-    setLoading(true);
-    try {
-      const params = { page, page_size: pageSize, ordering, ...filters };
-      const response = await apiClient.get('guest-book', { params });
-      setResult(response.data.results);
-      setPagination({ current: page, pageSize, total: response.data.count });
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
+  const getData = (page = queryParams.page, pageSize = queryParams.pageSize, ordering = queryParams.ordering, filters = queryParams.filters) => {
+      setQueryParams({ page, pageSize, ordering, filters });
+      if (page === queryParams.page && pageSize === queryParams.pageSize && ordering === queryParams.ordering && JSON.stringify(filters) === JSON.stringify(queryParams.filters)) {
+          refetch();
+      }
   };
 
   const handleDelete = async (id: number) => {
@@ -229,8 +244,6 @@ const GuestBook: React.FC = () => {
     } catch (e) { message.error('작업에 실패했습니다.'); }
   };
 
-  useEffect(() => { getData(); }, []);
-
   const handleTableChange = (
       p: TablePaginationConfig,
       f: Record<string, any>,
@@ -255,6 +268,7 @@ const GuestBook: React.FC = () => {
             </div>
 
             <SmartTable tableId="guest_book_table"
+                lastRefreshed={dataUpdatedAt}
                 size={settings.tableDensity}
                 dataSource={result}
                 columns={columns}
@@ -349,7 +363,7 @@ const GuestBook: React.FC = () => {
                     <Descriptions.Item label="일자">{currentGuest.date}</Descriptions.Item>
                     <Descriptions.Item label="장소">{currentGuest.area}</Descriptions.Item>
                     <Descriptions.Item label="참석 여부">
-                        {currentGuest.attend === 'Y' ? '참석' : currentGuest.attend === 'N' ? '미참석' : '미정'}
+                        {currentGuest.attend === 'Y' ? <Tag color="green">참석</Tag> : currentGuest.attend === 'N' ? <Tag color="volcano">미참석</Tag> : <Tag color="default">미정</Tag>}
                     </Descriptions.Item>
                     <Descriptions.Item label="설명">{currentGuest.description}</Descriptions.Item>
                 </Descriptions>

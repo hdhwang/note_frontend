@@ -33,6 +33,7 @@ Django REST Framework 백엔드와 JWT 인증으로 통신하며,
 | **UI 라이브러리** | Ant Design 6 |
 | **라우팅** | React Router DOM 7 |
 | **HTTP 클라이언트** | Axios 1 |
+| **상태 관리/캐싱** | TanStack Query (React Query) v5 |
 | **인증** | JWT (jwt-decode) |
 | **날짜 처리** | Moment.js |
 | **테이블 리사이즈** | react-resizable |
@@ -116,8 +117,11 @@ note_frontend/
 ### 📋 감사 로그 (`/audit-log`) — **관리자 전용**
 - 사용자 / IP / 카테고리 / 내용 / 결과 / 일자 조회
 - 카테고리, 결과 필터 + 텍스트 검색
+- 분 단위(HH:mm)까지 조절 가능한 상세 기간(Date Range) 필터링 지원
 
 ### 🎛 SmartTable — 고급 테이블 컴포넌트
+- **데이터 페칭 및 캐싱** — TanStack Query 기반 로컬 캐시를 통한 쾌적한 테이블 뷰어 제공
+- **고급 페이징 정보** — 마지막 새로고침 시간, 총 데이터 수/현재 범위 표시, 동적 페이지 사이즈 조절
 - **드래그 앤 드롭** 컬럼 순서 변경
 - **마우스 드래그** 컬럼 너비 리사이즈
 - 설정 **localStorage 자동 저장** (키: `smart_table_{tableId}`)
