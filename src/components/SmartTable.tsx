@@ -115,6 +115,14 @@ export function SmartTable<RecordType extends object>({ tableId, columns = [], .
             ...c, 
             width: c.width || 150
         }));
+
+        // 작업(actions) 컬럼은 항상 맨 우측(마지막)에 위치하도록 강제 조정
+        const actionsIndex = finalCols.findIndex((c: any) => c.key === 'actions' || c.dataIndex === 'actions');
+        if (actionsIndex > -1) {
+            const actionsCol = finalCols.splice(actionsIndex, 1)[0];
+            finalCols.push(actionsCol);
+        }
+
         setSmartColumns(finalCols);
       } catch (e) {
         setSmartColumns(columns.map((c: any) => ({ ...c, width: c.width || 150 })));
