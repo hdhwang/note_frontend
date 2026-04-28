@@ -240,7 +240,7 @@ const Note: React.FC = () => {
       let filename = '노트 관리.zip';
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename=(.+)/);
-        if (filenameMatch && filenameMatch.length === 2) filename = filenameMatch[1];
+        if (filenameMatch && filenameMatch.length === 2) filename = decodeURIComponent(filenameMatch[1]);
       }
 
       const url = window.URL.createObjectURL(new Blob([response.data]));

@@ -277,7 +277,7 @@ const GuestBook: React.FC = () => {
       let filename = '결혼식 방명록.zip';
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename=(.+)/);
-        if (filenameMatch.length === 2) filename = filenameMatch[1];
+        if (filenameMatch && filenameMatch.length === 2) filename = decodeURIComponent(filenameMatch[1]);
       }
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
