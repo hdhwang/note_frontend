@@ -8,7 +8,8 @@ import type { MenuProps, TablePaginationConfig } from 'antd';
 import type { ColumnsType, ColumnType } from 'antd/es/table';
 import '../App.css';
 import apiClient from './api/api_client';
-import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, EyeOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, EyeOutlined, InfoCircleOutlined, DownloadOutlined } from "@ant-design/icons";
+
 
 const { Content } = Layout;
 
@@ -226,6 +227,40 @@ const Note: React.FC = () => {
     getData(pagination.current, pagination.pageSize, order, filters);
   };
 
+  const handleExport = async () => {
+    const hide = message.loading('내보내기를 진행 중입니다.', 0);
+    try {
+      const params = { ordering: queryParams.ordering, ...queryParams.filters };
+      const response = await apiClient.get('note/export', { 
+        params, 
+        responseType: 'blob' 
+      });
+      
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = '노트 관리.zip';
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename=(.+)/);
+        if (filenameMatch && filenameMatch.length === 2) filename = decodeURIComponent(filenameMatch[1]);
+      }
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      
+      message.success('내보내기가 완료되었습니다.');
+    } catch (e) {
+      console.error(e);
+      message.error('내보내기가 실패하였습니다.');
+    } finally {
+      hide();
+    }
+  };
+
+
   return (
       <div>
         <Content style={{ padding: '24px' }}>
@@ -235,6 +270,10 @@ const Note: React.FC = () => {
                 <Button className="responsive-icon-btn" icon={<ReloadOutlined />} onClick={() => getData(pagination.current, pagination.pageSize)}>
                   새로고침
                 </Button>
+                <Button className="responsive-icon-btn" icon={<DownloadOutlined />} onClick={handleExport}>
+                  내보내기
+                </Button>
+
                 <Button className="responsive-icon-btn" icon={<PlusOutlined />} onClick={showAddModal}>
                   추가
                 </Button>

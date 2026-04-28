@@ -354,7 +354,7 @@ const Users: React.FC = () => {
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16, flexWrap: 'wrap', gap: '8px 0' }}>
             <Space wrap>
               <Button className="responsive-icon-btn" icon={<ReloadOutlined />} onClick={() => getData(pagination.current, pagination.pageSize)}>새로고침</Button>
-              <Button className="responsive-icon-btn" icon={<PlusOutlined />} onClick={showAddModal}>사용자 추가</Button>
+              <Button className="responsive-icon-btn" icon={<PlusOutlined />} onClick={showAddModal}>추가</Button>
               <Dropdown menu={{ items: menuItems }} trigger={['click']} placement="bottomRight">
                 <Button className="responsive-icon-btn" icon={<EyeOutlined />}>필드 보기</Button>
               </Dropdown>
