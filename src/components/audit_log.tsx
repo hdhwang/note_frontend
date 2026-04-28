@@ -297,7 +297,7 @@ const AuditLog: React.FC = () => {
       <div>
         <Content style={{ padding: '24px' }}>
           <div style={{ width: "100%" }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: '8px 0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
               <RangePicker 
                   showTime={{ format: 'HH:mm' }}
                   format="YYYY-MM-DD HH:mm"
@@ -307,7 +307,7 @@ const AuditLog: React.FC = () => {
                       getData(1, pagination.pageSize, '-date', {}, dateStrings as [string, string]);
                   }}
               />
-              <Space wrap>
+              <Space wrap style={{ marginLeft: 'auto' }}>
                 <Button className="responsive-icon-btn" icon={<ReloadOutlined />}
                     onClick={() => getData(pagination.current, pagination.pageSize)}
                 >
