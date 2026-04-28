@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { message } from 'antd';
+import { App, message } from 'antd';
 
 export interface AppNotification {
   id: string;
-  type: 'success' | 'error' | 'info' | 'warning';
+  type: 'success' | 'error' | 'info' | 'warning' | 'loading';
   content: React.ReactNode;
   timestamp: number;
   read: boolean;
@@ -19,40 +19,36 @@ interface NotificationContextType {
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
-// antd message를 전역에서 가로채서 이벤트 발생
-let intercepted = false;
-const setupMessageInterceptor = () => {
-  if (intercepted) return;
-  intercepted = true;
-  
-  const originalSuccess = message.success;
-  const originalError = message.error;
-  const originalInfo = message.info;
-  const originalWarning = message.warning;
-
-  const intercept = (type: string, originalFn: any) => {
-    return (...args: any[]) => {
-      let content = args[0];
-      if (typeof args[0] === 'object' && args[0] !== null && 'content' in args[0]) {
-        content = args[0].content;
-      }
-      window.dispatchEvent(new CustomEvent('app_toast', { 
-        detail: { type, content, timestamp: Date.now(), pathname: window.location.pathname } 
-      }));
-      return originalFn(...args);
-    };
-  };
-
-  message.success = intercept('success', originalSuccess) as any;
-  message.error = intercept('error', originalError) as any;
-  message.info = intercept('info', originalInfo) as any;
-  message.warning = intercept('warning', originalWarning) as any;
-};
-
-setupMessageInterceptor();
-
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { message: messageApi } = App.useApp();
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
+
+  useEffect(() => {
+    // antd message를 전역에서 가로채서 이벤트 발생 및 컨텍스트 기반 메시지 출력
+    const intercept = (type: string) => {
+      return (...args: any[]) => {
+        let content = args[0];
+        if (typeof args[0] === 'object' && args[0] !== null && 'content' in args[0]) {
+          content = args[0].content;
+        }
+        
+        // 로딩 타입은 알림 히스토리에 저장하지 않음
+        if (type !== 'loading') {
+            window.dispatchEvent(new CustomEvent('app_toast', { 
+                detail: { type, content, timestamp: Date.now(), pathname: window.location.pathname } 
+            }));
+        }
+        
+        return (messageApi as any)[type](...args);
+      };
+    };
+
+    message.success = intercept('success') as any;
+    message.error = intercept('error') as any;
+    message.info = intercept('info') as any;
+    message.warning = intercept('warning') as any;
+    message.loading = intercept('loading') as any;
+  }, [messageApi]);
 
   useEffect(() => {
     const handleToast = (e: Event) => {
