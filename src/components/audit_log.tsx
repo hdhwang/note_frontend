@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSettings } from './settings_context';
-import { Layout, Table, Button, Input, Checkbox, Dropdown, Space, Modal, Descriptions, Tag, DatePicker } from "antd";
+import { Layout, Table, Button, Input, Checkbox, Dropdown, Space, Modal, Descriptions, Tag, DatePicker, message } from "antd";
+
 const { RangePicker } = DatePicker;
 import { SmartTable } from "./SmartTable";
 import { useQuery } from '@tanstack/react-query';
@@ -9,7 +10,8 @@ import { useSearchParams } from 'react-router-dom';
 import dayjs from 'dayjs';
 import type { MenuProps, TablePaginationConfig } from 'antd';
 import type { ColumnsType, ColumnType } from 'antd/es/table';
-import { EyeOutlined, ReloadOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import { EyeOutlined, ReloadOutlined, InfoCircleOutlined, DownloadOutlined } from "@ant-design/icons";
+
 import '../App.css';
 import apiClient from './api/api_client';
 
@@ -293,6 +295,45 @@ const AuditLog: React.FC = () => {
     getData(pagination.current || 1, pagination.pageSize || 10, order, filters);
   };
 
+  const handleExport = async () => {
+    const hide = message.loading('내보내기를 진행 중입니다.', 0);
+    try {
+      const params: any = { ordering: queryParams.ordering, ...queryParams.filters };
+      if (dateRange && dateRange[0] && dateRange[1]) {
+        params.start_date = dateRange[0] + ':00';
+        params.end_date = dateRange[1] + ':59';
+      }
+
+      const response = await apiClient.get('audit-log/export', { 
+        params, 
+        responseType: 'blob' 
+      });
+      
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = '감사 로그.zip';
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename=(.+)/);
+        if (filenameMatch && filenameMatch.length === 2) filename = filenameMatch[1];
+      }
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      
+      message.success('내보내기가 완료되었습니다.');
+    } catch (e) {
+      console.error(e);
+      message.error('내보내기가 실패하였습니다.');
+    } finally {
+      hide();
+    }
+  };
+
+
   return (
       <div>
         <Content style={{ padding: '24px' }}>
@@ -313,6 +354,12 @@ const AuditLog: React.FC = () => {
                 >
                   새로고침
                 </Button>
+                <Button className="responsive-icon-btn" icon={<DownloadOutlined />}
+                    onClick={handleExport}
+                >
+                  내보내기
+                </Button>
+
                 <Dropdown menu={{ items: menuItems }} trigger={['click']} placement="bottomRight">
                   <Button className="responsive-icon-btn" icon={<EyeOutlined />}>
                     필드 보기

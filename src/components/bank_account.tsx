@@ -8,7 +8,8 @@ import type { MenuProps, TablePaginationConfig } from 'antd';
 import type { ColumnsType, ColumnType } from 'antd/es/table';
 import '../App.css';
 import apiClient from './api/api_client';
-import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, EyeOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, EyeOutlined, InfoCircleOutlined, DownloadOutlined } from "@ant-design/icons";
+
 
 const { Content } = Layout;
 
@@ -223,6 +224,40 @@ const BankAccount: React.FC = () => {
     getData(pagination.current || 1, pagination.pageSize || 10, order, filters);
   };
 
+  const handleExport = async () => {
+    const hide = message.loading('내보내기를 진행 중입니다.', 0);
+    try {
+      const params = { ordering: queryParams.ordering, ...queryParams.filters };
+      const response = await apiClient.get('bank-account/export', { 
+        params, 
+        responseType: 'blob' 
+      });
+      
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = '계좌번호 관리.zip';
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename=(.+)/);
+        if (filenameMatch && filenameMatch.length === 2) filename = filenameMatch[1];
+      }
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      
+      message.success('내보내기가 완료되었습니다.');
+    } catch (e) {
+      console.error(e);
+      message.error('내보내기가 실패하였습니다.');
+    } finally {
+      hide();
+    }
+  };
+
+
   return (
       <div>
         <Content style={{ padding: '24px' }}>
@@ -230,6 +265,8 @@ const BankAccount: React.FC = () => {
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16, flexWrap: 'wrap', gap: '8px 0' }}>
               <Space wrap>
                 <Button className="responsive-icon-btn" icon={<ReloadOutlined />} onClick={() => getData(pagination.current, pagination.pageSize)}>새로고침</Button>
+                <Button className="responsive-icon-btn" icon={<DownloadOutlined />} onClick={handleExport}>내보내기</Button>
+
                 <Button className="responsive-icon-btn" icon={<PlusOutlined />} onClick={showAddModal}>추가</Button>
                 <Dropdown menu={{ items: menuItems }} trigger={['click']} placement="bottomRight">
                   <Button className="responsive-icon-btn" icon={<EyeOutlined />}>필드 보기</Button>
