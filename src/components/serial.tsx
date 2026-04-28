@@ -354,6 +354,9 @@ const Serial: React.FC = () => {
                     <li style={{ padding: '8px 16px', cursor: 'pointer' }} onClick={() => { getData(pagination.current, pagination.pageSize); setContextMenu(prev => ({...prev, visible: false})); }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
                         <ReloadOutlined style={{ marginRight: 8 }} /> 새로고침
                     </li>
+                    <li style={{ padding: '8px 16px', cursor: 'pointer' }} onClick={() => { handleExport(); setContextMenu(prev => ({...prev, visible: false})); }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                        <DownloadOutlined style={{ marginRight: 8 }} /> 내보내기
+                    </li>
                     <li style={{ height: 1, background: '#f0f0f0', margin: '4px 0' }} />
                     <li style={{ padding: '8px 16px', cursor: 'pointer' }} onClick={() => { showEditModal(contextMenu.record!); setContextMenu(prev => ({...prev, visible: false})); }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
                         <EditOutlined style={{ marginRight: 8 }} /> 수정
