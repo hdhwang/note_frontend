@@ -19,6 +19,7 @@ interface BankAccountData {
   account: string;
   account_holder: string;
   description: string;
+  created_at?: string;
 }
 
 const BankAccount: React.FC = () => {
@@ -43,6 +44,7 @@ const BankAccount: React.FC = () => {
     account: true,
     account_holder: true,
     description: true,
+    created_at: true,
     actions: true,
   });
 
@@ -58,6 +60,7 @@ const BankAccount: React.FC = () => {
     account: '계좌번호',
     account_holder: '예금주',
     description: '설명',
+    created_at: '등록 일자',
     actions: '작업',
   };
 
@@ -116,6 +119,14 @@ const BankAccount: React.FC = () => {
       dataIndex: 'description',
       key: 'description',
       align: 'center' as const,
+    },
+    {
+      title: '등록 일자',
+      dataIndex: 'created_at',
+      key: 'created_at',
+      align: 'center' as const,
+      sorter: true,
+      open: visibleColumns.created_at,
     },
     {
       title: '작업',
@@ -304,6 +315,7 @@ const BankAccount: React.FC = () => {
                     <Descriptions.Item label="은행">{currentAccount.bank}</Descriptions.Item>
                     <Descriptions.Item label="계좌번호">{currentAccount.account}</Descriptions.Item>
                     <Descriptions.Item label="예금주">{currentAccount.account_holder}</Descriptions.Item>
+                    <Descriptions.Item label="등록 일자">{currentAccount.created_at || '-'}</Descriptions.Item>
                     <Descriptions.Item label="설명">{currentAccount.description}</Descriptions.Item>
                 </Descriptions>
             )}

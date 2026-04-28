@@ -66,7 +66,7 @@ const Users: React.FC = () => {
     email: '이메일',
     status: '상태',
     permission: '권한',
-    created_at: '가입 일자',
+    created_at: '생성 일자',
     last_login: '최근 로그인',
     actions: '작업',
   };
@@ -198,7 +198,7 @@ const Users: React.FC = () => {
       ),
     },
     {
-      title: '가입 일자',
+      title: '생성 일자',
       dataIndex: 'created_at',
       key: 'created_at',
       align: 'center' as const,
@@ -519,7 +519,7 @@ const Users: React.FC = () => {
                           <Tag color={p === '관리자' ? 'blue' : 'default'} key={p}>{p}</Tag>
                       ))}
                   </Descriptions.Item>
-                  <Descriptions.Item label="가입 일자">{currentUser.created_at ? dayjs(currentUser.created_at).format('YYYY-MM-DD HH:mm:ss') : '-'}</Descriptions.Item>
+                  <Descriptions.Item label="생성 일자">{currentUser.created_at ? dayjs(currentUser.created_at).format('YYYY-MM-DD HH:mm:ss') : '-'}</Descriptions.Item>
                   <Descriptions.Item label="최근 로그인">{currentUser.last_login ? dayjs(currentUser.last_login).format('YYYY-MM-DD HH:mm:ss') : '-'}</Descriptions.Item>
               </Descriptions>
           )}
