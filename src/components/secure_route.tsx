@@ -146,11 +146,9 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
                             setSpinning(false);
                         }
                     } catch (refreshError) {
-                        message.error("세션이 만료되었습니다. 다시 로그인 해주세요.");
                         navigate("/login");
                     }
                 } else {
-                    message.error("로그인이 필요합니다.");
                     navigate("/login");
                 }
             }
