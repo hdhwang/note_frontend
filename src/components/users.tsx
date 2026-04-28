@@ -198,17 +198,17 @@ const Users: React.FC = () => {
       ),
     },
     {
-      title: '최근 로그인',
-      dataIndex: 'last_login',
-      key: 'last_login',
+      title: '생성 일자',
+      dataIndex: 'created_at',
+      key: 'created_at',
       align: 'center' as const,
       sorter: true,
       render: (text: string) => text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-',
     },
     {
-      title: '생성 일자',
-      dataIndex: 'created_at',
-      key: 'created_at',
+      title: '최근 로그인',
+      dataIndex: 'last_login',
+      key: 'last_login',
       align: 'center' as const,
       sorter: true,
       render: (text: string) => text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-',
@@ -519,8 +519,8 @@ const Users: React.FC = () => {
                           <Tag color={p === '관리자' ? 'blue' : 'default'} key={p}>{p}</Tag>
                       ))}
                   </Descriptions.Item>
-                  <Descriptions.Item label="최근 로그인">{currentUser.last_login ? dayjs(currentUser.last_login).format('YYYY-MM-DD HH:mm:ss') : '-'}</Descriptions.Item>
                   <Descriptions.Item label="생성 일자">{currentUser.created_at ? dayjs(currentUser.created_at).format('YYYY-MM-DD HH:mm:ss') : '-'}</Descriptions.Item>
+                  <Descriptions.Item label="최근 로그인">{currentUser.last_login ? dayjs(currentUser.last_login).format('YYYY-MM-DD HH:mm:ss') : '-'}</Descriptions.Item>
               </Descriptions>
           )}
       </Modal>
