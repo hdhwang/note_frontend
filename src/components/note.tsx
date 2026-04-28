@@ -16,12 +16,12 @@ interface NoteData {
   id: number;
   title: string;
   note: string;
-  date: string;
+  created_at: string;
 }
 
 const Note: React.FC = () => {
   const { settings } = useSettings();
-  const [queryParams, setQueryParams] = useUrlQueryParams('-date');
+  const [queryParams, setQueryParams] = useUrlQueryParams('-created_at');
 
   const { data, isFetching, refetch, dataUpdatedAt } = useQuery({
       queryKey: ['note', queryParams],
@@ -38,7 +38,7 @@ const Note: React.FC = () => {
   const [visibleColumns, setVisibleColumns] = useState({
     title: true,
     note: false,
-    date: true,
+    created_at: true,
     actions: true,
   });
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
@@ -51,7 +51,7 @@ const Note: React.FC = () => {
   const columnLabels: Record<string, string> = {
     title: '제목',
     note: '내용',
-    date: '등록 일자',
+    created_at: '생성 일자',
     actions: '작업',
   };
 
@@ -120,12 +120,12 @@ const Note: React.FC = () => {
       open: visibleColumns.note,
     },
     {
-      title: '등록 일자',
-      dataIndex: 'date',
-      key: 'date',
+      title: '생성 일자',
+      dataIndex: 'created_at',
+      key: 'created_at',
       align: 'center' as const,
       sorter: true,
-      open: visibleColumns.date,
+      open: visibleColumns.created_at,
     },
     {
       title: '작업',
@@ -222,7 +222,7 @@ const Note: React.FC = () => {
   ) => {
     const sortField = sorter.field;
     const sortOrder = sorter.order === 'ascend' ? '' : '-';
-    const order = sortField ? sortOrder + sortField : '-date';
+    const order = sortField ? sortOrder + sortField : '-created_at';
     getData(pagination.current, pagination.pageSize, order, filters);
   };
 
@@ -336,7 +336,7 @@ const Note: React.FC = () => {
             {currentNote && (
                 <Descriptions column={1} bordered size="small">
                     <Descriptions.Item label="제목">{currentNote.title}</Descriptions.Item>
-                    <Descriptions.Item label="등록 일자">{currentNote.date}</Descriptions.Item>
+                    <Descriptions.Item label="생성 일자">{currentNote.created_at || '-'}</Descriptions.Item>
                     <Descriptions.Item label="내용"><pre style={{ whiteSpace: 'pre-wrap', margin: 0, fontFamily: 'inherit' }}>{currentNote.note}</pre></Descriptions.Item>
                 </Descriptions>
             )}
