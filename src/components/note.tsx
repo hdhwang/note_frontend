@@ -39,7 +39,6 @@ const Note: React.FC = () => {
   const pagination = { current: queryParams.page, pageSize: queryParams.pageSize, total: data?.count || 0 };
   const [visibleColumns, setVisibleColumns] = useState({
     title: true,
-    note: false,
     created_at: true,
     actions: true,
   });
@@ -52,7 +51,6 @@ const Note: React.FC = () => {
 
   const columnLabels: Record<string, string> = {
     title: '제목',
-    note: '내용',
     created_at: '생성 일자',
     actions: '작업',
   };
@@ -112,12 +110,7 @@ const Note: React.FC = () => {
       ),
       onFilter: (value: any, record: NoteData) => record.title.indexOf(value as string) === 0,
     },
-    {
-      title: '내용',
-      dataIndex: 'note',
-      key: 'note',
-      align: 'center' as const,
-    },
+
     {
       title: '생성 일자',
       dataIndex: 'created_at',
