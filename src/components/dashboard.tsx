@@ -93,10 +93,9 @@ const Dashboard: React.FC = () => {
            여기서는 최상단 Layout 태그를 제거하여 레이아웃 중첩 에러를 방지합니다.
         */
         <div style={{ padding: '0px' }}>
-            <Content style={{ overflow: 'initial' }}>
+            <Content className="main-content" style={{ overflow: 'initial' }}>
                 <div style={{
                     width: '100%',
-                    padding: '24px 16px',
                     textAlign: 'center',
                     boxSizing: 'border-box'
                 }}>

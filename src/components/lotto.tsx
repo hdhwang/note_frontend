@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSettings } from './settings_context';
-import { Layout, Table, Button, Space } from "antd";
+import { Layout, Table, Button, Space, Row, Col } from "antd";
 import { SmartTable } from "./SmartTable";
 import type { ColumnsType } from 'antd/es/table'; // 테이블 컬럼 타입 임포트
 import { useQuery } from '@tanstack/react-query';
@@ -53,17 +53,24 @@ const Lotto: React.FC = () => {
 
   return (
       <div>
-        <Content style={{ padding: '24px' }}>
+        <Content className="main-content">
           <div style={{ width: "100%" }}>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16, flexWrap: 'wrap', gap: '8px 0' }}>
-              <Space wrap>
-                <Button className="responsive-icon-btn" icon={<ReloadOutlined />}
-                    onClick={getData}
-                >
-                  새로고침
-                </Button>
-              </Space>
-            </div>
+            <Row gutter={[12, 12]} align="middle" justify="space-between" style={{ marginBottom: 16 }}>
+              <Col xs={24} sm={12}>
+                {/* 왼쪽 영역 */}
+              </Col>
+              <Col xs={24} sm={12} style={{ textAlign: 'right' }}>
+                <Space wrap>
+                  <Button className="responsive-icon-btn" icon={<ReloadOutlined />}
+                      onClick={getData}
+                  >
+                    새로고침
+                  </Button>
+                </Space>
+              </Col>
+            </Row>
+
+            <div className="table-container">
 
             <SmartTable tableId="lotto_table"
                 size={settings.tableDensity}
@@ -102,6 +109,7 @@ const Lotto: React.FC = () => {
                     </li>
                 </ul>
             )}
+            </div>
           </div>
         </Content>
       </div>

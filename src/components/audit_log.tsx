@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSettings } from './settings_context';
-import { Layout, Table, Button, Input, Checkbox, Dropdown, Space, Modal, Descriptions, Tag, DatePicker, message } from "antd";
+import { Layout, Table, Button, Input, Checkbox, Dropdown, Space, Modal, Descriptions, Tag, DatePicker, message, Row, Col } from "antd";
 
 const { RangePicker } = DatePicker;
 import { SmartTable } from "./SmartTable";
@@ -336,37 +336,44 @@ const AuditLog: React.FC = () => {
 
   return (
       <div>
-        <Content style={{ padding: '24px' }}>
+        <Content className="main-content">
           <div style={{ width: "100%" }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
-              <RangePicker 
-                  showTime={{ format: 'HH:mm' }}
-                  format="YYYY-MM-DD HH:mm"
-                  value={dateRange[0] && dateRange[1] ? [dayjs(dateRange[0]), dayjs(dateRange[1])] : null}
-                  onChange={(dates, dateStrings) => {
-                      setDateRange(dateStrings as [string, string]);
-                      getData(1, pagination.pageSize, '-date', {}, dateStrings as [string, string]);
-                  }}
-              />
-              <Space wrap style={{ marginLeft: 'auto' }}>
-                <Button className="responsive-icon-btn" icon={<ReloadOutlined />}
-                    onClick={() => getData(pagination.current, pagination.pageSize)}
-                >
-                  새로고침
-                </Button>
-                <Button className="responsive-icon-btn" icon={<DownloadOutlined />}
-                    onClick={handleExport}
-                >
-                  내보내기
-                </Button>
-
-                <Dropdown menu={{ items: menuItems }} trigger={['click']} placement="bottomRight">
-                  <Button className="responsive-icon-btn" icon={<EyeOutlined />}>
-                    필드 보기
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
+              <div style={{ flex: '1 1 auto', minWidth: 280, maxWidth: 340 }}>
+                <RangePicker 
+                    style={{ width: '100%' }}
+                    showTime={{ format: 'HH:mm' }}
+                    format="YYYY-MM-DD HH:mm"
+                    value={dateRange[0] && dateRange[1] ? [dayjs(dateRange[0]), dayjs(dateRange[1])] : null}
+                    onChange={(dates, dateStrings) => {
+                        setDateRange(dateStrings as [string, string]);
+                        getData(1, pagination.pageSize, '-date', {}, dateStrings as [string, string]);
+                    }}
+                />
+              </div>
+              <div style={{ flex: '0 0 auto', marginLeft: 'auto' }}>
+                <Space wrap>
+                  <Button className="responsive-icon-btn" icon={<ReloadOutlined />}
+                      onClick={() => getData(pagination.current, pagination.pageSize)}
+                  >
+                    새로고침
                   </Button>
-                </Dropdown>
-              </Space>
+                  <Button className="responsive-icon-btn" icon={<DownloadOutlined />}
+                      onClick={handleExport}
+                  >
+                    내보내기
+                  </Button>
+
+                  <Dropdown menu={{ items: menuItems }} trigger={['click']} placement="bottomRight">
+                    <Button className="responsive-icon-btn" icon={<EyeOutlined />}>
+                      필드 보기
+                    </Button>
+                  </Dropdown>
+                </Space>
+              </div>
             </div>
+
+            <div className="table-container">
 
             <SmartTable tableId="audit_log_table"
                 lastRefreshed={dataUpdatedAt}
@@ -415,6 +422,7 @@ const AuditLog: React.FC = () => {
                     </li>
                 </ul>
             )}
+            </div>
           </div>
         </Content>
 
