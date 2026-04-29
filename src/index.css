@@ -86,7 +86,19 @@ code {
     margin-bottom: 4px !important;
   }
 
-  /* 모바일 툴바 보조 버튼 텍스트 숨김 (공간 확보용) */
+  /* 로그인 카드가 화면 너비에 맞도록 */
+  .login-card {
+    max-width: calc(100vw - 32px);
+  }
+
+  /* 모바일 테이블 내부 패딩 축소 */
+  .ant-card-body {
+    padding: 12px !important;
+  }
+}
+
+/* 툴바 보조 버튼 텍스트 숨김 (공간 확보용 - 태블릿 대응을 위해 브레이크포인트 확대) */
+@media (max-width: 1100px) {
   .responsive-icon-btn > span:not(.anticon):not(.ant-btn-icon) {
     display: none !important;
   }
@@ -100,18 +112,43 @@ code {
   .responsive-icon-btn .anticon {
     margin-inline-end: 0 !important;
   }
+}
 
-  /* 모바일 테이블 내부 패딩 축소 */
-  .ant-card-body {
-    padding: 12px !important;
-  }
+/* 페이지 메인 콘텐츠 영역 */
+.main-content {
+  padding: 24px;
+  min-height: calc(100vh - 64px); /* Header height 제외 */
+  background-color: #f0f2f5;
+  transition: padding 0.3s ease;
+}
 
-  /* 로그인 카드가 화면 너비에 맞도록 */
-  .login-card {
-    max-width: calc(100vw - 32px);
+@media (max-width: 768px) {
+  .main-content {
+    padding: 12px;
   }
 }
 
+/* 테이블 카드 컨테이너 */
+.table-container {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+  border: 1px solid #f0f0f0;
+}
+
+@media (max-width: 768px) {
+  .table-container {
+    padding: 12px;
+  }
+}
+
+/* 버튼 그룹 간격 조절 */
+.ant-space-item .ant-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
 /* 사이드바(좌측 레이아웃) 높이 조절 시 애니메이션 래그 방지 */
 .ant-layout-sider {
   transition: width 0.2s, min-width 0.2s, max-width 0.2s !important;

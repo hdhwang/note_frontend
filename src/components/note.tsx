@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSettings } from './settings_context';
-import { Layout, Table, Button, Input, message, Modal, Checkbox, Form, Space, Dropdown, Descriptions } from "antd";
+import { Layout, Table, Button, Input, message, Modal, Checkbox, Form, Space, Dropdown, Descriptions, Row, Col } from "antd";
 import { SmartTable } from "./SmartTable";
 import { useQuery } from '@tanstack/react-query';
 import { useUrlQueryParams } from '../hooks/useUrlQueryParams';
@@ -263,27 +263,34 @@ const Note: React.FC = () => {
 
   return (
       <div>
-        <Content style={{ padding: '24px' }}>
+        <Content className="main-content">
           <div style={{ width: "100%" }}>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16, flexWrap: 'wrap', gap: '8px 0' }}>
-              <Space wrap>
-                <Button className="responsive-icon-btn" icon={<ReloadOutlined />} onClick={() => getData(pagination.current, pagination.pageSize)}>
-                  새로고침
-                </Button>
-                <Button className="responsive-icon-btn" icon={<DownloadOutlined />} onClick={handleExport}>
-                  내보내기
-                </Button>
-
-                <Button className="responsive-icon-btn" icon={<PlusOutlined />} onClick={showAddModal}>
-                  추가
-                </Button>
-                <Dropdown menu={{ items: menuItems }} trigger={['click']} placement="bottomRight">
-                  <Button className="responsive-icon-btn" icon={<EyeOutlined />}>
-                    필드 보기
+            <Row gutter={[12, 12]} align="middle" justify="space-between" style={{ marginBottom: 16 }}>
+              <Col xs={24} sm={12}>
+                {/* 왼쪽 영역 (필요시 검색창 등 추가 가능) */}
+              </Col>
+              <Col xs={24} sm={12} style={{ textAlign: 'right' }}>
+                <Space wrap>
+                  <Button className="responsive-icon-btn" icon={<ReloadOutlined />} onClick={() => getData(pagination.current, pagination.pageSize)}>
+                    새로고침
                   </Button>
-                </Dropdown>
-              </Space>
-            </div>
+                  <Button className="responsive-icon-btn" icon={<DownloadOutlined />} onClick={handleExport}>
+                    내보내기
+                  </Button>
+
+                  <Button className="responsive-icon-btn" icon={<PlusOutlined />} onClick={showAddModal}>
+                    추가
+                  </Button>
+                  <Dropdown menu={{ items: menuItems }} trigger={['click']} placement="bottomRight">
+                    <Button className="responsive-icon-btn" icon={<EyeOutlined />}>
+                      필드 보기
+                    </Button>
+                  </Dropdown>
+                </Space>
+              </Col>
+            </Row>
+
+            <div className="table-container">
 
             <SmartTable tableId="note_table"
                 lastRefreshed={dataUpdatedAt}
@@ -339,6 +346,7 @@ const Note: React.FC = () => {
                     </li>
                 </ul>
             )}
+            </div>
           </div>
         </Content>
 
