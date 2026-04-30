@@ -422,8 +422,8 @@ const GuestBook: React.FC = () => {
                     <Descriptions.Item label="참석 여부">
                         {currentGuest.attend === 'Y' ? <Tag color="green">참석</Tag> : currentGuest.attend === 'N' ? <Tag color="volcano">미참석</Tag> : <Tag color="default">미정</Tag>}
                     </Descriptions.Item>
-                    <Descriptions.Item label="생성 일자">{currentGuest.created_at || '-'}</Descriptions.Item>
                     <Descriptions.Item label="설명">{currentGuest.description}</Descriptions.Item>
+                    <Descriptions.Item label="생성 일자">{currentGuest.created_at || '-'}</Descriptions.Item>
                 </Descriptions>
             )}
         </Modal>

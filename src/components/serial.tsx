@@ -422,8 +422,8 @@ const Serial: React.FC = () => {
                     </Descriptions.Item>
                     <Descriptions.Item label="제품 명">{currentSerial.title}</Descriptions.Item>
                     <Descriptions.Item label="시리얼 번호">{currentSerial.value}</Descriptions.Item>
-                    <Descriptions.Item label="생성 일자">{currentSerial.created_at || '-'}</Descriptions.Item>
                     <Descriptions.Item label="설명">{currentSerial.description}</Descriptions.Item>
+                    <Descriptions.Item label="생성 일자">{currentSerial.created_at || '-'}</Descriptions.Item>
                 </Descriptions>
             )}
         </Modal>

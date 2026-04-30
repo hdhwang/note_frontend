@@ -379,8 +379,8 @@ const Note: React.FC = () => {
             {currentNote && (
                 <Descriptions column={1} bordered size="small">
                     <Descriptions.Item label="제목">{currentNote.title}</Descriptions.Item>
-                    <Descriptions.Item label="생성 일자">{currentNote.created_at || '-'}</Descriptions.Item>
                     <Descriptions.Item label="내용"><pre style={{ whiteSpace: 'pre-wrap', margin: 0, fontFamily: 'inherit' }}>{currentNote.note}</pre></Descriptions.Item>
+                    <Descriptions.Item label="생성 일자">{currentNote.created_at || '-'}</Descriptions.Item>
                 </Descriptions>
             )}
         </Modal>
