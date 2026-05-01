@@ -78,7 +78,12 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   useEffect(() => {
     updateCSSVariables(settings.layoutColor);
-  }, [settings.layoutColor]);
+    if (settings.themeMode === 'dark') {
+      document.documentElement.classList.add('dark-theme');
+    } else {
+      document.documentElement.classList.remove('dark-theme');
+    }
+  }, [settings.layoutColor, settings.themeMode]);
 
   useEffect(() => {
     saveSettings(settings);
