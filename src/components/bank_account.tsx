@@ -361,8 +361,8 @@ const BankAccount: React.FC = () => {
                     <Descriptions.Item label="은행">{currentAccount.bank}</Descriptions.Item>
                     <Descriptions.Item label="계좌번호">{currentAccount.account}</Descriptions.Item>
                     <Descriptions.Item label="예금주">{currentAccount.account_holder}</Descriptions.Item>
-                    <Descriptions.Item label="생성 일자">{currentAccount.created_at || '-'}</Descriptions.Item>
                     <Descriptions.Item label="설명">{currentAccount.description}</Descriptions.Item>
+                    <Descriptions.Item label="생성 일자">{currentAccount.created_at || '-'}</Descriptions.Item>
                 </Descriptions>
             )}
         </Modal>
