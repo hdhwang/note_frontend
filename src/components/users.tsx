@@ -397,24 +397,20 @@ const Users: React.FC = () => {
             })}
           />
           {contextMenu.visible && contextMenu.record && (
-              <ul style={{
-                  position: 'fixed', top: contextMenu.y, left: contextMenu.x, zIndex: 9999,
-                  background: 'white', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                  listStyle: 'none', padding: '4px 0', margin: 0, minWidth: '120px'
-              }}>
-                  <li style={{ padding: '8px 16px', cursor: 'pointer' }} onClick={() => { getData(pagination.current, pagination.pageSize); setContextMenu(prev => ({...prev, visible: false})); }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-                      <ReloadOutlined style={{ marginRight: 8 }} /> 새로고침
+              <ul className="custom-context-menu" style={{ top: contextMenu.y, left: contextMenu.x }}>
+                  <li onClick={() => { getData(pagination.current, pagination.pageSize); setContextMenu(prev => ({...prev, visible: false})); }}>
+                      <ReloadOutlined /> 새로고침
                   </li>
-                  <li style={{ height: 1, background: '#f0f0f0', margin: '4px 0' }} />
-                  <li style={{ padding: '8px 16px', cursor: 'pointer' }} onClick={() => { showEditModal(contextMenu.record!); setContextMenu(prev => ({...prev, visible: false})); }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-                      <EditOutlined style={{ marginRight: 8 }} /> 수정
+                  <div className="divider" />
+                  <li onClick={() => { showEditModal(contextMenu.record!); setContextMenu(prev => ({...prev, visible: false})); }}>
+                      <EditOutlined /> 수정
                   </li>
-                  <li style={{ padding: '8px 16px', cursor: 'pointer', color: 'red' }} onClick={() => { handleDelete(contextMenu.record!.id); setContextMenu(prev => ({...prev, visible: false})); }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fff1f0'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-                      <DeleteOutlined style={{ marginRight: 8 }} /> 삭제
+                  <li className="danger" onClick={() => { handleDelete(contextMenu.record!.id); setContextMenu(prev => ({...prev, visible: false})); }}>
+                      <DeleteOutlined /> 삭제
                   </li>
-                  <li style={{ height: 1, background: '#f0f0f0', margin: '4px 0' }} />
-                  <li style={{ padding: '8px 16px', cursor: 'pointer' }} onClick={() => { showDetail(contextMenu.record!); setContextMenu(prev => ({...prev, visible: false})); }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-                      <InfoCircleOutlined style={{ marginRight: 8 }} /> 상세 보기
+                  <div className="divider" />
+                  <li onClick={() => { showDetail(contextMenu.record!); setContextMenu(prev => ({...prev, visible: false})); }}>
+                      <InfoCircleOutlined /> 상세 보기
                   </li>
               </ul>
           )}
