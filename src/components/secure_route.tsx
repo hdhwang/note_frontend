@@ -129,6 +129,25 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
                 setLoading(false);
                 setSpinning(false);
             } catch (error: any) {
+                // 네트워크 문제 (서버 응답 없음) 인 경우 로컬 토큰 검증 후 화면 노출
+                if (!error.response) {
+                    try {
+                        const decodedToken = jwtDecode<DecodedToken>(accessToken);
+                        const currentTime = Date.now() / 1000;
+                        if (decodedToken.exp && decodedToken.exp > currentTime) {
+                            setPermissions(decodedToken.groups || []);
+                            setUsername(decodedToken.username || '');
+                            setFirstname(decodedToken.first_name || '');
+                            setLoading(false);
+                            setSpinning(false);
+                            message.warning("네트워크 연결이 원활하지 않습니다. 오프라인 모드로 전환합니다.");
+                            return;
+                        }
+                    } catch (decodeError) {
+                        console.error("Local token decode failed during network error:", decodeError);
+                    }
+                }
+
                 if (error.response && error.response.status === 401 && refreshToken) {
                     try {
                         const response = await axios.post(`${import.meta.env.VITE_API_URL}/token/refresh`, {
