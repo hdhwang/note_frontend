@@ -99,13 +99,9 @@ const Lotto: React.FC = () => {
                 })}
             />
             {contextMenu.visible && (
-                <ul style={{
-                    position: 'fixed', top: contextMenu.y, left: contextMenu.x, zIndex: 9999,
-                    background: 'white', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                    listStyle: 'none', padding: '4px 0', margin: 0, minWidth: '120px'
-                }}>
-                    <li style={{ padding: '8px 16px', cursor: 'pointer' }} onClick={() => { getData(); setContextMenu(prev => ({...prev, visible: false})); }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-                        <ReloadOutlined style={{ marginRight: 8 }} /> 새로고침
+                <ul className="custom-context-menu" style={{ top: contextMenu.y, left: contextMenu.x }}>
+                    <li onClick={() => { getData(); setContextMenu(prev => ({...prev, visible: false})); }}>
+                        <ReloadOutlined /> 새로고침
                     </li>
                 </ul>
             )}

@@ -299,16 +299,6 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
     const mainMarginLeft = isMobile ? 0 : (collapsed ? 80 : siderWidth);
 
     return (
-        <ConfigProvider
-            locale={koKR}
-            theme={{
-                algorithm: isDarkMode ? theme.darkAlgorithm : undefined,
-                token: {
-                    motionDurationSlow: '0.2s', // 0.15s -> 0.2s로 통일
-                    motionDurationMid: '0.1s',
-                }
-            }}
-        >
         <Layout style={{ minHeight: '100vh', overflow: 'hidden' }}>
             <LayoutNav permissions={permissions} isMobile={isMobile} onOpenSettings={() => setIsSettingsVisible(true)} />
 
@@ -422,7 +412,6 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
                     flex: 1,
                     overflowY: 'auto',
                     overflowX: 'hidden',
-                    backgroundColor: isDarkMode ? '#141414' : '#ffffff',
                 }}>
                     {spinning ? (
                         <div style={{ textAlign: 'center', padding: '50px' }}><Spin size="large" /></div>
@@ -433,8 +422,6 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
 
                 <Footer style={{
                     textAlign: 'center',
-                    color: isDarkMode ? '#999' : '#666',
-                    backgroundColor: isDarkMode ? '#141414' : '#ffffff',
                     padding: '10px',
                     flexShrink: 0,
                     height: '44px',
@@ -594,7 +581,6 @@ const SecureRoute: React.FC<SecureRouteProps> = ({
                 </div>
             </Modal>
         </Layout>
-        </ConfigProvider>
     );
 };
 

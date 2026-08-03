@@ -42,14 +42,12 @@ const Login: React.FC = () => {
   };
 
   return (
-      <ConfigProvider theme={isDarkMode ? { algorithm: theme.darkAlgorithm } : undefined}>
       <div
           style={{
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
             height: "100vh",
-            backgroundColor: isDarkMode ? '#141414' : '#f0f2f5',
           }}
       >
         <Card className="login-card" style={{ flex: '1 1 auto', minWidth: 280, maxWidth: 400 }}>
@@ -92,7 +90,6 @@ const Login: React.FC = () => {
           </Form>
         </Card>
       </div>
-      </ConfigProvider>
   );
 };
 
